@@ -17,6 +17,17 @@ modules:
         - hyprland-qtutils    
         - uwsm
 
+    - type: dnf
+      repos:
+        copr:
+          enable:
+            - washkinazy/wayland-wm-extras
+      install:
+        install-weak-deps: false
+        packages:
+        - swayosd
+        - waypaper
+
     - type: files
       files:
         - source: system/hyprland
