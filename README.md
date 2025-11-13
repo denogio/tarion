@@ -1,4 +1,4 @@
-# Bluearchy &nbsp; [![bluebuild build badge](https://github.com/denongio/bluearchy/actions/workflows/build.yml/badge.svg)](https://github.com/denongio/bluearchy/actions/workflows/build.yml)
+# Bluearchy &nbsp; [![bluebuild build badge](https://github.com/denogio/bluearchy/actions/workflows/build.yml/badge.svg)](https://github.com/denogio/bluearchy/actions/workflows/build.yml)
 
 **Bluearchy** is not just a distro.
 It is an **opinionated Universal Blue** fork, forged in the shadow of Omarchy’s vision.
