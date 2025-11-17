@@ -1,1 +1,10 @@
-dnf copr enable chronoscrat/devpod
+modules:
+    - type: dnf
+      repos:
+        copr:
+          enable:
+            - chronoscrat/devpod
+      install:
+        install-weak-deps: false
+        packages:
+        - devpod
