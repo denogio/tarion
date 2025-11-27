@@ -13,3 +13,5 @@ modules:
         packages:
         - devpod
         - code
+        - neovim
+        - thunar
