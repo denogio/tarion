@@ -4,6 +4,9 @@ modules:
         install-weak-deps: false
         packages:
         - wiremix
+        - fcitx5
+        - fcitx5-gtk
+        - fcitx5-qt
 
     - type: brew
       nofile-limits: true # increase nofile limits
