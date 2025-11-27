@@ -16,7 +16,9 @@ modules:
         - hyprpaper
         - hyprlock
         - hypridle
-        - hyprland-qtutils    
+        - hyprland-qtutils
+        - hyprshot
+        - jetbrains-mono-fonts
 
     - type: dnf
       repos:
