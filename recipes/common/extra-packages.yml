@@ -7,6 +7,7 @@ modules:
         - fcitx5
         - fcitx5-gtk
         - fcitx5-qt
+        - google-noto-fonts
 
     - type: brew
       nofile-limits: true # increase nofile limits
