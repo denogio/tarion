@@ -3,7 +3,7 @@ modules:
       repos:
         copr:
           enable:
-            - solopasha/hyprland
+            - lionheartp/Hyprland
             - scottames/ghostty
             - scottames/vicinae
       install:
