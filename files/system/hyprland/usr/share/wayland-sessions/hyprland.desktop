@@ -1,5 +1,5 @@
 [Desktop Entry]
 Name=Hyprland
 Comment=An intelligent dynamic tiling Wayland compositor
-Exec=uwsm start -- Hyprland
+Exec=uwsm start -- start-hyprland
 Type=Application
