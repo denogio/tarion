@@ -7,6 +7,7 @@ modules:
         - fcitx5
         - fcitx5-gtk
         - fcitx5-qt
+        - iwd
 
     - type: brew
       nofile-limits: true # increase nofile limits
@@ -32,3 +33,13 @@ modules:
       user:
         enabled:
           - vicinae.service
+
+    - type: systemd
+      system:
+        enabled:
+          - iwd.service
+
+    - type: systemd
+      system:
+        masked:
+          - wpa_supplicant.service
