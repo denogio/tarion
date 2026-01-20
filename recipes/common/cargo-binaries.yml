@@ -1,0 +1,10 @@
+modules:
+  - type: copy
+    from: cargo-stage
+    src: /usr/local/cargo/bin/bluetui
+    dest: /usr/bin/bluetui
+
+  - type: copy
+    from: cargo-stage
+    src: /usr/local/cargo/bin/impala
+    dest: /usr/bin/impala
