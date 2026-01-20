@@ -22,10 +22,11 @@ modules:
         install-weak-deps: true
         packages:
         - vicinae
-
+    
     - type: files
-        files:
-          - usr/lib/environment.d/10-vicinae-path.conf: /usr/lib/environment.d/10-vicinae-path.conf
+      files:
+      - source: usr/lib/environment.d/10-vicinae-path.conf
+        destination: /usr/lib/environment.d/10-vicinae-path.conf
 
       - type: systemd
         user:
