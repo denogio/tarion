@@ -25,8 +25,8 @@ modules:
     
     - type: files
       files:
-        - source: usr/lib/environment.d/10-vicinae-path.conf
-          destination: /usr/lib/environment.d/10-vicinae-path.conf
+        - source: usr/lib/environment.d/10-home-env.conf
+          destination: /usr/lib/environment.d/10-home-env.conf
 
     - type: systemd
       user:
