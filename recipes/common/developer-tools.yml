@@ -6,6 +6,7 @@ modules:
             - chronoscrat/devpod
         files:
           - https://packages.microsoft.com/yumrepos/vscode/config.repo
+          - https://us-central1-yum.pkg.dev/projects/antigravity-auto-updater-dev/antigravity-rpm
         keys:
           - https://packages.microsoft.com/keys/microsoft.asc
       install:
@@ -15,3 +16,4 @@ modules:
         - code
         - neovim
         - thunar
+        - antigravity
