@@ -1,4 +1,10 @@
 modules:
+
+    - type: files
+      files:
+        - source: dnf/antigravity.repo
+          destination: /etc/yum.repos.d/antigravity.repo
+        
     - type: dnf
       repos:
         copr:
@@ -15,3 +21,6 @@ modules:
         - code
         - neovim
         - thunar
+        - antigravity
+
+  

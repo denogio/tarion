@@ -35,9 +35,6 @@ modules:
       install:
         install-weak-deps: false
         packages:
-        # launcher
-          - rofi-wayland
-          - wofi
 
         # environment
           - fzf
@@ -45,8 +42,6 @@ modules:
           - xorg-x11-server-Xwayland
           - headsetcontrol
           - mediainfo
-          - polkit
-          - xfce-polkit 
           - fprintd-pam
           - xdg-user-dirs
           - dbus-tools
@@ -75,8 +70,6 @@ modules:
 
         # networking
           - network-manager-applet
-          - NetworkManager-openvpn
-          - NetworkManager-openvpn-gnome
           - NetworkManager-openconnect
           - NetworkManager-openconnect-gnome
           - bluez

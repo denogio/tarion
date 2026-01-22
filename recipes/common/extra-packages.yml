@@ -7,7 +7,41 @@ modules:
         - fcitx5
         - fcitx5-gtk
         - fcitx5-qt
+        - iwd
 
     - type: brew
       nofile-limits: true # increase nofile limits
       brew-analytics: false # disable telemetry
+
+    # Vicinae Stuff
+    - type: dnf
+      repos:
+        copr:
+          enable:
+            - scottames/vicinae
+      install:
+        install-weak-deps: true
+        packages:
+        - vicinae
+    
+    - type: files
+      files:
+        - source: usr/lib/environment.d/10-home-env.conf
+          destination: /usr/lib/environment.d/10-home-env.conf
+        - source: etc/NetworkManager/conf.d/50-iwd.conf
+          destination: /etc/NetworkManager/conf.d/50-iwd.conf
+
+    - type: systemd
+      user:
+        enabled:
+          - vicinae.service
+
+    - type: systemd
+      system:
+        enabled:
+          - iwd.service
+
+    - type: systemd
+      system:
+        masked:
+          - wpa_supplicant.service
