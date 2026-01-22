@@ -9,6 +9,10 @@ description: bluearchy - the opinionated ublue hyprland distro
 base-image: ghcr.io/ublue-os/base-main
 image-version: 43 # latest is also supported if you want new updates ASAP
 
+platforms:
+  - linux/amd64
+  - linux/arm64
+
 # Definer stadiet her
 stages:
   - from-file: stages/cargo-builder.yml
