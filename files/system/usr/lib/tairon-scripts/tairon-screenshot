@@ -1,15 +1,24 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# Tairon Screenshot Tool
+# Uses hyprshot for Fedora Atomic
 
-OUTDIR=$HOME/Pictures/hyprshots
+OUTDIR="$HOME/Pictures/hyprshots"
 
 selection=$(echo "Entire Screen
 Window
-Region" | vicinae dmenu -p "$prompt…" "${args[@]}" --no-section --no-quick-look --no-metadata 2>/dev/null)
+Region" | vicinae dmenu -p "Screenshot mode..." --no-section --no-metadata 2>/dev/null)
 
-if [[ $selection == "Entire Screen" ]]; then
-	hyprshot -m output -t 3000 -o $OUTDIR
-elif [[ $selection == "Window" ]]; then
-	hyprshot -m window -t 3000 -o $OUTDIR
-elif [[ $selection == "Region" ]]; then
-	hyprshot -m region -t 3000 --freeze -o $OUTDIR
-fi
+case "$selection" in
+  *Entire*)
+    hyprshot -m output -t 3000 -o "$OUTDIR"
+    ;;
+  *Window*)
+    hyprshot -m window -t 3000 -o "$OUTDIR"
+    ;;
+  *Region*)
+    hyprshot -m region -t 3000 -o "$OUTDIR"
+    ;;
+  *)
+    echo "Cancelled"
+    ;;
+esac
