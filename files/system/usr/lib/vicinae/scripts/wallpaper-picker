@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# @vicinae.schemaVersion 1
+# @vicinae.title Wallpaper Picker
+# @vicinae.mode dmenu
+
+set -euo pipefail
+
+WALLPAPER_DIR="$HOME/Pictures/Wallpapers"
+
+if [ ! -d "$WALLPAPER_DIR" ]; then
+    mkdir -p "$WALLPAPER_DIR"
+    echo "Wallpapers directory created at $WALLPAPER_DIR"
+    exit 0
+fi
+
+# Use waypaper if available, otherwise use hyprpaper
+if command -v waypaper &> /dev/null; then
+    find "$WALLPAPER_DIR" -type f | vicinae dmenu --placeholder "Select wallpaper..." | xargs waypaper --set
+elif command -v hyprpaper &> /dev/null; then
+    wallpaper=$(find "$WALLPAPER_DIR" -type f | vicinae dmenu --placeholder "Select wallpaper...")
+    if [ -n "$wallpaper" ]; then
+        hyprctl hyprpaper preload "$wallpaper"
+        hyprctl hyprpaper wallpaper "eDP-1,$wallpaper"
+    fi
+fi

@@ -12,12 +12,12 @@ set -oue pipefail
 # BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language
 # governing permissions and limitations under the License.
 
-IMAGE_PRETTY_NAME="bluerachy"
+IMAGE_PRETTY_NAME="tairon"
 IMAGE_LIKE="ublue"
-HOME_URL="https://github.com/denongio/bluearchy"
-DOCUMENTATION_URL="https://github.com/denongio/bluearchy"
-SUPPORT_URL="https://github.com/denongio/bluearchy/issues"
-BUG_SUPPORT_URL="https://github.com/denongio/bluearchy/issues"
+HOME_URL="https://github.com/denogio/tairon"
+DOCUMENTATION_URL="https://github.com/denogio/tairon"
+SUPPORT_URL="https://github.com/denogio/tairon/issues"
+BUG_SUPPORT_URL="https://github.com/denogio/tairon/issues"
 
 if grep -q "VARIANT_ID" /usr/lib/os-release; then
     sed -i "s/^VARIANT_ID=.*/VARIANT_ID=$IMAGE_NAME/" /usr/lib/os-release

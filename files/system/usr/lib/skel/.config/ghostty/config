@@ -1,0 +1,28 @@
+# Tairon Ghostty configuration
+# Developer-focused terminal
+
+# Font
+font-family = JetBrains Mono
+font-size = 11
+font-feature = +liga
+
+# Theme
+theme = tokyo-night
+
+# Appearance
+background-opacity = 0.9
+padding-x = 8
+padding-y = 8
+border-width = 2
+border-color = #1a1b26
+
+# Behavior
+shell = /bin/bash
+confirm-close-surface = false
+shell-integration = detect
+shell-integration-features = cursor,sudo,title
+
+# Key bindings
+keybind = super+r=toggle_quick_terminal
+keybind = super+t=new_tab
+keybind = super+w=close_tab

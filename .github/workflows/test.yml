@@ -1,0 +1,62 @@
+name: Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Python dependencies
+        run: |
+          pip install pyyaml
+
+      - name: Check recipe syntax
+        run: |
+          python3 -c "import yaml; yaml.safe_load(open('recipes/recipe.yml'))"
+          python3 -c "import yaml; yaml.safe_load(open('recipes/common/common-modules.yml'))"
+          python3 -c "import yaml; yaml.safe_load(open('recipes/common/hyprland-modules.yml'))"
+          python3 -c "import yaml; yaml.safe_load(open('recipes/common/extra-packages.yml'))"
+
+      - name: Check Vicinae config
+        run: |
+          python3 -c "import json; json.load(open('files/system/etc/vicinae/settings.json'))"
+          python3 -c "import json; json.load(open('files/system/etc/vicinae/keybindings.json'))"
+
+      - name: Verify no bluearchy references
+        run: |
+          if grep -r "bluearchy" --exclude-dir=.git --exclude-dir=node_modules . 2>/dev/null; then
+            echo "ERROR: Found 'bluearchy' references that should be 'tairon'"
+            exit 1
+          fi
+          echo "✓ No bluearchy references found"
+
+      - name: Check script permissions
+        run: |
+          test -x files/scripts/setupvicinae.sh || (echo "setupvicinae.sh not executable" && exit 1)
+          test -x files/system/usr/bin/tairon-setup || (echo "tairon-setup not executable" && exit 1)
+          test -x files/system/usr/bin/tairon-backup || (echo "tairon-backup not executable" && exit 1)
+          test -x files/system/usr/bin/tairon-restore || (echo "tairon-restore not executable" && exit 1)
+          echo "✓ All scripts have correct permissions"
+
+      - name: Check for required files
+        run: |
+          test -f files/system/usr/share/tairon/logo.txt || (echo "logo.txt missing" && exit 1)
+          test -f files/system/etc/vicinae/settings.json || (echo "Vicinae config missing" && exit 1)
+          test -f files/system/etc/hyprshot.conf || (echo "Hyprshot config missing" && exit 1)
+          test -f files/system/etc/mako/config || (echo "Mako config missing" && exit 1)
+          echo "✓ All required files present"
+
+      - name: Check documentation
+        run: |
+          test -f README.md || (echo "README.md missing" && exit 1)
+          test -f CHANGELOG.md || (echo "CHANGELOG.md missing" && exit 1)
+          test -f CONTRIBUTING.md || (echo "CONTRIBUTING.md missing" && exit 1)
+          test -f docs/DEVELOPMENT.md || (echo "DEVELOPMENT.md missing" && exit 1)
+          test -f docs/CONFIGURATION.md || (echo "CONFIGURATION.md missing" && exit 1)
+          test -f docs/TROUBLESHOOTING.md || (echo "TROUBLESHOOTING.md missing" && exit 1)
+          echo "✓ All documentation present"
