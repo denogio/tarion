@@ -49,5 +49,3 @@ else
     echo "⚠️  Found issues in $ISSUES_FOUND scripts"
 fi
 echo "ShellCheck complete!"
-
-echo "ShellCheck complete!"
