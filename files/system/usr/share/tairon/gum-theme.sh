@@ -25,17 +25,17 @@
 #
 #################################
 
-GUM_THEME="mocha"
+GUM_THEME="${1:-mocha}"
 
 # Validate flavour
-if [[ "$1" =~ ^(latte|frappe|macchiato|mocha)$ ]]; then
-  echo "Invalid flavour: $1" >&2
+if [[ ! "${GUM_THEME}" =~ ^(latte|frappe|macchiato|mocha)$ ]]; then
+  echo "Invalid flavour: ${GUM_THEME}" >&2
   echo "Must be one of: latte, frappe, macchiato, mocha"
   return 1
 fi
 
-GUM_ACCENT="${2:-lavender}"
-GUM_HIGHLIGHT="${3:-flamingo}"
+# GUM_ACCENT="${2:-lavender}"  # Currently unused, keeping for reference
+# GUM_HIGHLIGHT="${3:-flamingo}"  # Currently unused, keeping for reference
 
 # Catppuccin theme colors for Tairon
 # These colors are inspired by Catppuccin but adapted for Tairon branding
@@ -61,36 +61,36 @@ TAIRON_NEUTRAL="#9ca0af"   # Gray
 
 # Get theme color for gum (returns hex for Tairon accent)
 get_tairon_accent() {
-  echo "$TAIRON_ACCENT"
+  echo "${TAIRON_ACCENT}"
 }
 
 # Get Tairon background color
 get_tairon_background() {
-  echo "$TAIRON_BG"
+  echo "${TAIRON_BG}"
 }
 
 # Get Tairon border color
 get_tairon_border() {
-  echo "$TAIRON_PRIMARY"
+  echo "${TAIRON_PRIMARY}"
 }
 
 # Highlight color for success/error/info
 highlight_success() {
-  echo "$TAIRON_SECONDARY"
+  echo "${TAIRON_SECONDARY}"
 }
 
 highlight_error() {
-  echo "$TAIRON_ACCENT"
+  echo "${TAIRON_ACCENT}"
 }
 
 highlight_info() {
-  echo "$TAIRON_PRIMARY"
+  echo "${TAIRON_PRIMARY}"
 }
 
 # Print Tairon logo with Tairon theme
 print_tairon_logo() {
   gum style \
-    --foreground "$TAIRON_PRIMARY" \
+    --foreground "${TAIRON_PRIMARY}" \
     --border double \
     --align center \
     --padding "1 2" \
@@ -98,8 +98,8 @@ print_tairon_logo() {
 }
 
 # Set gum environment variables for Tairon theme
-export GUM_STYLE_BORDER="$TAIRON_PRIMARY"
-export GUM_STYLE_FOREGROUND="$TAIRON_NEUTRAL"
-export GUM_STYLE_PROMPT="$TAIRON_PRIMARY"
-export GUM_STYLE_CURSOR="$TAIRON_ACCENT"
-export GUM_STYLE_HIGHLIGHT="$TAIRON_SECONDARY"
+export GUM_STYLE_BORDER="${TAIRON_PRIMARY}"
+export GUM_STYLE_FOREGROUND="${TAIRON_NEUTRAL}"
+export GUM_STYLE_PROMPT="${TAIRON_PRIMARY}"
+export GUM_STYLE_CURSOR="${TAIRON_ACCENT}"
+export GUM_STYLE_HIGHLIGHT="${TAIRON_SECONDARY}"

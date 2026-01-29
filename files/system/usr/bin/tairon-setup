@@ -151,6 +151,18 @@ if gum confirm "Set a default wallpaper?" --default=true; then
     fi
 fi
 
+# Step 5: Default Theme
+if gum confirm "Set default theme (Catppuccin Mocha)?" --default=true; then
+    gum spin --spinner dot --title "Setting up theme..." -- bash -c "
+        if command -v tairon-theme-set &> /dev/null; then
+            tairon-theme-set catppuccin-mocha
+        else
+            echo 'tairon-theme-set not found'
+        fi
+    "
+    gum style --foreground 46 "✓ Theme set to Catppuccin Mocha"
+fi
+
 # Step 5: System info
 gum style \
   --foreground 212 \
@@ -164,7 +176,7 @@ gum style \
 gum style --foreground 212 "Quick Start Commands:"
 gum style --foreground 226 "  - just dev-info      : Show installed dev tools"
 gum style --foreground 226 "  - just dev-setup     : Reconfigure dev tools"
-gum style --foreground 226 "  - tairon-update-scripts  : Update Tairon scripts"
+gum style --foreground 226 "  - tairon-update          : Update Tairon system"
 gum style --foreground 226 "  - just               : Show all available commands"
 echo ""
 gum style --foreground 212 "Keyboard Shortcuts:"

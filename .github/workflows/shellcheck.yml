@@ -1,0 +1,23 @@
+name: ShellCheck
+on: [push, pull_request]
+
+jobs:
+  shellcheck:
+    runs-on: ubuntu-latest
+    container: fedora:41
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Install dependencies
+        run: |
+          dnf install -y ShellCheck distrobox podman
+          
+      - name: Create distrobox container
+        run: |
+          distrobox create -n shellcheck-ci -i registry.fedoraproject.org/fedora:41 --yes
+          
+      - name: Run ShellCheck
+        run: |
+          distrobox enter shellcheck-ci -- shellcheck -f gcc $(find . -name "*.sh" -not -path "./.git/*" -not -path "./node_modules/*")

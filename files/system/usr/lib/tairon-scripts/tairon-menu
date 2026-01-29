@@ -95,68 +95,19 @@ show_learn_menu() {
 }
 
 show_trigger_menu() {
-  case $(menu "Trigger" "  Capture\n  Share\n󰔎  Toggle") in
-    *Capture*) show_capture_menu ;;
-    *Share*) show_share_menu ;;
-    *Toggle*) show_toggle_menu ;;
+  case $(menu "Trigger" "  Screenshot") in
+    *Screenshot*) tairon-screenshot ;;
     *) show_main_menu ;;
   esac
 }
 
-show_capture_menu() {
-  case $(menu "Capture" "  Screenshot\n  Screenrecord\n󰃉  Color") in
-    *Screenshot*) show_screenshot_menu ;;
-    *Screenrecord*) show_screenrecord_menu ;;
-    *Color*) pkill hyprpicker || hyprpicker -a ;;
-    *) back_to show_trigger_menu ;;
-  esac
-}
-
-show_screenshot_menu() {
-  case $(menu "Screenshot" "  Snap with Editing\n  Straight to Clipboard") in
-    *Editing*) tairon-cmd-screenshot smart ;;
-    *Clipboard*) tairon-cmd-screenshot clipboard ;;
-    *) back_to show_capture_menu ;;
-  esac
-}
-
-show_screenrecord_menu() {
-  case $(menu "Screenrecord" "  Region\n  Region + Audio\n  Display\n  Display + Audio\n  Display + Webcam") in
-    *"Region + Audio"*) tairon-cmd-screenrecord region --with-audio ;;
-    *Region*) tairon-cmd-screenrecord ;;
-    *"Display + Audio"*) tairon-cmd-screenrecord output --with-audio ;;
-    *"Display + Webcam"*) tairon-cmd-screenrecord output --with-audio --with-webcam ;;
-    *Display*) tairon-cmd-screenrecord output ;;
-    *) back_to show_capture_menu ;;
-  esac
-}
-
-show_share_menu() {
-  case $(menu "Share" "  Clipboard\n  File\n  Folder") in
-    *Clipboard*) terminal -- bash -c "tairon-cmd-share clipboard" ;;
-    *File*) terminal -- bash -c "tairon-cmd-share file" ;;
-    *Folder*) terminal -- bash -c "tairon-cmd-share folder" ;;
-    *) back_to show_trigger_menu ;;
-  esac
-}
-
-show_toggle_menu() {
-  case $(menu "Toggle" "�  Screensaver\n󰔎  Nightlight\n�  Idle Lock\n󰍜  Top Bar") in
-    *Screensaver*) tairon-toggle-screensaver ;;
-    *Nightlight*) tairon-toggle-nightlight ;;
-    *Idle*) ;;
-    *Bar*) ;;
-    *) show_trigger_menu ;;
-  esac
-}
 
 show_style_menu() {
-  case $(menu "Style" "󰸌  Theme\n  Font\n  Background\n  Hyprland\n�  Screensaver\n  About") in
+  case $(menu "Style" "󰸌  Theme\n  Font\n  Background\n  Hyprland\n  About") in
     *Theme*) show_theme_menu ;;
     *Font*) show_font_menu ;;
     *Background*) nautilus "$HOME/Pictures/Wallpapers" ;;
     *Hyprland*) open_in_editor ~/.config/tairon/hyprland.conf ;;
-    *Screensaver*) open_in_editor ~/.config/tairon/screensaver.txt ;;
     *About*) open_in_editor /usr/share/tairon/defaults/README.md ;;
     *) show_main_menu ;;
   esac

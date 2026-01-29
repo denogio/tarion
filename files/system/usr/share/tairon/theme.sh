@@ -14,13 +14,13 @@
 COLOR_PRIMARY="#7aa2f7"
 COLOR_SECONDARY="#42a5f5"
 COLOR_ACCENT="#f7768e"
-COLOR_NEUTRAL="#9ca0af"
+# COLOR_NEUTRAL="#9ca0af"  # Currently unused, keeping for reference
 COLOR_BG="#1e1e2e"
 
 # Print Tairon logo with gum colors
 print_logo() {
   gum style \
-    --foreground "$COLOR_PRIMARY" \
+    --foreground "${COLOR_PRIMARY}" \
     --border double \
     --align center \
     --padding "1 2" \
@@ -29,22 +29,22 @@ print_logo() {
 
 # Get theme color for gum
 get_accent() {
-  echo "$COLOR_ACCENT"
+  echo "${COLOR_ACCENT}"
 }
 
 # Get background color for gum
 get_background() {
-  echo "$COLOR_BG"
+  echo "${COLOR_BG}"
 }
 
 # Get border color for gum
 get_border() {
-  echo "$COLOR_PRIMARY"
+  echo "${COLOR_PRIMARY}"
 }
 
 # Highlight color for success/error/info
 highlight_success() {
-  echo "$COLOR_SECONDARY"
+  echo "${COLOR_SECONDARY}"
 }
 
 highlight_error() {

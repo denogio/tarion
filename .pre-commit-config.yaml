@@ -1,0 +1,10 @@
+repos:
+  - repo: local
+    hooks:
+      - id: shellcheck
+        name: ShellCheck
+        entry: ./scripts/lint-shell.sh
+        language: script
+        files: \.sh$
+        pass_filenames: false
+        always_run: true

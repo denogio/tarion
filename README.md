@@ -233,9 +233,59 @@ blue-build build recipes/recipe.yml
 
 Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details.
 
+## Development
+
+This project uses ShellCheck to ensure bash script quality and follows strict coding standards.
+
+### Code Quality
+
+**ShellCheck Integration:**
+- All shell scripts are validated with ShellCheck
+- Pre-commit hooks ensure quality before commits
+- CI/CD pipeline validates code on pull requests
+- Zero shellcheck warnings/errors are allowed
+
+**Running ShellCheck Locally:**
+```bash
+# Install shellcheck in distrobox container
+distrobox create -n shellcheck-dev -i registry.fedoraproject.org/fedora:41 --yes
+distrobox enter shellcheck-dev -- sudo dnf install -y ShellCheck
+
+# Run shellcheck on all scripts
+bash scripts/lint-shell.sh
+```
+
+**Project Structure:**
+- `files/system/usr/share/tairon/` - Tairon branding and themes
+- `files/system/usr/lib/tairon/pkg/` - Package manager system
+- `files/scripts/` - System setup and maintenance scripts
+- `scripts/` - Development utilities and quality checks
+
+### Contributing
+
+When contributing to Tairon:
+1. All shell scripts must pass ShellCheck validation
+2. Follow existing code patterns and conventions
+3. Test changes in a distrobox environment
+4. Ensure pre-commit hooks pass before committing
+
+**Setup Development Environment:**
+```bash
+# Install pre-commit hooks
+pipx install pre-commit
+pre-commit install
+
+# Create shellcheck container
+distrobox create -n shellcheck-dev -i registry.fedoraproject.org/fedora:41 --yes
+distrobox enter shellcheck-dev -- sudo dnf install -y ShellCheck
+
+# Test your changes
+pre-commit run shellcheck --all-files
+```
+
 ## License
 
-Licensed under the same license as Universal Blue (Apache License 2.0).
+Licensed under same license as Universal Blue (Apache License 2.0).
 
 See [LICENSE](LICENSE) for details.
 

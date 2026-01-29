@@ -57,6 +57,7 @@ modules:
           - openssl
           - vim
           - just
+          - gum
           - alsa-firmware
           - p7zip
           - distrobox
