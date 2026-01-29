@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+# Tairon Browser Launcher
+# Supports Firefox, Chromium, Vivaldi, etc.
+
+# Check installed browsers
+BROWSERS=()
+
+if command -v firefox &>/dev/null; then
+  BROWSERS+=("Firefox:firefox")
+fi
+
+if flatpak list --app 2>/dev/null | grep -v "org.mozilla.firefox" > /dev/null; then
+  BROWSERS+=("Firefox (Flatpak):org.mozilla.firefox")
+fi
+
+if command -v chromium &>/dev/null; then
+  BROWSERS+=("Chromium:chromium-browser")
+fi
+
+if command -v vivaldi &>/dev/null; then
+  BROWSERS+=("Vivaldi:vivaldi-stable")
+fi
+
+# Show menu with available browsers
+if [ ${#BROWSERS[@]} -eq 0 ]; then
+  notify-send "No browser found" "Install Firefox, Chromium, or Vivaldi"
+  exit 1
+fi
+
+for browser in "${BROWSERS[@]}"; do
+  BROWSERS_MENU+="${browser}"
+done
+
+selected=$(echo "${BROWSERS_MENU[@]}" | vicinae dmenu -p "Select browser" --no-section --no-metadata 2>/dev/null)
+
+case "${selected}" in
+  *Firefox:firefox*) exec firefox "$@" ;;
+  *Firefox*)
+    exec flatpak run org.mozilla.firefox "$@" ;;
+  *Chromium:chromium*) exec chromium "$@" ;;
+  *Vivaldi:vivaldi-stable*) exec vivaldi "$@" ;;
+  *) notify-send "Browser not found" "${selected}"; exit 1 ;;
+esac

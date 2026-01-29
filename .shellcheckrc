@@ -1,0 +1,7 @@
+# ShellCheck configuration for Tairon project
+disable=SC1090,SC1091  # Can't follow non-constant source files
+enable=add-default-case,deprecate-which,require-variable-braces
+shell=bash
+exclude-dir=.git
+exclude-dir=node_modules
+exclude-dir=target

@@ -1,0 +1,18 @@
+repos:
+  - repo: local
+    hooks:
+      - id: shellcheck
+        name: ShellCheck
+        entry: ./scripts/lint-shell.sh
+        language: script
+        files: \.sh$
+        pass_filenames: false
+        always_run: true
+
+      - id: hyprland-validation
+        name: Hyprland Configuration Validation
+        entry: ./scripts/validate-hyprland.sh
+        language: script
+        files: hyprland\.conf$
+        pass_filenames: false
+        always_run: true

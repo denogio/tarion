@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+# @vicinae.schemaVersion 1
+# @vicinae.title System Controls
+# @vicinae.mode dmenu
+
+set -euo pipefail
+
+# Check if gum is available
+if ! command -v gum &> /dev/null; then
+    echo "gum is required for interactive mode. Please install it first."
+    exit 1
+fi
+
+# Show system controls menu using Vicinae dmenu mode
+cat << 'EOF' | vicinae dmenu --placeholder "Select system control..."
+⏻ Power Off
+🔄 Reboot
+🔒 Lock Screen
+💤 Suspend
+🖥️ Display Settings
+🌙 Night Mode
+📺 Refresh Rate
+📶 WiFi Toggle
+🔵 Bluetooth Toggle
+📊 System Info
+💾 Disk Usage
+🌡️ Temperature
+⚡ CPU Info
+📝 System Logs
+⚙️ System Settings
+🔧 System Config
+🎯 Reload Hyprland
+🔄 Restart Vicinae
+EOF

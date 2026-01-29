@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+# Tairon backup utility using gum for beautiful UX
+set -euo pipefail
+
+BACKUP_DIR="${HOME}/.config/tairon/backups"
+TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+BACKUP_FILE="${BACKUP_DIR}/tairon-backup-${TIMESTAMP}.tar.gz"
+
+mkdir -p "${BACKUP_DIR}"
+
+# Show backup header
+gum style \
+  --foreground 212 \
+  --border double \
+  --align center \
+  --margin "1 2" \
+  --padding "1 2" \
+  "Tairon Backup"
+
+# Show what will be backed up
+gum style --foreground 226 "Backing up:"
+gum style --foreground 244 "  - Hyprland config (~/.config/hypr)"
+gum style --foreground 244 "  - Waybar config (~/.config/waybar)"
+gum style --foreground 244 "  - Vicinae config (~/.config/vicinae)"
+gum style --foreground 244 "  - Neovim config (~/.config/nvim)"
+gum style --foreground 244 "  - Ghostty config (~/.config/ghostty)"
+gum style --foreground 244 "  - Starship config (~/.config/starship.toml)"
+gum style --foreground 244 "  - Shell aliases (~/.bashrc)"
+gum style --foreground 244 "  - User applications (~/.local/share/applications)"
+echo ""
+
+# Create backup
+gum spin --spinner dot --title "Creating backup..." -- tar -czf "${BACKUP_FILE}" \
+    "${HOME}/.config/hypr" \
+    "${HOME}/.config/waybar" \
+    "${HOME}/.config/vicinae" \
+    "${HOME}/.config/nvim" \
+    "${HOME}/.config/ghostty" \
+    "${HOME}/.config/starship.toml" \
+    "${HOME}/.bashrc" \
+    "${HOME}/.local/share/applications" 2>/dev/null || true
+
+# Show success
+gum style --foreground 46 "✓ Backup created!"
+echo ""
+gum style --foreground 220 "Location: ${BACKUP_FILE}"
+echo ""
+
+# Show backup size
+SIZE=$(du -h "${BACKUP_FILE}" | cut -f1)
+gum style --foreground 244 "Size: ${SIZE}"

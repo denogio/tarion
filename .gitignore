@@ -1,3 +1,14 @@
 cosign.key
 cosign.private
 /Containerfile
+.bash_profile
+.bashrc
+.hypr/
+.bluearchy-scripts/
+.omarchy-scripts/
+.inspiration
+/.bluebuild-scripts_*
+/.bluebuild-scripts_*/
+*.iso
+*CHECKSUM
+*.qcow*

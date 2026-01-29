@@ -1,0 +1,28 @@
+# Tairon Mako configuration
+# Dark theme matching Waybar
+
+# Appearance
+border-size=2
+border-radius=10
+padding=12
+default-timeout=5000
+
+# Colors
+background-color=#1e1e2ecc
+text-color=#c0caf5
+border-color=#7aa2f7cc
+progress-color=#7aa2f7
+
+# Default notification
+[urgency=low]
+background-color=#1e1e2ecc
+text-color=#a9b1d6
+
+[urgency=normal]
+background-color=#1e1e2ecc
+text-color=#c0caf5
+
+[urgency=high]
+background-color=#f7768ecc
+text-color=#ffffff
+border-color=#db4b4bcc

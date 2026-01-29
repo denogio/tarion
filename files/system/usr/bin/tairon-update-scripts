@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+# Update Tairon scripts from system directory
+# This allows users to update their local scripts with latest versions
+
+set -euo pipefail
+
+command -v gum &> /dev/null || {
+    echo "gum not found, using basic output"
+}
+
+TARGET_DIR="${HOME}/.local/bin"
+SOURCE_DIR="/usr/lib/tairon-scripts"
+
+gum style --foreground 212 "Updating Tairon scripts..."
+echo ""
+
+# Ensure target directory exists
+mkdir -p "${TARGET_DIR}"
+
+# Update all scripts
+gum spin --spinner dot --title "Updating Tairon scripts..." -- cp -f -r "${SOURCE_DIR}"/* "${TARGET_DIR}/"
+
+# Make them executable
+chmod +x "${TARGET_DIR}"/tairon-*
+
+# Show what was updated
+UPDATED_COUNT=$(find "${TARGET_DIR}" -maxdepth 1 -name "tairon-*" -type f 2>/dev/null | wc -l)
+
+gum style --foreground 46 "✓ Updated ${UPDATED_COUNT} Tairon scripts"
+
+echo ""
+gum style --foreground 212 "Tairon utilities updated!"
+echo ""
+gum style --foreground 244 "Relogin or run: source ~/.bashrc"

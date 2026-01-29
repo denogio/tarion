@@ -6,11 +6,11 @@
 set -oue pipefail
 
 
-hyprland_conf="$HOME/.config/hypr/hyprland.conf"
+hyprland_conf="${HOME}/.config/hypr/hyprland.conf"
 default_conf="/usr/share/hyprland/hyprland.conf"
 
-if [ -f "$hyprland_conf" ]; then
-    Hyprland -c "$hyprland_conf"
+if [ -f "${hyprland_conf}" ]; then
+    Hyprland -c "${hyprland_conf}"
 else
-    Hyprland -c "$default_conf"
+    Hyprland -c "${default_conf}"
 fi

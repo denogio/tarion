@@ -1,0 +1,43 @@
+{
+   "$schema": "https://vicinae.com/schemas/config.json",
+   "close_on_focus_loss": true,
+   "font": {
+      "normal": {
+         "family": "JetBrains Mono",
+         "size": 10
+      }
+   },
+   "theme": {
+      "dark": {
+         "name": "tokyo-night"
+      }
+   },
+   "launcher_window": {
+      "opacity": 0.75,
+      "rounding": 10,
+      "client_side_decorations": {
+         "enabled": false
+      }
+   },
+   "providers": {
+      "applications": {
+         "preferences": {
+            "paths": [
+               "/home/$USER/.local/share/applications",
+               "/var/lib/flatpak/exports/share/applications",
+               "/usr/local/share/applications",
+               "/usr/share/applications"
+            ]
+         }
+      },
+      "power": {
+         "entrypoints": {
+            "reboot": {
+               "preferences": {
+                  "confirm": false
+               }
+            }
+         }
+      }
+   }
+}
