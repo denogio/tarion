@@ -1,14 +1,16 @@
 alias dev := dev-setup
 
 # Install all developer tools via Homebrew
-dev-tools: install-brew
+# Note: Homebrew is handled by blue-build via 'type: brew' module
+dev-tools:
     #!/usr/bin/env bash
     set -e
 
     # Check if brew is installed
     if ! command -v brew &> /dev/null; then
-        echo "Homebrew not found. Installing..."
+        echo "Homebrew not found. It should be installed by blue-build."
         just install-brew
+        exit 1
     fi
 
     echo "Installing developer tools..."
@@ -82,23 +84,25 @@ EOF
     echo "Open a new terminal for changes to take effect."
 
 # Install Homebrew (alias)
+# Note: Homebrew is handled by blue-build via 'type: brew' module
 install-brew:
     #!/usr/bin/env bash
-    source /usr/lib/ujust/ujust.sh
-    if [[ ! -f "/var/home/linuxbrew/.linuxbrew/bin" || ! -x "/var/home/linuxbrew/.linuxbrew/bin/brew" ]]; then
-        echo "${b}Homebrew Installation${n}"
-        echo "Please ${b}IGNORE${n} everything the installer tells you to do at the end"
-        echo "We have already done it for you! You just need to close and re-open the terminal after installation"
-        echo "Do you understand?"
-        echo "Please type in \"YES I UNDERSTAND\" and press enter"
-        read ACCEPT
-        if [ "$ACCEPT" == "YES I UNDERSTAND" ]; then
-          /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-        else
-          echo "Capitalization matters when you type \"YES I UNDERSTAND\""
-        fi
+    echo "Homebrew is installed by blue-build via the 'type: brew' module."
+    echo "No manual installation required."
+    echo ""
+    echo "If Homebrew is not found, please ensure your Tairon image"
+    echo "was built with the brew module enabled in recipes/extra-packages.yml"
+    echo ""
+    echo "Current status:"
+    if command -v brew &> /dev/null; then
+        echo "✓ Homebrew is available at: $(brew --prefix)"
+        echo "Version: $(brew --version | head -n1)"
     else
-        echo "Homebrew is already installed at /var/home/linuxbrew/.linuxbrew"
+        echo "✗ Homebrew not found in PATH"
+        echo ""
+        echo "To rebuild Tairon with Homebrew:"
+        echo "  1. Ensure 'type: brew' module is in recipes/extra-packages.yml"
+        echo "  2. Run: blue-build build recipes/recipe.yml"
     fi
 
 # Remove Homebrew

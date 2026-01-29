@@ -29,15 +29,16 @@ mkdir -p "$HOME/.config/tairon"
 
 # Step 1: Developer tools
 if gum confirm "Install developer tools? (ripgrep, fd, bat, eza, starship, lazygit, zoxide)" --default=true; then
-    gum spin --spinner dot --title "Installing developer tools..." -- bash -c "
-        if ! command -v brew &> /dev/null; then
-            echo 'Homebrew not found. Installing...'
-            source /usr/lib/ujust/ujust.sh
-            /bin/bash -c \"\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\"
-        fi
+    if ! command -v brew &> /dev/null; then
+        gum style --foreground 196 "⚠️  Homebrew not found!"
+        echo ""
+        gum style --foreground 244 "Homebrew should be installed via blue-build."
+        gum style --foreground 244 "Please ensure your Tairon image includes Homebrew."
+        exit 1
+    fi
 
-        brew install ripgrep fd-find bat eza starship lazygit zoxide
-    "
+    gum spin --spinner dot --title "Installing developer tools..." -- brew install ripgrep fd-find bat eza starship lazygit zoxide
+
     gum style --foreground 46 "✓ Developer tools installed"
 
     # Configure developer tools
