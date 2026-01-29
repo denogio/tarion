@@ -1,7 +1,0 @@
-#!/bin/bash
-
-# Launch a floating terminal with the Omarchy logo presentation, then execute the command passed in, and finally end with the bluearchy-show-done presentation.
-# Used by actions such as Update System.
-
-cmd="$*"
-exec setsid uwsm-app -- xdg-terminal-exec --app-id=org.bluearchy.terminal --title=Bluearchy -e bash -c "bluearchy-show-logo; $cmd; if [ \$? -ne 130 ]; then bluearchy-show-done; fi"
