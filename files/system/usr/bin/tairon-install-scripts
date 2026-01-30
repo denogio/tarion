@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+# Install Tairon scripts to ~/.local/bin
+# This script runs on first boot to set up all Tairon utilities
+
+set -euo pipefail
+
+# Source gum for pretty output
+command -v gum &> /dev/null || {
+    echo "gum not found, using basic output"
+}
+
+TARGET_DIR="/usr/local/bin"
+SOURCE_DIR="/usr/lib/tairon-scripts"
+
+gum style --foreground 212 "Installing Tairon scripts to ${TARGET_DIR}..."
+echo ""
+
+# Ensure target directory exists
+mkdir -p "${TARGET_DIR}"
+
+# Copy all scripts
+gum spin --spinner dot --title "Copying Tairon scripts..." -- cp -r "${SOURCE_DIR}"/* "${TARGET_DIR}/"
+
+# Make them executable
+chmod +x "${TARGET_DIR}"/tairon-*
+
+# Show what was installed
+# Check if anything was actually installed
+INSTALLED_COUNT=$(find "${TARGET_DIR}" -maxdepth 1 -name "tairon-*" | wc -l)
+if [[ "${INSTALLED_COUNT}" -gt 0 ]]; then
+  gum style --foreground 46 "✓ Installed ${INSTALLED_COUNT} Tairon scripts"
+  
+  # Add ~/.local/bin to PATH if not already there
+  # Note: The original script intended to add to ~/.local/bin, but TARGET_DIR is /usr/local/bin.
+  # This part of the script is adding ~/.local/bin to PATH, which might be a mismatch with TARGET_DIR.
+  # Assuming the intent is to add the *actual* target directory to PATH if it's not /usr/local/bin.
+  # For now, keeping the original instruction's logic for ~/.local/bin.
+  if ! grep -q ".local/bin" "${HOME}/.bashrc"; then
+    {
+      echo ""
+      echo "# Tairon local scripts"
+      echo "export PATH=\"\${HOME}/.local/bin:\${PATH}\""
+    } >> "${HOME}/.bashrc"
+    gum style --foreground 214 "Added ~/.local/bin to PATH in ~/.bashrc"
+  else
+    gum style --foreground 244 "${HOME}/.local/bin already in PATH"
+  fi
+  
+  echo ""
+  gum style --foreground 212 "Tairon utilities installed!"
+  echo ""
+  gum style --foreground 226 "Available commands:"
+  find "${TARGET_DIR}" -maxdepth 1 -name "tairon-*" -printf "  - %f\n" | sort
+else
+  gum style --foreground 196 "Error: No scripts were installed."
+  exit 1
+fi

@@ -11,7 +11,7 @@ Tairon uses a two-layer configuration system:
    - Users should NOT modify these files
    - System updates can override these without affecting user configs
 
-2. **User Overrides** (`~/.config/tairon/`)
+2. **User Overrides** (`/usr/share/tairon/themes/`)
    - User-specific customizations
    - These override system defaults
    - Users have full control over their environment
@@ -20,12 +20,12 @@ Tairon uses a two-layer configuration system:
 
 ### Hyprland
 - **System default**: `/usr/share/tairon/defaults/hyprland.conf`
-- **User config**: `~/.config/tairon/hyprland.conf`
+- **User config**: `/usr/share/tairon/themes/hyprland.conf`
 - **Behavior**: User config sources system default, then applies overrides
 
 ### Waybar
 - **System default**: `/usr/share/tairon/defaults/waybar.conf`
-- **User config**: `~/.config/tairon/waybar/config.jsonc`
+- **User config**: `/usr/share/tairon/themes/waybar/config.jsonc`
 - **Behavior**: Waybar loads both configs
 
 ## Philosophy
@@ -40,7 +40,7 @@ This follows the "user first" philosophy:
 
 ### User-specific override
 
-In `~/.config/tairon/hyprland.conf`:
+In `/usr/share/tairon/themes/hyprland.conf`:
 
 ```bash
 # Source system defaults first
@@ -60,17 +60,17 @@ workspace = w[1-10]:1, monitor:eDP-1, default:true
 
 ```bash
 # Remove user config to reset to defaults
-rm ~/.config/tairon/hyprland.conf
-rm -rf ~/.config/tairon/
+rm /usr/share/tairon/themes/hyprland.conf
+rm -rf /usr/share/tairon/themes/
 
 # Next login will use system defaults
 ```
 
-## Migration from Bluearchy/Omarchy
+## Migration from Tairon/Tairon
 
-If coming from Bluearchy or Omarchy:
-1. Copy your configs from `~/.config/bluearchy/` or `~/.config/omarchy/`
-2. Paste them into `~/.config/tairon/`
+If coming from Tairon or Tairon:
+1. Copy your configs from `/usr/share/tairon/themes/` or `/usr/share/tairon/themes/`
+2. Paste them into `/usr/share/tairon/themes/`
 3. The configs will override system defaults
 4. All Tairon scripts will use your customized configs
 

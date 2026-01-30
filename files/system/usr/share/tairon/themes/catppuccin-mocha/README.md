@@ -8,17 +8,17 @@ This theme uses the Cattpuccin-mocha [palette](https://catppuccin.com/palette/) 
 
 # Installation
 
-To install this theme, simply use the omarchy-theme-install command:
+To install this theme, simply use the tairon-theme-install command:
 
 ```bash
-omarchy-theme-install https://github.com/Luquatic/omarchy-catppuccin-dark
+tairon-theme-install https://github.com/Luquatic/tairon-catppuccin-dark
 ```
 
 or
 
-`Omarchy menu > Install > Style > Theme` and use the following link:
+`Tairon menu > Install > Style > Theme` and use the following link:
 
-`https://github.com/Luquatic/omarchy-catppuccin-dark
+`https://github.com/Luquatic/tairon-catppuccin-dark
 `
 
 ## Starship

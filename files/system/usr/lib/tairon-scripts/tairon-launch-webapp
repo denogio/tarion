@@ -1,0 +1,13 @@
+#!/bin/bash
+# Tairon Web App Launcher
+# Launch the passed in URL as a web app in the default browser.
+
+browser="$(xdg-settings get default-web-browser)"
+
+# Fallback/Normalization
+case "${browser}" in
+  google-chrome* | brave-browser* | microsoft-edge* | opera* | vivaldi* | helium*) ;;
+  *) browser="org.chromium.Chromium.desktop" ;;
+esac
+
+exec setsid uwsm-app -- "$(sed -n 's/^Exec=//p' {~/.local,~/.nix-profile,/usr,/var/lib/flatpak/exports}/share/applications/"${browser}" 2>/dev/null | head -1 | sed 's/ %[a-zA-Z]//g; s/@@u//g; s/@@//g')" --app="$1" "${@:2}"

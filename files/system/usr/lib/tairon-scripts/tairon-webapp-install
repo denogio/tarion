@@ -1,0 +1,69 @@
+#!/bin/bash
+# Tairon Web App Installer
+
+set -e
+
+if [ "$#" -lt 3 ]; then
+  echo -e "\e[32mLet's create a new web app you can start with the app launcher.\n\e[0m"
+  APP_NAME="$(gum input --prompt "Name> " --placeholder "My favorite web app")"
+  APP_URL="$(gum input --prompt "URL> " --placeholder "https://example.com")"
+  ICON_REF="$(gum input --prompt "Icon URL> " --placeholder "PNG URL or local name")"
+  CUSTOM_EXEC=""
+  MIME_TYPES=""
+  INTERACTIVE_MODE=true
+else
+  APP_NAME="${1}"
+  APP_URL="${2}"
+  ICON_REF="${3}"
+  CUSTOM_EXEC="${4}"
+  MIME_TYPES="${5}"
+  INTERACTIVE_MODE=false
+fi
+
+if [[ -z "${APP_NAME}" || -z "${APP_URL}" || -z "${ICON_REF}" ]]; then
+  echo "Error: App name, URL, and icon reference are required."
+  exit 1
+fi
+
+ICON_DIR="${HOME}/.local/share/applications/icons"
+mkdir -p "${ICON_DIR}"
+
+if [[ "${ICON_REF}" =~ ^https?:// ]]; then
+  ICON_PATH="${ICON_DIR}/${APP_NAME}.png"
+  if ! curl -sL -o "${ICON_PATH}" "${ICON_REF}"; then
+    echo "Error: Failed to download icon from ${ICON_REF}"
+    exit 1
+  fi
+else
+  ICON_PATH="${ICON_DIR}/${ICON_REF}"
+fi
+
+if [[ -n "${CUSTOM_EXEC}" ]]; then
+  EXEC_COMMAND="${CUSTOM_EXEC}"
+else
+  EXEC_COMMAND="${HOME}/.local/bin/tairon-launch-webapp \"${APP_URL}\""
+fi
+
+DESKTOP_FILE="${HOME}/.local/share/applications/${APP_NAME}.desktop"
+
+cat >"${DESKTOP_FILE}" <<EOF
+[Desktop Entry]
+Version=1.0
+Name=${APP_NAME} 🌐
+Comment=Web Application for ${APP_NAME}
+Exec=${EXEC_COMMAND}
+Terminal=false
+Type=Application
+Icon=${ICON_PATH}
+StartupNotify=true
+EOF
+
+if [[ -n "${MIME_TYPES}" ]]; then
+  echo "MimeType=${MIME_TYPES}" >>"${DESKTOP_FILE}"
+fi
+
+chmod +x "${DESKTOP_FILE}"
+
+if [[ "${INTERACTIVE_MODE}" == "true" ]]; then
+  echo -e "✓ Success! You can now find ${APP_NAME} in your app launcher (SUPER+SPACE)."
+fi

@@ -160,6 +160,15 @@ Update Tairon:
 tairon-update
 ```
 
+### Configuration Sync
+Tairon uses an "Always-Source" model to keep your configurations up to date with the image. The `tairon-sync` tool runs automatically at login and ensures your local `~/.config` files point to the system-wide defaults in `/usr/share/tairon/defaults/`.
+
+To manually ensure your local configurations are correctly linked to the system-wide defaults:
+
+```bash
+tairon-sync --force
+```
+
 Or manually:
 
 ```bash
@@ -213,9 +222,11 @@ systemctl --user restart waybar
 ```
 
 ### Reset Hyprland config
+If you have messed up your configuration, you can force a sync from the system defaults:
 ```bash
-cp /usr/share/hyprland/hyprland.conf ~/.config/hypr/hyprland.conf
+tairon-sync --force
 ```
+This will restore the "managed" stubs that source the system-wide configuration files while keeping your own additions if they are placed outside the managed blocks.
 
 ## Building Locally
 
@@ -256,9 +267,11 @@ bash scripts/lint-shell.sh
 ```
 
 **Project Structure:**
-- `files/system/usr/share/tairon/` - Tairon branding and themes
+- `files/system/usr/share/tairon/defaults/` - Gold Standard system configurations
+- `files/system/usr/share/tairon/themes/` - Tairon branding and themes
 - `files/system/usr/lib/tairon/pkg/` - Package manager system
-- `files/scripts/` - System setup and maintenance scripts
+- `files/system/usr/bin/` - Tairon system utilities (including `tairon-sync`)
+- `files/scripts/` - System build-time setup and maintenance scripts
 - `scripts/` - Development utilities and quality checks
 
 ### Contributing
@@ -297,5 +310,9 @@ Built with ❤️ using:
 - [Hyprland](https://hyprland.org/)
 - [Vicinae](https://vicinae.com/)
 - [Blue Build](https://blue-build.org/)
+- [Wayblue](https://github.com/wayblueorg)
+
+### Inspiration
+Tairon is inspired by and partly based on [Omarchy](https://github.com/omarchy/omarchy). Many of the configuration patterns and architectural decisions are derived from their work in building a cohesive Hyprland experience on Fedora Atomic.
 
 Made with 🖤 by [denogio](https://github.com/denogio)

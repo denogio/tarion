@@ -1,0 +1,225 @@
+#!/usr/bin/env bash
+# Tairon Menu System
+# Optimized for Fedora Atomic
+# User config in ~/.config/tairon/ overrides system defaults
+
+BACK_TO_EXIT=false
+
+back_to() {
+  local parent_menu="${1}"
+
+  if [[ "${BACK_TO_EXIT}" == "true" ]]; then
+    exit 0
+  elif [[ -n "${parent_menu}" ]]; then
+    "${parent_menu}" "$@"
+  else
+    show_main_menu "$@"
+  fi
+}
+
+menu() {
+  local prompt="${1}"
+  local options="${2}"
+  local extra="${3}"
+  local preselect="${4}"
+
+  local args=()
+  if [[ -n "${extra}" ]]; then
+    read -r -a args <<<"${extra}"
+  fi
+
+  if [[ -n "${preselect}" ]]; then
+    local index
+    index=$(echo -e "${options}" | grep -nxF "${preselect}" | cut -d: -f1)
+    if [[ -n "${index}" ]]; then
+      args+=("-c" "${index}")
+    fi
+  fi
+
+  echo -e "${options}" | vicinae dmenu -p "${prompt}…" "${args[@]}" --no-section --no-quick-look --no-metadata 2>/dev/null
+}
+
+terminal() {
+  local term_app="${1:-ghostty}"
+  shift || true
+
+  if command -v "${term_app}" &>/dev/null; then
+    exec "${term_app}" "$@"
+  elif command -v ghostty &>/dev/null; then
+    exec ghostty "$@"
+  else
+    exec xdg-terminal-emulator "$@"
+  fi
+}
+
+open_in_editor() {
+  notify-send "Editing config file" "${1}"
+
+  if command -v nvim &>/dev/null; then
+    exec nvim "${1}"
+  elif command -v code &>/dev/null; then
+    exec code "${1}"
+  else
+    exec xdg-open "${1}"
+  fi
+}
+
+show_learn_menu() {
+  case $(menu "Learn" "  Keybindings\n  Tairon\n  Hyprland\n󰣇  Fedora\n󱆃  Neovim\n  Bash") in
+    *Keybindings*) open_in_editor ~/.config/tairon/hyprland.conf ;;
+    *Tairon*) tairon-launch-webapp "https://github.com/denogio/tairon" ;;
+    *Hyprland*) tairon-launch-webapp "https://wiki.hypr.land/" ;;
+    *Fedora*) tairon-launch-webapp "https://docs.fedoraproject.org/en-US/fedora/" ;;
+    *Neovim*) tairon-launch-webapp "https://neovim.io/doc/" ;;
+    *Bash*) tairon-launch-webapp "https://devhints.io/bash" ;;
+    *) show_main_menu "$@" ;;
+  esac
+}
+
+show_trigger_menu() {
+  case $(menu "Trigger" "  Screenshot") in
+    *Screenshot*) tairon-screenshot ;;
+    *) show_main_menu "$@" ;;
+  esac
+}
+
+
+show_style_menu() {
+  case $(menu "Style" "󰸌  Theme\n  Font\n  Background\n  Hyprland\n  About") in
+    *Theme*) show_theme_menu "$@" ;;
+    *Font*) show_font_menu ;;
+    *Background*) nautilus "${HOME}/Pictures/Wallpapers" ;;
+    *Hyprland*) open_in_editor ~/.config/tairon/hyprland.conf ;;
+    *About*) open_in_editor /usr/share/tairon/defaults/README.md ;;
+    *) show_main_menu "$@" ;;
+  esac
+}
+
+show_theme_menu() {
+  case $(menu "Theme" "󰸌  Theme Set\n  Background\n  Font") in
+    *Background*) nautilus "${HOME}/Pictures/Wallpapers" ;;
+    *Font*) show_font_menu ;;
+    *) show_style_menu "$@" ;;
+  esac
+}
+
+show_font_menu() {
+  local fonts
+  fonts=$(fc-list : family spacing=2 | grep -i -E "Mono|Code" | head -20)
+  
+  local selected_font
+  selected_font=$(menu "Font" "${fonts}" "$(fc-match "FiraCode Nerd Font Mono" | awk '{print $1}')")
+
+  if [[ "${selected_font}" != "CNCLD" && -n "${selected_font}" ]]; then
+    echo "Setting font: ${selected_font}"
+    gsettings set org.gnome.desktop.interface monospace-font-name "${selected_font}"
+  fi
+}
+
+show_setup_menu() {
+  local options="  Audio\n󰂯  Bluetooth\n󰀲  Power\n󰂯  Display\n  User Config\n  About"
+
+  if [ -f ~/.config/tairon/hyprland.conf ]; then
+    options="${options}\n  Keybindings\n  Edit Configs"
+  fi
+
+  case $(menu "Setup" "${options}") in
+    *Audio*) nmcli device show ;;
+    *Bluetooth*) bluetoothctl show ;;
+    *Power*) systemctl poweroff ;;
+    *Display*) tairon-launch-webapp "https://wiki.archlinux.org/title/Main_page" ;;
+    *User*) tairon-launch-webapp "file://${HOME}/.config/tairon/defaults/README.md" ;;
+    *Keybindings*) open_in_editor ~/.config/tairon/hyprland.conf ;;
+    *Edit*) open_in_editor ~/.config/tairon/hyprland.conf ;;
+    *About*) open_in_editor /usr/share/tairon/defaults/README.md ;;
+    *) show_main_menu "$@" ;;
+  esac
+}
+
+show_system_menu() {
+  case $(menu "System" "  Lock\n󰔎  Screensaver\n  Suspend\n󰐥  Restart\n  Shutdown") in
+    *Lock*) loginctl lock-session ;;
+    *Screensaver*) tairon-launch-screensaver force ;;
+    *Suspend*) systemctl suspend ;;
+    *Restart*) systemctl reboot ;;
+    *Shutdown*) systemctl poweroff ;;
+    *) back_to show_main_menu "$@" ;;
+  esac
+}
+
+show_main_menu() {
+  local selected
+  if [[ -n "${1}" ]]; then
+    selected="${1}"
+  else
+    selected=$(menu "Tairon" "󰀻  Apps\n󰧑  Learn\n󰍜  Trigger\n󰸌  Style\n  Setup\n  Install\n󰭌  Remove\n  Update\n  About\n  System")
+  fi
+
+  case "${selected,,}" in
+    *apps*) case $(menu "Apps" "  Browser\n  Editor\n󰆘  Terminal\n  Calculator") in
+      *Browser*) tairon-launch-browser ;;
+      *Editor*) tairon-launch-editor ;;
+      *Terminal*) terminal "$@" ;;
+      *Calculator*) flatpak run io.elementary.calculator 2>/dev/null ;;
+      *) show_main_menu "$@" ;;
+      esac ;;
+
+    *learn*) show_learn_menu "$@" ;;
+    *trigger*) show_trigger_menu "$@" ;;
+    *style*) show_style_menu "$@" ;;
+    *setup*) show_setup_menu "$@" ;;
+    *install*) show_install_menu "$@" ;;
+    *remove*) show_remove_menu "$@" ;;
+    *update*) show_update_menu "$@" ;;
+    *about*) show_install_menu "$@" ;;
+    *system*) show_system_menu "$@" ;;
+    *) [[ -n "${selected}" ]] && echo "Unknown selection: ${selected}" ;;
+  esac
+}
+
+show_install_menu() {
+  case $(menu "Install" "󰀻  Flatpak List\n󰚁  Flatpak Search\n󰐧  Package Search (dnf)\n󰚁  Flatpak Update\n󰚛  Theme\n󰚛  Font\n󰐧  Terminal\n󰚙  Editor") in
+    *List*) flatpak list --app 2>/dev/null | grep -v "^No runtime" || echo "No Flatpak apps installed" ;;
+    *Search*) flatpak list 2>/dev/null | grep -v "^\S" | vicinae dmenu -p "Select to install" --no-section --no-metadata 2>/dev/null | xargs -I {} flatpak install ;;
+    *Update*) flatpak update ;;
+    *Package*) dnf search "$@" ;;
+    *Theme*) show_theme_menu "$@" ;;
+    *Font*) show_font_menu ;;
+    *Terminal*) terminal "$@" ;;
+    *Editor*) open_in_editor "https://flathub.org/search" ;;
+    *) show_main_menu "$@" ;;
+  esac
+}
+
+show_remove_menu() {
+  case $(menu "Remove" "󰀻  Flatpak\n󰚛  Font") in
+    *Flatpak*) flatpak list --app 2>/dev/null | grep -v "^No runtime" | vicinae dmenu -p "Select to remove" --no-section --no-metadata 2>/dev/null | xargs -I {} flatpak remove ;;
+    *Font*) show_font_menu ;;
+    *) show_main_menu "$@" ;;
+  esac
+}
+
+show_update_menu() {
+  case $(menu "Update" "󰀻  Tairon\n  Config\n  System\n󰀲  Firmware") in
+    *Tairon*) tairon-launch-floating-terminal-with-presentation "ujust update" ;;
+    *Config*) open_in_editor ~/.config/tairon/hyprland.conf ;;
+    *System*) show_update_system_menu "$@" ;;
+    *Firmware*) tairon-launch-floating-terminal-with-presentation "sudo dnf upgrade --refresh -y" ;;
+    *) show_main_menu "$@" ;;
+  esac
+}
+
+show_update_system_menu() {
+  case $(menu "Update" "󰀻  Audio\n󰂯  Bluetooth") in
+    *Audio*) ;;
+    *Bluetooth*) ;;
+    *) back_to show_update_menu "$@" ;;
+  esac
+}
+
+if [[ -n "${1}" ]]; then
+  BACK_TO_EXIT=true
+  show_main_menu "$@"
+else
+  show_main_menu "$@"
+fi

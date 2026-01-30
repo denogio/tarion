@@ -1,0 +1,16 @@
+#!/bin/bash
+
+LOGO_FILE="${HOME}/.local/share/tairon/logo.txt"
+SYSTEM_LOGO="/usr/share/tairon/logo.txt"
+
+clear
+echo -e "\033[32m"
+if [[ -f "${LOGO_FILE}" ]]; then
+  cat "${LOGO_FILE}"
+elif [[ -f "${SYSTEM_LOGO}" ]]; then
+  cat "${SYSTEM_LOGO}"
+else
+  echo "TAIRON"
+fi
+echo -e "\033[0m"
+echo

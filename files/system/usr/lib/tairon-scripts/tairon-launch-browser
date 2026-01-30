@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+# Tairon Browser Launcher
+# Supports Firefox, Chromium, Vivaldi, etc.
+
+# Check installed browsers
+
+if [[ "${1}" == "--get-cmd" ]]; then
+  browser="$(xdg-settings get default-web-browser)"
+  case "${browser}" in
+    google-chrome* | brave-browser* | microsoft-edge* | opera* | vivaldi* | helium*)
+      sed -n 's/^Exec=//p' {~/.local,~/.nix-profile,/usr,/var/lib/flatpak/exports}/share/applications/"${browser}" 2>/dev/null | head -1 | sed 's/ %[a-zA-Z]//g; s/@@u//g; s/@@//g'
+      ;;
+    *)
+      echo "chromium"
+      ;;
+  esac
+  exit 0
+fi
+
+BROWSERS=(
+  "org.chromium.Chromium"
+  "com.brave.Browser"
+  "com.google.Chrome"
+  "org.mozilla.firefox"
+  "io.gitlab.librewolf-community"
+)
+
+BROWSERS_MENU=""
+for browser in "${BROWSERS[@]}"; do
+  BROWSERS_MENU+="${browser}\n"
+done
+
+selected=$(echo -e "${BROWSERS_MENU}" | vicinae dmenu -p "Launch Browser…" --no-section --no-quick-look --no-metadata)
+
+case "${selected}" in
+  org.chromium.Chromium) flatpak run org.chromium.Chromium ;;
+  com.brave.Browser) flatpak run com.brave.Browser ;;
+  com.google.Chrome) flatpak run com.google.Chrome ;;
+  org.mozilla.firefox) flatpak run org.mozilla.firefox ;;
+  io.gitlab.librewolf-community) flatpak run io.gitlab.librewolf-community ;;
+  *) [[ -n "${selected}" ]] && notify-send "Browser not found" "${selected}" && exit 1 ;;
+esac

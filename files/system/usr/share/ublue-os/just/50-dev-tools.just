@@ -19,7 +19,7 @@ dev-tools:
     brew tap ublue-os/tap 2>/dev/null || true
 
     # Core tools
-    brew install ripgrep fd-find bat eza starship lazygit zoxide
+    brew install ripgrep fd-find bat eza starship lazygit zoxide yazi superfile
 
     # IDE & Tools from ublue-os tap
     brew install --cask ublue-os/tap/visual-studio-code-linux

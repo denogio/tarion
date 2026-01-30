@@ -1,0 +1,84 @@
+#!/usr/bin/env bash
+# Tairon configuration synchronization utility
+# Ensures ~/.config links to /usr/share/tairon/defaults/ for system defaults
+set -euo pipefail
+
+SYNC_HEADER="# -- TAIRON MANAGED --"
+DEFAULTS_DIR="/usr/share/tairon/defaults"
+USER_CONFIG_DIR="${HOME}/.config"
+STATE_DIR="${HOME}/.cache/tairon"
+STATE_FILE="${STATE_DIR}/last-sync"
+
+# Smart Check: Only run if the image has changed
+# On atomic systems, /usr is updated as a whole, changing mtime of this dir
+IMAGE_ID=$(stat -c %Y "${DEFAULTS_DIR}" 2>/dev/null || echo "0")
+LAST_ID=$(cat "${STATE_FILE}" 2>/dev/null || echo "-1")
+
+if [ "${IMAGE_ID}" == "${LAST_ID}" ]; then
+    # Image is the same, no need to sync unless explicitly forced
+    if [[ "${1:-}" != "--force" ]]; then
+        exit 0
+    fi
+fi
+
+# Bootstrap Check: Ensure brew tools are installed on first use
+if [ ! -f "${HOME}/.config/tairon/bootstrap-done" ]; then
+    # Run bootstrap in a unified presentation window
+    tairon-launch-floating-terminal-with-presentation tairon-bootstrap
+fi
+
+sync_app() {
+    local app=$1
+    local src_file=$2
+    local dest_file=$3
+    local source_cmd=$4
+
+    mkdir -p "$(dirname "${dest_file}")"
+
+    # If file doesn't exist, create it with sourcing
+    if [ ! -f "${dest_file}" ]; then
+        echo "Creating default config for ${app}..."
+        echo "${SYNC_HEADER}" > "${dest_file}"
+        echo "${source_cmd} ${src_file}" >> "${dest_file}"
+        return
+    fi
+
+    # If it exists, check if it's managed
+    if grep -q "${SYNC_HEADER}" "${dest_file}"; then
+        # Update sourcing line if needed
+        if ! grep -q "${src_file}" "${dest_file}"; then
+            echo "Updating ${app} sourcing path..."
+            sed -i "s|${source_cmd} .*|${source_cmd} ${src_file}|" "${dest_file}"
+        fi
+    else
+        # Not managed, check if we should add sourcing
+        if ! grep -q "${src_file}" "${dest_file}"; then
+            echo "Heads up: ${dest_file} is custom but missing tairon defaults."
+            # Optionally add it to the top? 
+            # We'll be conservative for now and just suggest it or let the user do it.
+        fi
+    fi
+}
+
+# Hyprland
+sync_app "Hyprland" "${DEFAULTS_DIR}/hypr/hyprland.conf" "${USER_CONFIG_DIR}/hypr/hyprland.conf" "source ="
+
+# Ghostty
+sync_app "Ghostty" "${DEFAULTS_DIR}/ghostty/config" "${USER_CONFIG_DIR}/ghostty/config" "config-file ="
+
+# Mako
+sync_app "Mako" "${DEFAULTS_DIR}/mako/config" "${USER_CONFIG_DIR}/mako/config" "include ="
+
+# Vicinae (JSON doesn't support easy sourcing like this, so we handle it uniquely)
+VICINAE_DEST="${USER_CONFIG_DIR}/vicinae/settings.json"
+if [ ! -f "${VICINAE_DEST}" ]; then
+    echo "Creating default Vicinae settings..."
+    mkdir -p "$(dirname "${VICINAE_DEST}")"
+    echo "{ \"imports\": [\"${DEFAULTS_DIR}/vicinae/settings.json\"] }" > "${VICINAE_DEST}"
+fi
+
+# Update state
+mkdir -p "${STATE_DIR}"
+echo "${IMAGE_ID}" > "${STATE_FILE}"
+
+echo "✓ Tairon configuration sync complete!"

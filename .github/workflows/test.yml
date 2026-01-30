@@ -27,13 +27,13 @@ jobs:
           python3 -c "import json; json.load(open('files/system/etc/vicinae/settings.json'))"
           python3 -c "import json; json.load(open('files/system/etc/vicinae/keybindings.json'))"
 
-      - name: Verify no bluearchy references
+      - name: Verify no tairon references
         run: |
-          if grep -r "bluearchy" --exclude-dir=.git --exclude-dir=node_modules . 2>/dev/null; then
-            echo "ERROR: Found 'bluearchy' references that should be 'tairon'"
+          if grep -r "tairon" --exclude-dir=.git --exclude-dir=node_modules . 2>/dev/null; then
+            echo "ERROR: Found 'tairon' references that should be 'tairon'"
             exit 1
           fi
-          echo "✓ No bluearchy references found"
+          echo "✓ No tairon references found"
 
       - name: Check script permissions
         run: |

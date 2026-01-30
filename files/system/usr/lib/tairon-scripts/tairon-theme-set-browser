@@ -1,0 +1,27 @@
+#!/bin/bash
+
+# Sync Chromium/Brave theme
+CHROMIUM_THEME="${HOME}/.config/tairon/current/theme/chromium.theme"
+
+if command -v tairon-cmd-present &>/dev/null && (tairon-cmd-present chromium || tairon-cmd-present brave); then
+  if [[ -f "${CHROMIUM_THEME}" ]]; then
+    IFS=',' read -r r g b <<< "${THEME_RGB_COLOR}"
+    THEME_HEX_COLOR="$(printf '#%02x%02x%02x' "${r}" "${g}" "${b}")"
+  else
+    # Use a default, neutral grey if theme doesn't have a color
+    THEME_RGB_COLOR="28,32,39"
+    THEME_HEX_COLOR="#1c2027"
+  fi
+
+  if tairon-cmd-present chromium; then
+    sudo mkdir -p /etc/chromium/policies/managed/
+    echo "{\"BrowserThemeColor\": \"${THEME_HEX_COLOR}\"}" | sudo tee "/etc/chromium/policies/managed/color.json" >/dev/null
+    chromium --refresh-platform-policy --no-startup-window >/dev/null
+  fi
+
+  if tairon-cmd-present brave; then
+    sudo mkdir -p /etc/brave/policies/managed/
+    echo "{\"BrowserThemeColor\": \"${THEME_HEX_COLOR}\"}" | sudo tee "/etc/brave/policies/managed/color.json" >/dev/null
+    brave --refresh-platform-policy --no-startup-window >/dev/null
+  fi
+fi

@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+# Tairon bootstrapping utility
+# Installs core Homebrew packages on first run
+set -euo pipefail
+
+BOOTSTRAP_DONE="${HOME}/.config/tairon/bootstrap-done"
+
+if [ -f "${BOOTSTRAP_DONE}" ]; then
+    exit 0
+fi
+
+# Ensure .config/tairon exists
+mkdir -p "$(dirname "${BOOTSTRAP_DONE}")"
+
+# Wait for brew to be available if it's being installed by blue-build
+# (Usually already there as it's a layer, but just in case)
+COUNT=0
+until command -v brew &> /dev/null || [ ${COUNT} -eq 10 ]; do
+    echo "Waiting for Homebrew..."
+    sleep 2
+    COUNT=$((COUNT + 1))
+done
+
+if ! command -v brew &> /dev/null; then
+    echo "Error: Homebrew not found. Please ensure it is installed."
+    exit 1
+fi
+
+echo "🚀 Tairon First-Run Bootstrap"
+echo "Installing core developer tools (Yazi, Superfile, and more via Homebrew)..."
+
+# Run the just recipe for dev-tools
+# We use 'just' because it's already integrated into the image
+/usr/bin/ujust dev-tools
+
+# Mark as done
+touch "${BOOTSTRAP_DONE}"
+
+echo "✓ Tairon bootstrap complete!"
