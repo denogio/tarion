@@ -1,4 +1,13 @@
-# Tarion
+
+                                      
+                                             
+                                     ▄▄▄ ▄▄ ▄▄ 
+     ██              ▀▀               █  █ ▀ █ 
+    ▀██▀▀ ▀▀█▄ ████▄ ██  ▄███▄ ████▄             
+     ██  ▄█▀██ ██ ▀▀ ██  ██ ██ ██ ██             
+     ██  ▀█▄██ ██    ██▄ ▀███▀ ██ ██             
+                                             
+                                             
 
 [![bluebuild build badge](https://github.com/denogio/tarion/actions/workflows/build.yml/badge.svg)](https://github.com/denogio/tarion/actions/workflows/build.yml)
 
