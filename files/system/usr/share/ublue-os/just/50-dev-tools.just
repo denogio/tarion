@@ -50,7 +50,7 @@ dev-setup:
     # Create starship config
     mkdir -p ~/.config
     cat > ~/.config/starship.toml << 'EOF'
-    # Starship config for Tairon
+    # Starship config for Tarion
     add_newline = false
     format = '$directory$git_branch$git_status$character'
 
@@ -97,7 +97,7 @@ install-brew:
     echo "Homebrew is installed by blue-build via the 'type: brew' module."
     echo "No manual installation required."
     echo ""
-    echo "If Homebrew is not found, please ensure your Tairon image"
+    echo "If Homebrew is not found, please ensure your Tarion image"
     echo "was built with the brew module enabled in recipes/extra-packages.yml"
     echo ""
     echo "Current status:"
@@ -107,7 +107,7 @@ install-brew:
     else
         echo "✗ Homebrew not found in PATH"
         echo ""
-        echo "To rebuild Tairon with Homebrew:"
+        echo "To rebuild Tarion with Homebrew:"
         echo "  1. Ensure 'type: brew' module is in recipes/extra-packages.yml"
         echo "  2. Run: blue-build build recipes/recipe.yml"
     fi
@@ -120,7 +120,7 @@ remove-brew:
 # Show developer tool versions
 dev-info:
     #!/usr/bin/env bash
-    echo "Tairon Developer Tools"
+    echo "Tarion Developer Tools"
     echo "======================"
     echo ""
     echo "Homebrew: $(brew --version 2>/dev/null | head -n1 || echo 'Not installed')"

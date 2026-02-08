@@ -23,12 +23,12 @@ validate_config() {
     
     # Setup some basic structure for the mock home
     mkdir -p "$tmp_home/.config/hypr"
-    mkdir -p "$tmp_home/.config/tairon/current"
+    mkdir -p "$tmp_home/.config/tarion/current"
     
     # Mock the theme link if it's the skel config
     if [[ "$config_name" == *"etc/skel/.config/hypr/hyprland.conf"* ]]; then
         # Default to one of the themes for validation purposes
-        ln -s "$REPO_ROOT/files/system/usr/share/tairon/themes/catppuccin" "$tmp_home/.config/tairon/current/theme"
+        ln -s "$REPO_ROOT/files/system/usr/share/tarion/themes/catppuccin" "$tmp_home/.config/tarion/current/theme"
     fi
 
     # Run Hyprland in a sandbox
@@ -87,7 +87,7 @@ ENTRY_POINTS=(
 # Also check all themes
 while IFS= read -r theme_config; do
     ENTRY_POINTS+=("$theme_config")
-done < <(find files/system/usr/share/tairon/themes -name "hyprland.conf")
+done < <(find files/system/usr/share/tarion/themes -name "hyprland.conf")
 
 for config in "${ENTRY_POINTS[@]}"; do
     if [ -f "$REPO_ROOT/$config" ]; then

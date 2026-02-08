@@ -1,9 +1,9 @@
 ---
 # yaml-language-server: $schema=https://schema.blue-build.org/recipe-v1.json
 # image will be published to ghcr.io/<user>/<name>
-name: tairon
+name: tarion
 # description will be included in the image's metadata
-description: tairon - the opinionated ublue hyprland distro
+description: tarion - the opinionated ublue hyprland distro
 
 # the base image to build on top of (FROM) and the version tag to use
 base-image: ghcr.io/ublue-os/base-main

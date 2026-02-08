@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# Script to test the generated Tairon ISO in a QEMU VM
+# Script to test the generated Tarion ISO in a QEMU VM
 # Requires: qemu-system-x86_64
 
 set -euo pipefail
 
-ISO_PATH="tairon.iso"
+ISO_PATH="tarion.iso"
 DISK_PATH="test-vm-disk.qcow2"
 DISK_SIZE="20G"
 MEMORY="4G"

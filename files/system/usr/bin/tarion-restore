@@ -1,0 +1,62 @@
+#!/usr/bin/env bash
+# Tarion restore utility using gum for beautiful UX
+set -euo pipefail
+
+BACKUP_DIR="${HOME}/.config/tarion/backups"
+
+# Check if backups exist
+if [ ! -d "${BACKUP_DIR}" ] || [ -z "$(ls -A "${BACKUP_DIR}" 2>/dev/null)" ]; then
+    gum style --foreground 196 --margin "1 2" "No backups found!"
+    echo ""
+    gum style --foreground 244 "Backups are stored in: ${BACKUP_DIR}"
+    exit 1
+fi
+
+# Show restore header
+gum style \
+  --foreground 212 \
+  --border double \
+  --align center \
+  --margin "1 2" \
+  --padding "1 2" \
+  "Tarion Restore"
+
+# Show available backups
+gum style --foreground 226 "Available backups:"
+echo ""
+
+# Select backup
+BACKUP_FILE=$(find "${BACKUP_DIR}" -maxdepth 1 -name "tarion-backup-*.tar.gz" -type f -printf "%T@ %f\n" 2>/dev/null | sort -rn | head -10 | cut -d' ' -f2-)
+if [ -z "${BACKUP_FILE}" ]; then
+    gum style --foreground 196 --margin "1 2" "No backup files found!"
+    exit 1
+fi
+
+SELECTED_BACKUP=$(echo "${BACKUP_FILE}" | gum filter --placeholder "Select a backup...")
+
+if [ -z "${SELECTED_BACKUP}" ]; then
+    echo "Cancelled"
+    exit 0
+fi
+
+BACKUP_PATH="${BACKUP_DIR}/${SELECTED_BACKUP}"
+
+# Show warning
+gum style --foreground 196 --margin "1 2" "⚠️  This will overwrite your current configuration!"
+echo ""
+
+if ! gum confirm "Restore from: ${SELECTED_BACKUP}?" --default=false; then
+    echo "Cancelled"
+    exit 0
+fi
+
+# Extract backup
+gum spin --spinner dot --title "Restoring backup..." -- tar -xzf "${BACKUP_PATH}" -C "${HOME}"
+
+# Show success
+gum style --foreground 46 "✓ Restore complete!"
+echo ""
+gum style --foreground 220 "Restored from: ${SELECTED_BACKUP}"
+echo ""
+gum style --foreground 226 "Please restart Hyprland for changes to take effect"
+gum style --foreground 244 "Press SUPER+SHIFT+R → Select 'Reload Hyprland'"

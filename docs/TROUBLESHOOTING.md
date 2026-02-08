@@ -1,4 +1,4 @@
-# Tairon Troubleshooting
+# Tarion Troubleshooting
 
 ## Installation Issues
 
@@ -8,12 +8,12 @@
 rpm-ostree status
 
 # Force rebase (be careful!)
-rpm-ostree rebase --force ostree-unverified-registry:ghcr.io/denogio/tairon:latest
+rpm-ostree rebase --force ostree-unverified-registry:ghcr.io/denogio/tarion:latest
 ```
 
 ### Image Not Found
 - Check internet connection
-- Verify registry URL: `ghcr.io/denogio/tairon`
+- Verify registry URL: `ghcr.io/denogio/tarion`
 - Check if image exists on GitHub packages
 
 ## Boot Issues
@@ -229,4 +229,4 @@ When reporting issues, include:
 3. Steps to reproduce
 4. Hardware info (if relevant)
 
-Report at: https://github.com/denogio/tairon/issues
+Report at: https://github.com/denogio/tarion/issues

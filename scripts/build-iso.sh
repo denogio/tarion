@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
-# Script to build Tairon ISO locally using blue-build
+# Script to build Tarion ISO locally using blue-build
 # Requires: blue-build, sudo access
 
 set -euo pipefail
 
 RECIPE_FILE="recipes/recipe.yml"
-ISO_NAME="tairon.iso"
+ISO_NAME="tarion.iso"
 
-echo "🚀 Starting Tairon ISO Build Process..."
+echo "🚀 Starting Tarion ISO Build Process..."
 
 # Use bluebuild to generate the ISO from the local recipe
 # This automatically handles building the image and converting it

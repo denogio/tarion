@@ -1,0 +1,114 @@
+#!/usr/bin/env bash
+# Tarion Package Manager CLI
+# Wrapper for the modular package management system
+
+set -euo pipefail
+
+# Initialize Tarion libraries
+TARION_LIB_DIR="/usr/lib/tarion"
+PKG_LIB_DIR="${TARION_LIB_DIR}/pkg/lib"
+CORE_LIB="${PKG_LIB_DIR}/core.sh"
+UI_LIB="${PKG_LIB_DIR}/ui.sh"
+
+if [ ! -f "${CORE_LIB}" ]; then
+    echo "Error: Tarion package manager core not found at ${CORE_LIB}"
+    exit 1
+fi
+
+# Source core library
+source "${CORE_LIB}"
+
+# Source UI library if available (optional for non-interactive)
+if [ -f "${UI_LIB}" ]; then
+    source "${UI_LIB}"
+fi
+
+# Initialize backends
+check_and_register_backends
+
+# Help function
+show_help() {
+    cat << EOF
+Tarion Package Manager (tarion-pkg)
+
+Usage: tarion-pkg <command> [args...] [backend]
+
+Commands:
+  list [backend]          List installed packages
+  search <query> [backend] Search for packages
+  install <pkg...> [backend] Install packages
+  uninstall <pkg...> [backend] Uninstall packages
+  update [backend]        Update packages
+  info <pkg> [backend]    Show package information
+
+Options:
+  --backend <name>        Force specific backend (brew, flatpak)
+  -h, --help              Show this help
+
+Examples:
+  tarion-pkg list
+  tarion-pkg search nvim
+  tarion-pkg install neovim brew
+  tarion-pkg update flatpak
+EOF
+}
+
+# Main dispatcher
+main() {
+    if [ $# -eq 0 ]; then
+        show_help
+        exit 0
+    fi
+
+    local command="$1"
+    shift
+
+    case "${command}" in
+        list)
+            # Todo: Implement list
+            echo "Listing packages..."
+            # For now, just show backends
+            echo "Installed backends: $(get_installed_backends)"
+            ;;
+        search)
+            if [ $# -eq 0 ]; then
+                echo "Usage: tarion-pkg search <query> [backend]"
+                exit 1
+            fi
+            local query="$1"
+            shift
+            echo "Searching for '${query}'..."
+             # Todo: Implement search logic dispatch
+            ;;
+        install)
+            if [ $# -eq 0 ]; then
+                echo "Usage: tarion-pkg install <package...> [backend]"
+                exit 1
+            fi
+             # Todo: Implement install dispatch
+             echo "Installing $*..."
+            ;;
+        uninstall)
+             # Todo: Implement uninstall dispatch
+             echo "Uninstalling $*..."
+            ;;
+        update)
+             # Todo: Implement update dispatch
+             echo "Updating..."
+            ;;
+        info)
+             # Todo: Implement info dispatch
+             echo "Showing info for $*..."
+            ;;
+        -h|--help)
+            show_help
+            ;;
+        *)
+            echo "Unknown command: ${command}"
+            show_help
+            exit 1
+            ;;
+    esac
+}
+
+main "$@"
