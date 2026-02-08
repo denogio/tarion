@@ -2,16 +2,16 @@
                                       
                                              
                                      ▄▄▄ ▄▄ ▄▄ 
-     ██        ▀▀                     █  █ ▀ █ 
-    ▀██▀▀ ▀▀█▄ ██  ████▄ ▄███▄ ████▄             
-     ██  ▄█▀██ ██  ██ ▀▀ ██ ██ ██ ██             
-     ██  ▀█▄██ ██▄ ██    ▀███▀ ██ ██             
+     ██              ▀▀               █  █ ▀ █ 
+    ▀██▀▀ ▀▀█▄ ████▄ ██  ▄███▄ ████▄             
+     ██  ▄█▀██ ██ ▀▀ ██  ██ ██ ██ ██             
+     ██  ▀█▄██ ██    ██▄ ▀███▀ ██ ██             
                                              
                                              
 
-[![bluebuild build badge](https://github.com/denogio/tairon/actions/workflows/build.yml/badge.svg)](https://github.com/denogio/tairon/actions/workflows/build.yml)
+[![bluebuild build badge](https://github.com/denogio/tarion/actions/workflows/build.yml/badge.svg)](https://github.com/denogio/tarion/actions/workflows/build.yml)
 
-**Tairon** is a developer-focused, immutable Fedora Atomic distro built with Universal Blue.
+**Tarion** is a developer-focused, immutable Fedora Atomic distro built with Universal Blue.
 It combines Hyprland, Vicinae launcher, and powerful developer tools to create a minimal,
 dark, and unapologetically productive desktop experience.
 
@@ -32,12 +32,12 @@ Minimal. Dark. Developer-First. Atomic.
 > [!WARNING]
 > This is experimental territory. Proceed with caution.
 
-Rebase an existing Fedora Atomic system to Tairon:
+Rebase an existing Fedora Atomic system to Tarion:
 
 1. Rebase to the unsigned image first:
 
 ```bash
-rpm-ostree rebase ostree-unverified-registry:ghcr.io/denogio/tairon:latest
+rpm-ostree rebase ostree-unverified-registry:ghcr.io/denogio/tarion:latest
 ```
 
 2. Reboot:
@@ -49,7 +49,7 @@ systemctl reboot
 3. Rebase to the signed image:
 
 ```bash
-rpm-ostree rebase ostree-image-signed:docker://ghcr.io/denogio/tairon:latest
+rpm-ostree rebase ostree-image-signed:docker://ghcr.io/denogio/tarion:latest
 ```
 
 4. Reboot again:
@@ -62,7 +62,7 @@ systemctl reboot
 
 ## First Setup
 
-On first login, the Tairon setup wizard will guide you through:
+On first login, the Tarion setup wizard will guide you through:
 - Installing developer tools (via Homebrew)
 - Configuring Git
 - Generating SSH keys
@@ -71,12 +71,12 @@ On first login, the Tairon setup wizard will guide you through:
 You can also run the setup wizard manually:
 
 ```bash
-tairon-setup
+tarion-setup
 ```
 
 ## Developer Tools
 
-Tairon comes with a justfile for managing developer tools:
+Tarion comes with a justfile for managing developer tools:
 
 ```bash
 # Show all available commands
@@ -100,7 +100,7 @@ just dev-clean
 
 ## Vicinae Launcher
 
-Tairon uses Vicinae as the primary launcher with extensive customizations:
+Tarion uses Vicinae as the primary launcher with extensive customizations:
 
 ### Key Features:
 - **Application launcher** - SUPER+R
@@ -147,26 +147,35 @@ Wallpapers should be placed in: `~/Pictures/Wallpapers/`
 
 ## Backups & Restore
 
-Backup your Tairon configuration:
+Backup your Tarion configuration:
 
 ```bash
-tairon-backup
+tarion-backup
 ```
 
 Restore from backup:
 
 ```bash
-tairon-restore <backup-file>
+tarion-restore <backup-file>
 ```
 
-Backups are stored in: `~/.config/tairon/backups/`
+Backups are stored in: `~/.config/tarion/backups/`
 
 ## Updates
 
-Update Tairon:
+Update Tarion:
 
 ```bash
-tairon-update
+tarion-update
+```
+
+### Configuration Sync
+Tarion uses an "Always-Source" model to keep your configurations up to date with the image. The `tarion-sync` tool runs automatically at login and ensures your local `~/.config` files point to the system-wide defaults in `/usr/share/tarion/defaults/`.
+
+To manually ensure your local configurations are correctly linked to the system-wide defaults:
+
+```bash
+tarion-sync --force
 ```
 
 Or manually:
@@ -179,7 +188,7 @@ systemctl reboot
 Clean up old deployments:
 
 ```bash
-tairon-clean
+tarion-clean
 ```
 
 ## ISO
@@ -196,7 +205,7 @@ All images are signed with [Sigstore](https://www.sigstore.dev/) via [cosign](ht
 Verify your build with:
 
 ```bash
-cosign verify --key cosign.pub ghcr.io/denogio/tairon
+cosign verify --key cosign.pub ghcr.io/denogio/tarion
 ```
 
 ## Configuration Files
@@ -222,13 +231,15 @@ systemctl --user restart waybar
 ```
 
 ### Reset Hyprland config
+If you have messed up your configuration, you can force a sync from the system defaults:
 ```bash
-cp /usr/share/hyprland/hyprland.conf ~/.config/hypr/hyprland.conf
+tarion-sync --force
 ```
+This will restore the "managed" stubs that source the system-wide configuration files while keeping your own additions if they are placed outside the managed blocks.
 
 ## Building Locally
 
-Build Tairon locally using blue-build:
+Build Tarion locally using blue-build:
 
 ```bash
 # Install blue-build
@@ -265,14 +276,16 @@ bash scripts/lint-shell.sh
 ```
 
 **Project Structure:**
-- `files/system/usr/share/tairon/` - Tairon branding and themes
-- `files/system/usr/lib/tairon/pkg/` - Package manager system
-- `files/scripts/` - System setup and maintenance scripts
+- `files/system/usr/share/tarion/defaults/` - Gold Standard system configurations
+- `files/system/usr/share/tarion/themes/` - Tarion branding and themes
+- `files/system/usr/lib/tarion/pkg/` - Package manager system
+- `files/system/usr/bin/` - Tarion system utilities (including `tarion-sync`)
+- `files/scripts/` - System build-time setup and maintenance scripts
 - `scripts/` - Development utilities and quality checks
 
 ### Contributing
 
-When contributing to Tairon:
+When contributing to Tarion:
 1. All shell scripts must pass ShellCheck validation
 2. Follow existing code patterns and conventions
 3. Test changes in a distrobox environment
@@ -306,5 +319,9 @@ Built with ❤️ using:
 - [Hyprland](https://hyprland.org/)
 - [Vicinae](https://vicinae.com/)
 - [Blue Build](https://blue-build.org/)
+- [Wayblue](https://github.com/wayblueorg)
+
+### Inspiration
+Tarion is inspired by and partly based on [Omarchy](https://github.com/omarchy/omarchy). Many of the configuration patterns and architectural decisions are derived from their work in building a cohesive Hyprland experience on Fedora Atomic.
 
 Made with 🖤 by [denogio](https://github.com/denogio)

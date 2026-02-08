@@ -1,11 +1,11 @@
 # Changelog
 
-All notable changes to Tairon will be documented in this file.
+All notable changes to Tarion will be documented in this file.
 
 ## [Unreleased]
 
 ### Added
-- Initial release as Tairon (renamed from Bluearchy)
+- Initial release as Tarion (renamed from Bluearchy)
 - Full Vicinae integration with custom configuration
 - Developer tools: ripgrep, fd, bat, eza, starship, lazygit, zoxide (via Homebrew, managed by blue-build)
 - Vicinae dmenu system controls (power, display, network, system info)
@@ -13,16 +13,16 @@ All notable changes to Tairon will be documented in this file.
 - Enhanced justfile with developer commands
 - Neovim configuration for developers
 - Ghostty terminal configuration
-- Tairon first-boot setup wizard (using gum for beautiful UX)
+- Tarion first-boot setup wizard (using gum for beautiful UX)
 - Backup and restore utilities (using gum)
 - Gum package for pretty CLI experience
 - Hyprshot configuration
 - Enhanced Mako notification config
-- Tairon ASCII logo
+- Tarion ASCII logo
 
 ### Changed
-- Renamed from Bluearchy to Tairon
-- Updated container registry to ghcr.io/denogio/tairon
+- Renamed from Bluearchy to Tarion
+- Updated container registry to ghcr.io/denogio/tarion
 - Homebrew installation now handled by blue-build (removed manual installation)
 - Enhanced Vicinae configuration with developer-focused settings
 - Improved Waybar styling
@@ -30,7 +30,7 @@ All notable changes to Tairon will be documented in this file.
 - All user-facing scripts now use gum for better UX
 
 ### Fixed
-- Fixed typo in branding script (bluerachy → tairon)
+- Fixed typo in branding script (bluerachy → tarion)
 - Fixed YAML indentation issues in extra-packages.yml
 - Removed unused rofi configuration
 

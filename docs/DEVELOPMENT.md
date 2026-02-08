@@ -1,4 +1,4 @@
-# Tairon Development Guide
+# Tarion Development Guide
 
 ## Building the Image
 
@@ -19,7 +19,7 @@ blue-build build recipes/recipe.yml
 
 ### Build Stages
 
-Tairon uses a multi-stage build:
+Tarion uses a multi-stage build:
 1. **cargo-builder** - Builds Rust applications (bluetui, impala)
 2. **Main build** - Applies all modules to Universal Blue base
 
@@ -118,5 +118,5 @@ blue-build build recipes/recipe.yml
 
 ## Issues & Support
 
-Report issues: https://github.com/denogio/tairon/issues
-Discussions: https://github.com/denogio/tairon/discussions
+Report issues: https://github.com/denogio/tarion/issues
+Discussions: https://github.com/denogio/tarion/discussions

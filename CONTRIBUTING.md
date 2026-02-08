@@ -1,6 +1,6 @@
-# Contributing to Tairon
+# Contributing to Tarion
 
-Thank you for your interest in contributing to Tairon!
+Thank you for your interest in contributing to Tarion!
 
 ## How to Contribute
 
@@ -21,7 +21,7 @@ When creating bug reports, include:
 Enhancement suggestions are welcome! Please:
 - Use clear and descriptive titles
 - Provide detailed explanation of enhancement
-- Explain why it would be useful to Tairon users
+- Explain why it would be useful to Tarion users
 
 ### Pull Requests
 
@@ -39,8 +39,8 @@ Enhancement suggestions are welcome! Please:
 
 ```bash
 # Clone repository
-git clone https://github.com/denogio/tairon.git
-cd tairon
+git clone https://github.com/denogio/tarion.git
+cd tarion
 
 # Install blue-build
 pip install blue-build
@@ -106,8 +106,8 @@ feat: add new Vicinae dmenu script for system controls
 
 ## Getting Help
 
-- GitHub Discussions: https://github.com/denogio/tairon/discussions
-- GitHub Issues: https://github.com/denogio/tairon/issues
+- GitHub Discussions: https://github.com/denogio/tarion/discussions
+- GitHub Issues: https://github.com/denogio/tarion/issues
 
 ## License
 

@@ -19,7 +19,7 @@ dev-tools:
     brew tap ublue-os/tap 2>/dev/null || true
 
     # Core tools
-    brew install ripgrep fd-find bat eza starship lazygit zoxide
+    brew install ripgrep fd-find bat eza starship lazygit zoxide yazi superfile
 
     # IDE & Tools from ublue-os tap
     brew install --cask ublue-os/tap/visual-studio-code-linux
@@ -50,42 +50,42 @@ dev-setup:
     # Create starship config
     mkdir -p ~/.config
     cat > ~/.config/starship.toml << 'EOF'
-# Starship config for Tairon
-add_newline = false
-format = '$directory$git_branch$git_status$character'
+    # Starship config for Tarion
+    add_newline = false
+    format = '$directory$git_branch$git_status$character'
 
-[character]
-success_symbol = '[➜](bold green)'
-error_symbol = '[➜](bold red)'
+    [character]
+    success_symbol = '[➜](bold green)'
+    error_symbol = '[➜](bold red)'
 
-[directory]
-style = 'bold blue'
+    [directory]
+    style = 'bold blue'
 
-[git_branch]
-style = 'bold purple'
+    [git_branch]
+    style = 'bold purple'
 
-[git_status]
-style = 'bold yellow'
-EOF
+    [git_status]
+    style = 'bold yellow'
+    EOF
 
     # Configure bat
     mkdir -p ~/.config/bat
     cat > ~/.config/bat/config << 'EOF'
-# Bat config
---theme=base16
---style=numbers,changes
---wrap=never
-EOF
+    # Bat config
+    --theme=base16
+    --style=numbers,changes
+    --wrap=never
+    EOF
 
     # Configure ripgrep
     mkdir -p ~/.config
     cat > ~/.config/ripgreprc << 'EOF'
-# Ripgrep config
---smart-case
---follow
---hidden
---glob=!.git/*
-EOF
+    # Ripgrep config
+    --smart-case
+    --follow
+    --hidden
+    --glob=!.git/*
+    EOF
 
     echo "Developer environment configured!"
     echo "Open a new terminal for changes to take effect."
@@ -97,7 +97,7 @@ install-brew:
     echo "Homebrew is installed by blue-build via the 'type: brew' module."
     echo "No manual installation required."
     echo ""
-    echo "If Homebrew is not found, please ensure your Tairon image"
+    echo "If Homebrew is not found, please ensure your Tarion image"
     echo "was built with the brew module enabled in recipes/extra-packages.yml"
     echo ""
     echo "Current status:"
@@ -107,7 +107,7 @@ install-brew:
     else
         echo "✗ Homebrew not found in PATH"
         echo ""
-        echo "To rebuild Tairon with Homebrew:"
+        echo "To rebuild Tarion with Homebrew:"
         echo "  1. Ensure 'type: brew' module is in recipes/extra-packages.yml"
         echo "  2. Run: blue-build build recipes/recipe.yml"
     fi
@@ -120,7 +120,7 @@ remove-brew:
 # Show developer tool versions
 dev-info:
     #!/usr/bin/env bash
-    echo "Tairon Developer Tools"
+    echo "Tarion Developer Tools"
     echo "======================"
     echo ""
     echo "Homebrew: $(brew --version 2>/dev/null | head -n1 || echo 'Not installed')"

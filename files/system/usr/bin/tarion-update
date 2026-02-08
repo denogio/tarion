@@ -1,0 +1,65 @@
+#!/usr/bin/env bash
+# Update Tarion system, flatpaks, and brew packages
+
+set -euo pipefail
+
+# Relaunch in floating terminal if not already inside one
+if [ -z "${TARION_UPDATE_INTERNAL:-}" ]; then
+    LAUNCHER="tarion-launch-floating-terminal-with-presentation"
+    
+    # Try to find the launcher in PATH or standard location
+    if ! command -v "${LAUNCHER}" &> /dev/null; then
+        if [ -x "/usr/lib/tarion-scripts/${LAUNCHER}" ]; then
+            LAUNCHER="/usr/lib/tarion-scripts/${LAUNCHER}"
+        else
+            echo "Error: ${LAUNCHER} not found."
+            exit 1
+        fi
+    fi
+
+    export TARION_UPDATE_INTERNAL=1
+    exec "${LAUNCHER}" "$0" "$@"
+fi
+
+# Check for gum
+if ! command -v gum &> /dev/null; then
+    echo "gum not found. Please install gum."
+    exit 1
+fi
+
+gum style \
+  --foreground 212 \
+  --border double \
+  --align center \
+  --margin "1 2" \
+  --padding "1 2" \
+  "Tarion System Update"
+
+if ! gum confirm "This will update Tarion, Flatpaks, and Brew packages. Continue?" --default=true; then
+    gum style --foreground 196 "Update cancelled."
+    exit 0
+fi
+
+# Update System (rpm-ostree)
+gum style --foreground 212 "Updating System..."
+rpm-ostree upgrade
+
+# Update via tarion-pkg if available (handles flatpak/brew)
+if command -v tarion-pkg &> /dev/null; then
+    tarion-pkg update
+else
+    # Fallback manual update
+    gum style --foreground 212 "Updating Flatpaks..."
+    flatpak update -y
+
+    if command -v brew &> /dev/null; then
+        gum style --foreground 212 "Updating Homebrew..."
+        brew upgrade
+    fi
+fi
+
+gum style --foreground 46 "✓ Update complete!"
+
+if gum confirm "Reboot now?" --default=false; then
+    systemctl reboot
+fi

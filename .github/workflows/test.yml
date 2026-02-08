@@ -27,25 +27,25 @@ jobs:
           python3 -c "import json; json.load(open('files/system/etc/vicinae/settings.json'))"
           python3 -c "import json; json.load(open('files/system/etc/vicinae/keybindings.json'))"
 
-      - name: Verify no bluearchy references
+      - name: Verify no tarion references
         run: |
-          if grep -r "bluearchy" --exclude-dir=.git --exclude-dir=node_modules . 2>/dev/null; then
-            echo "ERROR: Found 'bluearchy' references that should be 'tairon'"
+          if grep -r "tarion" --exclude-dir=.git --exclude-dir=node_modules . 2>/dev/null; then
+            echo "ERROR: Found 'tarion' references that should be 'tarion'"
             exit 1
           fi
-          echo "✓ No bluearchy references found"
+          echo "✓ No tarion references found"
 
       - name: Check script permissions
         run: |
           test -x files/scripts/setupvicinae.sh || (echo "setupvicinae.sh not executable" && exit 1)
-          test -x files/system/usr/bin/tairon-setup || (echo "tairon-setup not executable" && exit 1)
-          test -x files/system/usr/bin/tairon-backup || (echo "tairon-backup not executable" && exit 1)
-          test -x files/system/usr/bin/tairon-restore || (echo "tairon-restore not executable" && exit 1)
+          test -x files/system/usr/bin/tarion-setup || (echo "tarion-setup not executable" && exit 1)
+          test -x files/system/usr/bin/tarion-backup || (echo "tarion-backup not executable" && exit 1)
+          test -x files/system/usr/bin/tarion-restore || (echo "tarion-restore not executable" && exit 1)
           echo "✓ All scripts have correct permissions"
 
       - name: Check for required files
         run: |
-          test -f files/system/usr/share/tairon/logo.txt || (echo "logo.txt missing" && exit 1)
+          test -f files/system/usr/share/tarion/logo.txt || (echo "logo.txt missing" && exit 1)
           test -f files/system/etc/vicinae/settings.json || (echo "Vicinae config missing" && exit 1)
           test -f files/system/etc/hyprshot.conf || (echo "Hyprshot config missing" && exit 1)
           test -f files/system/etc/mako/config || (echo "Mako config missing" && exit 1)

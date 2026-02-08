@@ -1,4 +1,4 @@
--- Tairon Neovim configuration
+-- Tarion Neovim configuration
 -- Minimal but developer-focused
 
 -- Set leader key

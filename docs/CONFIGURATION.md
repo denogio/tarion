@@ -1,4 +1,4 @@
-# Tairon Configuration Guide
+# Tarion Configuration Guide
 
 ## Vicinae
 
@@ -87,7 +87,7 @@ pkill mako && mako &
 ## System-wide Configuration
 
 ### GSettings Overrides
-Location: `/usr/share/glib-2.0/schemas/zz1-tairon-theming.gschema.override`
+Location: `/usr/share/glib-2.0/schemas/zz1-tarion-theming.gschema.override`
 
 To apply changes:
 ```bash
@@ -97,19 +97,19 @@ sudo glib-compile-schemas /usr/share/glib-2.0/schemas/
 ## First-Boot Setup
 
 The setup wizard creates:
-- `~/.config/tairon/setup-done` - Marks setup as complete
+- `~/.config/tarion/setup-done` - Marks setup as complete
 
 To re-run setup:
 ```bash
-rm ~/.config/tairon/setup-done
-tairon-setup
+rm ~/.config/tarion/setup-done
+tarion-setup
 ```
 
 ## Backup & Restore
 
 ### Backup
 ```bash
-tairon-backup
+tarion-backup
 ```
 
 Backs up:
@@ -123,5 +123,5 @@ Backs up:
 
 ### Restore
 ```bash
-tairon-restore ~/.config/tairon/backups/tairon-backup-YYYYMMDD_HHMMSS.tar.gz
+tarion-restore ~/.config/tarion/backups/tarion-backup-YYYYMMDD_HHMMSS.tar.gz
 ```

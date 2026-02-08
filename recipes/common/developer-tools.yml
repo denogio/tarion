@@ -20,7 +20,6 @@ modules:
         - devpod
         - code
         - neovim
-        - thunar
         - antigravity
 
   

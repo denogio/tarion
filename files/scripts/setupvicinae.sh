@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Set up Vicinae for tairon
+# Set up Vicinae for tarion
 # This script is run during image build
 
 # Ensure Vicinae config directory exists
