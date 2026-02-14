@@ -61,7 +61,7 @@ sync_app() {
 }
 
 # Hyprland
-sync_app "Hyprland" "${DEFAULTS_DIR}/hypr/hyprland.conf" "${USER_CONFIG_DIR}/hypr/hyprland.conf" "source ="
+sync_app "Hyprland" "${DEFAULTS_DIR}/hyprland.conf" "${USER_CONFIG_DIR}/hypr/hyprland.conf" "source ="
 
 # Ghostty
 sync_app "Ghostty" "${DEFAULTS_DIR}/ghostty/config" "${USER_CONFIG_DIR}/ghostty/config" "config-file ="
