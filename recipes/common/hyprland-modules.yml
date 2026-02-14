@@ -13,7 +13,7 @@ modules:
       - ghostty
       - hyprland
       - dms
-      - hyprland-plugin-hyprscrolling-git
+      - hyprland-plugin-hyprscrolling
       - xdg-desktop-portal-hyprland
       - hyprpaper
       - hyprpolkitagent
