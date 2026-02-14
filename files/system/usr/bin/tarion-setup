@@ -150,6 +150,19 @@ if gum confirm "Set default theme (Catppuccin Mocha)?" --default=true; then
     gum style --foreground 46 "✓ Theme set to Catppuccin Mocha"
 fi
 
+# Step 6: Greeter Sync
+if gum confirm "Sync Greeter theme?" --default=true; then
+    gum spin --spinner dot --title "Syncing greeter..." -- bash -c "
+        if command -v dms &> /dev/null; then
+            echo 'Running dms greeter sync...'
+            dms greeter sync || echo 'Warning: dms greeter sync failed, you might need to run it manually.'
+        else
+            echo 'dms command not found'
+        fi
+    "
+    gum style --foreground 46 "✓ Greeter synced"
+fi
+
 # Step 5: System info
 gum style \
   --foreground 212 \
