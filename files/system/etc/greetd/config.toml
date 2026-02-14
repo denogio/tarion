@@ -1,0 +1,3 @@
+[default_session]
+command = "dms-greeter"
+user = "greeter"

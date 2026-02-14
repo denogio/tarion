@@ -5,16 +5,14 @@ modules:
         enable:
           - lionheartp/Hyprland
           - scottames/ghostty
+          - avengemedia/danklinux
     install:
       install-weak-deps: false
       packages:
       - ghostty
-      - hyprland
-      - waybar
+      - hyprland-plugin-hyprscrolling-git
       - xdg-desktop-portal-hyprland
       - hyprpaper
-      - hyprlock
-      - hypridle
       - hyprpolkitagent
       - hyprland-guiutils
       - hyprshot

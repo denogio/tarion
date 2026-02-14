@@ -1,0 +1,18 @@
+modules:
+    - type: dnf
+      repos:
+        copr:
+          enable:
+            - avengemedia/danklinux
+      install:
+        install-weak-deps: false
+        packages:
+          - greetd
+          - dms-greeter
+
+    - type: systemd
+      system:
+        enabled:
+          - greetd.service
+        disabled:
+          - sddm.service

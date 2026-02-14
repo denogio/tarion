@@ -43,9 +43,9 @@ echo "${THEME_NAME}" > "${HOME}/.config/tarion/current/theme.name"
 # tarion-theme-bg-next # TODO: Enable when ported
 
 # Apply theme to components
-if pgrep -x waybar >/dev/null; then
-  # tarion-restart-waybar
-  systemctl --user restart waybar
+if pgrep -x dms >/dev/null; then
+  # dms reload
+  dms reload
 fi
 
 # tarion-restart-swayosd

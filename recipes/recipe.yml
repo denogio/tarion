@@ -17,7 +17,7 @@ stages:
   - from-file: stages/cargo-builder.yml
 
 modules:
-  - from-file: common/sddm-modules.yml
+  - from-file: common/greetd-modules.yml
   - from-file: common/common-modules.yml
   - from-file: common/hyprland-modules.yml
   - from-file: common/developer-tools.yml

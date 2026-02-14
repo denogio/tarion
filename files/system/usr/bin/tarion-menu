@@ -156,7 +156,7 @@ show_font_menu() {
 show_setup_menu() {
   local options="  Audio\n󰂯  Bluetooth\n󰀲  Power\n󰂯  Display\n�  User Config\n�  About"
 
-  if [ -f ~/.config/tarion/hyprland.conf ] && [ -f ~/.config/tarion/waybar/config.jsonc ]; then
+  if [ -f ~/.config/tarion/hyprland.conf ] && [ -d ~/.config/dms ]; then
     options="${options}\n  Keybindings\n�  Edit Configs"
   fi
 
@@ -175,7 +175,7 @@ show_setup_menu() {
 
 show_system_menu() {
   case $(menu "System" "  Lock\n󰔎  Screensaver\n  Suspend\n󰐥  Restart\n�  Shutdown") in
-    *Lock*) loginctl lock-session ;;
+    *Lock*) dms lock ;;
     *Screensaver*) tarion-launch-screensaver force ;;
     *Suspend*) systemctl suspend ;;
     *Restart*) systemctl reboot ;;
