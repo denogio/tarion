@@ -6,6 +6,7 @@ modules:
           - lionheartp/Hyprland
           - scottames/ghostty
           - avengemedia/danklinux
+          - avengemedia/dms
     install:
       install-weak-deps: false
       packages:
