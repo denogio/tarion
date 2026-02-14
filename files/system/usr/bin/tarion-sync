@@ -74,6 +74,18 @@ if [ ! -f "${VICINAE_DEST}" ]; then
     echo "{ \"imports\": [\"${DEFAULTS_DIR}/vicinae/settings.json\"] }" > "${VICINAE_DEST}"
 fi
 
+# Default Theme Link
+# Ensures that ~/.config/tarion/current/theme points to a valid theme (default: catppuccin-mocha)
+# so that Hyprland can source it.
+THEME_LINK="${HOME}/.config/tarion/current/theme"
+TARGET_THEME="/usr/share/tarion/themes/catppuccin-mocha"
+
+if [ ! -e "${THEME_LINK}" ]; then
+    echo "Setting default theme to Catppuccin Mocha..."
+    mkdir -p "$(dirname "${THEME_LINK}")"
+    ln -sf "${TARGET_THEME}" "${THEME_LINK}"
+fi
+
 # Update state
 mkdir -p "${STATE_DIR}"
 echo "${IMAGE_ID}" > "${STATE_FILE}"
