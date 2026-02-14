@@ -20,6 +20,7 @@ jobs:
           python3 -c "import yaml; yaml.safe_load(open('recipes/recipe.yml'))"
           python3 -c "import yaml; yaml.safe_load(open('recipes/common/common-modules.yml'))"
           python3 -c "import yaml; yaml.safe_load(open('recipes/common/hyprland-modules.yml'))"
+          python3 -c "import yaml; yaml.safe_load(open('recipes/common/greetd-modules.yml'))"
           python3 -c "import yaml; yaml.safe_load(open('recipes/common/extra-packages.yml'))"
 
       - name: Check Vicinae config
@@ -48,7 +49,7 @@ jobs:
           test -f files/system/usr/share/tarion/logo.txt || (echo "logo.txt missing" && exit 1)
           test -f files/system/etc/vicinae/settings.json || (echo "Vicinae config missing" && exit 1)
           test -f files/system/etc/hyprshot.conf || (echo "Hyprshot config missing" && exit 1)
-          test -f files/system/etc/mako/config || (echo "Mako config missing" && exit 1)
+          test -f files/system/etc/greetd/config.toml || (echo "Greetd config missing" && exit 1)
           echo "✓ All required files present"
 
       - name: Check documentation
