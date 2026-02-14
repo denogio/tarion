@@ -10,6 +10,8 @@ modules:
       install-weak-deps: false
       packages:
       - ghostty
+      - hyprland
+      - dms
       - hyprland-plugin-hyprscrolling-git
       - xdg-desktop-portal-hyprland
       - hyprpaper

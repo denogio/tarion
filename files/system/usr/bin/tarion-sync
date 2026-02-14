@@ -66,9 +66,6 @@ sync_app "Hyprland" "${DEFAULTS_DIR}/hypr/hyprland.conf" "${USER_CONFIG_DIR}/hyp
 # Ghostty
 sync_app "Ghostty" "${DEFAULTS_DIR}/ghostty/config" "${USER_CONFIG_DIR}/ghostty/config" "config-file ="
 
-# Mako
-sync_app "Mako" "${DEFAULTS_DIR}/mako/config" "${USER_CONFIG_DIR}/mako/config" "include ="
-
 # Vicinae (JSON doesn't support easy sourcing like this, so we handle it uniquely)
 VICINAE_DEST="${USER_CONFIG_DIR}/vicinae/settings.json"
 if [ ! -f "${VICINAE_DEST}" ]; then

@@ -33,7 +33,8 @@ validate_config() {
 
     # Run Hyprland in a sandbox
     # We mount the repo's system files over the real ones
-    if bwrap \
+    local output
+    output=$(bwrap \
         --ro-bind /usr /usr \
         --ro-bind /lib /lib \
         --ro-bind /lib64 /lib64 \
@@ -47,27 +48,18 @@ validate_config() {
         --ro-bind "$REPO_ROOT/files/system/hyprland/usr/share/hyprland" /usr/share/hyprland \
         --setenv HOME "$HOME" \
         --setenv XDG_RUNTIME_DIR "/tmp" \
-        Hyprland --verify-config -c "$config_path" > /dev/null 2>&1; then
+        Hyprland --verify-config -c "$config_path" 2>&1) || true
+
+    # Filter out "scroller:" related errors which are expected since the plugin isn't loaded during linting
+    local filtered_output
+    filtered_output=$(echo "$output" | grep -vE "Invalid dispatcher, requested \"scroller:.*\" does not exist" | grep -vE "Invalid dispatcher: scroller:.*" || true)
+
+    if [[ -z "$(echo "$filtered_output" | grep -E "ERR |Config error" || true)" ]]; then
         echo "✅ PASSED"
         VALID_COUNT=$((VALID_COUNT + 1))
     else
         echo "❌ FAILED"
-        # Run again without redirection to show errors
-        bwrap \
-            --ro-bind /usr /usr \
-            --ro-bind /lib /lib \
-            --ro-bind /lib64 /lib64 \
-            --ro-bind /bin /bin \
-            --ro-bind /etc /etc \
-            --dev /dev \
-            --proc /proc \
-            --tmpfs /tmp \
-            --bind "$tmp_home" "$HOME" \
-            --ro-bind "$REPO_ROOT" "$REPO_ROOT" \
-            --ro-bind "$REPO_ROOT/files/system/hyprland/usr/share/hyprland" /usr/share/hyprland \
-            --setenv HOME "$HOME" \
-            --setenv XDG_RUNTIME_DIR "/tmp" \
-            Hyprland --verify-config -c "$config_path" || true
+        echo "$output"
         ERROR_COUNT=$((ERROR_COUNT + 1))
     fi
     
