@@ -53,6 +53,38 @@ Examples:
 EOF
 }
 
+# Helper: Run command with backend
+run_backend_cmd() {
+    local cmd="$1"
+    local backend="$2"
+    shift 2
+    local args=("$@")
+    
+    case "${backend}" in
+        brew)
+            brew "${cmd}" "${args[@]}"
+            ;;
+        flatpak)
+            case "${cmd}" in
+                list) flatpak list --app ;;
+                search) flatpak search "${args[@]}" ;;
+                install) flatpak install "${args[@]}" ;;
+                uninstall) flatpak uninstall "${args[@]}" ;;
+                update) flatpak update ;;
+                info) flatpak info "${args[@]}" ;;
+                *) echo "Error: Unknown flatpak command ${cmd}"; return 1 ;;
+            esac
+            ;;
+        dnf)
+            sudo dnf "${cmd}" "${args[@]}"
+            ;;
+        *)
+            echo "Error: Unknown backend ${backend}"
+            return 1
+            ;;
+    esac
+}
+
 # Main dispatcher
 main() {
     if [ $# -eq 0 ]; then
@@ -63,42 +95,74 @@ main() {
     local command="$1"
     shift
 
+    # Detect backend from last argument if present
+    local backend=""
+    local args=()
+    
+    for arg in "$@"; do
+        if [[ "${arg}" == "brew" || "${arg}" == "flatpak" || "${arg}" == "dnf" ]]; then
+            backend="${arg}"
+        else
+            args+=("${arg}")
+        fi
+    done
+
+    # Default backend priority
+    if [ -z "${backend}" ]; then
+        if command -v brew &>/dev/null; then
+            backend="brew"
+        elif command -v flatpak &>/dev/null; then
+            backend="flatpak"
+        else
+            backend="dnf"
+        fi
+    fi
+
     case "${command}" in
         list)
-            # Todo: Implement list
-            echo "Listing packages..."
-            # For now, just show backends
-            echo "Installed backends: $(get_installed_backends)"
+            echo "Listing packages from ${backend}..."
+            run_backend_cmd list "${backend}"
             ;;
         search)
-            if [ $# -eq 0 ]; then
+            if [ ${#args[@]} -eq 0 ]; then
                 echo "Usage: tarion-pkg search <query> [backend]"
                 exit 1
             fi
-            local query="$1"
-            shift
-            echo "Searching for '${query}'..."
-             # Todo: Implement search logic dispatch
+            echo "Searching for '${args[*]}' in ${backend}..."
+            run_backend_cmd search "${backend}" "${args[@]}"
             ;;
         install)
-            if [ $# -eq 0 ]; then
-                echo "Usage: tarion-pkg install <package...> [backend]"
+            if [ ${#args[@]} -eq 0 ]; then
+                # Interactive mode
+                if command -v tarion-webapp-install &>/dev/null; then
+                     tarion-webapp-install
+                     exit 0
+                else
+                    echo "Usage: tarion-pkg install <package...> [backend]"
+                    exit 1
+                fi
+            fi
+            echo "Installing ${args[*]} via ${backend}..."
+            run_backend_cmd install "${backend}" "${args[@]}"
+            ;;
+        uninstall|remove)
+            if [ ${#args[@]} -eq 0 ]; then
+                echo "Usage: tarion-pkg uninstall <package...> [backend]"
                 exit 1
             fi
-             # Todo: Implement install dispatch
-             echo "Installing $*..."
+            echo "Uninstalling ${args[*]} from ${backend}..."
+            run_backend_cmd uninstall "${backend}" "${args[@]}"
             ;;
-        uninstall)
-             # Todo: Implement uninstall dispatch
-             echo "Uninstalling $*..."
-            ;;
-        update)
-             # Todo: Implement update dispatch
-             echo "Updating..."
+        update|upgrade)
+            echo "Updating ${backend}..."
+            run_backend_cmd update "${backend}"
             ;;
         info)
-             # Todo: Implement info dispatch
-             echo "Showing info for $*..."
+            if [ ${#args[@]} -eq 0 ]; then
+                echo "Usage: tarion-pkg info <pkg> [backend]"
+                exit 1
+            fi
+            run_backend_cmd info "${backend}" "${args[@]}"
             ;;
         -h|--help)
             show_help

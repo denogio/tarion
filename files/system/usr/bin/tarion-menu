@@ -3,20 +3,7 @@
 # Optimized for Fedora Atomic
 # User config in ~/.config/tarion/ overrides system defaults
 
-BACK_TO_EXIT=false
-
-back_to() {
-  local parent_menu="${1}"
-
-  if [[ "${BACK_TO_EXIT}" == "true" ]]; then
-    exit 0
-  elif [[ -n "${parent_menu}" ]]; then
-    "${parent_menu}" "$@"
-  else
-    show_main_menu "$@"
-  fi
-}
-
+# Helper: Menu execution
 menu() {
   local prompt="${1}"
   local options="${2}"
@@ -39,187 +26,176 @@ menu() {
   echo -e "${options}" | vicinae dmenu -p "${prompt}…" "${args[@]}" --no-section --no-quick-look --no-metadata 2>/dev/null
 }
 
+# Helper: Launch terminal
 terminal() {
-  local term_app="${1:-ghostty}"
-  shift || true
-
-  if command -v "${term_app}" &>/dev/null; then
-    exec "${term_app}" "$@"
-  elif command -v ghostty &>/dev/null; then
-    exec ghostty "$@"
+  if command -v ghostty &>/dev/null; then
+    exec ghostty
   else
-    exec xdg-terminal-emulator "$@"
+    exec xdg-terminal-emulator
   fi
 }
 
+# Helper: Open in editor
 open_in_editor() {
-  notify-send "Editing config file" "${1}"
+  local file="${1}"
+  notify-send "Editing config file" "${file}"
 
   if command -v nvim &>/dev/null; then
-    exec nvim "${1}"
+    exec nvim "${file}"
   elif command -v code &>/dev/null; then
-    exec code "${1}"
+    exec code "${file}"
   else
-    exec xdg-open "${1}"
+    exec xdg-open "${file}"
   fi
 }
 
-show_learn_menu() {
-  case $(menu "Learn" "  Keybindings\n  Tarion\n  Hyprland\n󰣇  Fedora\n󱆃  Neovim\n  Bash") in
-    *Keybindings*) open_in_editor ~/.config/tarion/hyprland.conf ;;
-    *Tarion*) tarion-launch-webapp "https://github.com/denogio/tarion" ;;
-    *Hyprland*) tarion-launch-webapp "https://wiki.hypr.land/" ;;
-    *Fedora*) tarion-launch-webapp "https://docs.fedoraproject.org/en-US/fedora/" ;;
-    *Neovim*) tarion-launch-webapp "https://neovim.io/doc/" ;;
-    *Bash*) tarion-launch-webapp "https://devhints.io/bash" ;;
-    *) show_main_menu "$@" ;;
-  esac
+# Helper: Launch Web App
+launch_web() {
+    tarion-launch-webapp "${1}"
 }
 
-show_trigger_menu() {
-  case $(menu "Trigger" "  Screenshot") in
-    *Screenshot*) tarion-screenshot ;;
-    *) show_main_menu "$@" ;;
-  esac
-}
-
-
-show_style_menu() {
-  case $(menu "Style" "󰸌  Theme\n  Font\n  Background\n  Hyprland\n  About") in
-    *Theme*) show_theme_menu "$@" ;;
-    *Font*) show_font_menu ;;
-    *Background*) nautilus "${HOME}/Pictures/Wallpapers" ;;
-    *Hyprland*) open_in_editor ~/.config/tarion/hyprland.conf ;;
-    *About*) open_in_editor /usr/share/tarion/defaults/README.md ;;
-    *) show_main_menu "$@" ;;
-  esac
-}
-
-show_theme_menu() {
-  case $(menu "Theme" "󰸌  Theme Set\n  Background\n  Font") in
-    *Background*) nautilus "${HOME}/Pictures/Wallpapers" ;;
-    *Font*) show_font_menu ;;
-    *) show_style_menu "$@" ;;
-  esac
-}
-
-show_font_menu() {
-  local fonts
-  fonts=$(fc-list : family spacing=2 | grep -i -E "Mono|Code" | head -20)
-  
-  local selected_font
-  selected_font=$(menu "Font" "${fonts}" "$(fc-match "FiraCode Nerd Font Mono" | awk '{print $1}')")
-
-  if [[ "${selected_font}" != "CNCLD" && -n "${selected_font}" ]]; then
-    echo "Setting font: ${selected_font}"
-    gsettings set org.gnome.desktop.interface monospace-font-name "${selected_font}"
-  fi
-}
-
-show_setup_menu() {
-  local options="  Audio\n󰂯  Bluetooth\n󰀲  Power\n󰂯  Display\n  User Config\n  About"
-
-  if [ -f ~/.config/tarion/hyprland.conf ]; then
-    options="${options}\n  Keybindings\n  Edit Configs"
-  fi
-
-  case $(menu "Setup" "${options}") in
-    *Audio*) nmcli device show ;;
-    *Bluetooth*) bluetoothctl show ;;
-    *Power*) systemctl poweroff ;;
-    *Display*) tarion-launch-webapp "https://wiki.archlinux.org/title/Main_page" ;;
-    *User*) tarion-launch-webapp "file://${HOME}/.config/tarion/defaults/README.md" ;;
-    *Keybindings*) open_in_editor ~/.config/tarion/hyprland.conf ;;
-    *Edit*) open_in_editor ~/.config/tarion/hyprland.conf ;;
-    *About*) open_in_editor /usr/share/tarion/defaults/README.md ;;
-    *) show_main_menu "$@" ;;
-  esac
-}
-
-show_system_menu() {
-  case $(menu "System" "  Lock\n󰔎  Screensaver\n  Suspend\n󰐥  Restart\n  Shutdown") in
-    *Lock*) loginctl lock-session ;;
-    *Screensaver*) tarion-launch-screensaver force ;;
-    *Suspend*) systemctl suspend ;;
-    *Restart*) systemctl reboot ;;
-    *Shutdown*) systemctl poweroff ;;
-    *) back_to show_main_menu "$@" ;;
-  esac
-}
+# --- Menus ---
 
 show_main_menu() {
   local selected
   if [[ -n "${1}" ]]; then
     selected="${1}"
   else
-    selected=$(menu "Tarion" "󰀻  Apps\n󰧑  Learn\n󰍜  Trigger\n󰸌  Style\n  Setup\n  Install\n󰭌  Remove\n  Update\n  About\n  System")
+    # Main Dashboard
+    selected=$(menu "Tarion" "󰀻  Apps\n󰧑  Learn\n󰍜  Tools\n󰸌  Style\n  Settings\n󰏔  Packages\n  Update\n  System")
   fi
 
   case "${selected,,}" in
-    *apps*) case $(menu "Apps" "  Browser\n  Editor\n󰆘  Terminal\n  Calculator") in
-      *Browser*) tarion-launch-browser ;;
-      *Editor*) tarion-launch-editor ;;
-      *Terminal*) terminal "$@" ;;
-      *Calculator*) flatpak run io.elementary.calculator 2>/dev/null ;;
-      *) show_main_menu "$@" ;;
-      esac ;;
-
+    *apps*) show_apps_menu "$@" ;;
     *learn*) show_learn_menu "$@" ;;
-    *trigger*) show_trigger_menu "$@" ;;
+    *tools*) show_trigger_menu "$@" ;;
     *style*) show_style_menu "$@" ;;
-    *setup*) show_setup_menu "$@" ;;
-    *install*) show_install_menu "$@" ;;
-    *remove*) show_remove_menu "$@" ;;
+    *settings*) show_setup_menu "$@" ;;
+    *packages*) show_pkg_menu "$@" ;;
     *update*) show_update_menu "$@" ;;
-    *about*) show_install_menu "$@" ;;
     *system*) show_system_menu "$@" ;;
     *) [[ -n "${selected}" ]] && echo "Unknown selection: ${selected}" ;;
   esac
 }
 
-show_install_menu() {
-  case $(menu "Install" "󰀻  Flatpak List\n󰚁  Flatpak Search\n󰐧  Package Search (dnf)\n󰚁  Flatpak Update\n󰚛  Theme\n󰚛  Font\n󰐧  Terminal\n󰚙  Editor") in
-    *List*) flatpak list --app 2>/dev/null | grep -v "^No runtime" || echo "No Flatpak apps installed" ;;
-    *Search*) flatpak list 2>/dev/null | grep -v "^\S" | vicinae dmenu -p "Select to install" --no-section --no-metadata 2>/dev/null | xargs -I {} flatpak install ;;
-    *Update*) flatpak update ;;
-    *Package*) dnf search "$@" ;;
-    *Theme*) show_theme_menu "$@" ;;
-    *Font*) show_font_menu ;;
-    *Terminal*) terminal "$@" ;;
-    *Editor*) open_in_editor "https://flathub.org/search" ;;
+show_apps_menu() {
+    case $(menu "Apps" "󰈹  Browser\n  Editor\n󰆘  Terminal\n󰃬  Calculator\n  Files\n󰕾  Music") in
+      *Browser*) tarion-launch-browser ;;
+      *Editor*) tarion-launch-editor ;;
+      *Terminal*) terminal ;;
+      *Calculator*) flatpak run io.elementary.calculator 2>/dev/null || gnome-calculator ;;
+      *Files*) xdg-open "${HOME}" ;;
+      *Music*) flatpak run com.spotify.Client 2>/dev/null || amberol ;;
+      *) show_main_menu "$@" ;;
+    esac
+}
+
+show_learn_menu() {
+  case $(menu "Learn" "  Keybindings\n  Tarion Docs\n  Hyprland Wiki\n󰣇  Fedora Docs\n󱆃  Neovim Docs\n  Bash Cheatsheet") in
+    *Keybindings*) open_in_editor ~/.config/tarion/hyprland.conf ;; # TODO: Show keybinding viewer
+    *Tarion*) launch_web "https://github.com/denogio/tarion" ;;
+    *Hyprland*) launch_web "https://wiki.hypr.land/" ;;
+    *Fedora*) launch_web "https://docs.fedoraproject.org/en-US/fedora/" ;;
+    *Neovim*) launch_web "https://neovim.io/doc/" ;;
+    *Bash*) launch_web "https://devhints.io/bash" ;;
     *) show_main_menu "$@" ;;
   esac
 }
 
-show_remove_menu() {
-  case $(menu "Remove" "󰀻  Flatpak\n󰚛  Font") in
-    *Flatpak*) flatpak list --app 2>/dev/null | grep -v "^No runtime" | vicinae dmenu -p "Select to remove" --no-section --no-metadata 2>/dev/null | xargs -I {} flatpak remove ;;
-    *Font*) show_font_menu ;;
+show_trigger_menu() {
+  case $(menu "Tools" "  Screenshot\n󰕾  Audio Control\n󰂯  Bluetooth\n󰍜  Color Picker") in
+    *Screenshot*) tarion-screenshot ;;
+    *Audio*) pavucontrol || gnome-control-center sound ;;
+    *Bluetooth*) blueman-manager || gnome-control-center bluetooth ;;
+    *Color*) hyprpicker -a ;;
+    *) show_main_menu "$@" ;;
+  esac
+}
+
+show_style_menu() {
+  case $(menu "Style" "󰸌  Theme Selector\n  Wallpaper\n  Hyprland Config\n  About Tarion") in
+    *Theme*) 
+        # TODO: Interactive theme selector
+        notify-send "Coming soon" "Interactive theme selector"
+        ;;
+    *Wallpaper*) 
+        if command -v waypaper &>/dev/null; then
+            waypaper
+        else
+            nautilus "${HOME}/Pictures/Wallpapers" 
+        fi
+        ;;
+    *Hyprland*) open_in_editor ~/.config/hypr/hyprland.conf ;;
+    *About*) open_in_editor /usr/share/tarion/defaults/README.md ;;
+    *) show_main_menu "$@" ;;
+  esac
+}
+
+show_setup_menu() {
+    case $(menu "Settings" "  Audio\n󰂯  Bluetooth\n󰀲  Power\n󰂯  Displays\n  All Settings") in
+      *Audio*) pavucontrol ;;
+      *Bluetooth*) blueman-manager ;;
+      *Power*) gnome-control-center power ;;
+      *Displays*) wdisplays || gnome-control-center display ;;
+      *All*) gnome-control-center ;;
+      *) show_main_menu "$@" ;;
+    esac
+}
+
+show_pkg_menu() {
+  case $(menu "Packages" "�  Install Package\n󰭌  Remove Package\n󰇚  Update All\n󰏔  List Installed") in
+    *Install*) 
+        if command -v tarion-webapp-install &>/dev/null; then
+            tarion-webapp-install
+        else
+            tarion-launch-floating-terminal-with-presentation "tarion-pkg install"
+        fi
+        ;;
+    *Remove*) 
+        # Simple prompt for now, could be improved with multiselect
+        pkg=$(gum input --placeholder "Package to remove")
+        if [[ -n "${pkg}" ]]; then
+            tarion-launch-floating-terminal-with-presentation "tarion-pkg remove ${pkg}"
+        fi
+        ;;
+    *Update*) tarion-launch-floating-terminal-with-presentation "tarion-pkg update" ;;
+    *List*) 
+        tarion-launch-floating-terminal-with-presentation "tarion-pkg list; read -p 'Press enter to close...'" 
+        ;;
     *) show_main_menu "$@" ;;
   esac
 }
 
 show_update_menu() {
-  case $(menu "Update" "󰀻  Tarion\n  Config\n  System\n󰀲  Firmware") in
-    *Tarion*) tarion-launch-floating-terminal-with-presentation "ujust update" ;;
-    *Config*) open_in_editor ~/.config/tarion/hyprland.conf ;;
-    *System*) show_update_system_menu "$@" ;;
-    *Firmware*) tarion-launch-floating-terminal-with-presentation "sudo dnf upgrade --refresh -y" ;;
+  case $(menu "Update" "󰀻  System Update\n  Config Reload\n󰀲  Firmware") in
+    *System*) tarion-launch-floating-terminal-with-presentation "ujust update" ;;
+    *Config*) hyprctl reload && notify-send "Config reloaded" ;;
+    *Firmware*) tarion-launch-floating-terminal-with-presentation "fwupdmgr refresh && fwupdmgr update" ;;
     *) show_main_menu "$@" ;;
   esac
 }
 
-show_update_system_menu() {
-  case $(menu "Update" "󰀻  Audio\n󰂯  Bluetooth") in
-    *Audio*) ;;
-    *Bluetooth*) ;;
-    *) back_to show_update_menu "$@" ;;
+show_system_menu() {
+  case $(menu "System" "  Lock\n󰔎  Screensaver\n  Suspend\n󰐥  Reboot\n  Shutdown\n󰗼  Log Out") in
+    *Lock*) loginctl lock-session ;;
+    *Screensaver*) 
+        if command -v wlogout &>/dev/null; then
+            wlogout
+        else
+             loginctl lock-session
+        fi
+        ;;
+    *Suspend*) systemctl suspend ;;
+    *Reboot*) systemctl reboot ;;
+    *Shutdown*) systemctl poweroff ;;
+    *Log*) loginctl terminate-user "${USER}" ;;
+    *) show_main_menu "$@" ;;
   esac
 }
 
+# Entry point
 if [[ -n "${1}" ]]; then
-  BACK_TO_EXIT=true
   show_main_menu "$@"
 else
-  show_main_menu "$@"
+  show_main_menu
 fi
