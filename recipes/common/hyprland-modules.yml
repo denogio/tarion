@@ -21,6 +21,7 @@ modules:
       - hyprshot
       - jetbrains-mono-fonts
       - uwsm
+      - xdg-terminal-exec
 
   - type: dnf
     repos:

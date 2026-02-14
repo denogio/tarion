@@ -20,8 +20,10 @@ Minimal. Dark. Developer-First. Atomic.
 ## Features
 
 - **Hyprland** - Fast, dynamic tiling Wayland compositor
+- **DankMaterialShell (DMS)** - Modern desktop shell providing widgets, top bar, and notification management
+- **Greetd + DMS-Greeter** - Secure, integrated login manager and lock screen
+- **Hyprscrolling** - Native scrolling layout plugin for Hyprland (PaperWM-style)
 - **Vicinae** - Keyboard-driven launcher with plugins and dmenu support
-- **Waybar** - Customizable status bar with developer-friendly modules
 - **Ghostty** - Modern terminal emulator
 - **Developer Tools** - Homebrew-based installation of ripgrep, fd, bat, eza, starship, lazygit, zoxide
 - **Auto-updates** - Seamless rpm-ostree updates
@@ -119,14 +121,17 @@ Tarion uses Vicinae as the primary launcher with extensive customizations:
 ## Keybindings
 
 ### Hyprland:
-- **SUPER+Q** - Open terminal (Ghostty)
+- **SUPER+Enter** - Open terminal (Ghostty)
 - **SUPER+E** - File manager (Thunar)
-- **SUPER+R** - Vicinae launcher
+- **SUPER+Space** - Vicinae launcher
 - **SUPER+SHIFT+R** - Vicinae system controls (dmenu)
-- **SUPER+L** - Lock screen
+- **CTRL+ALT+Space** - Vicinae window selection mode
+- **SUPER+L** - Lock screen (DMS)
 - **SUPER+Print** - Screenshot (region)
 - **SUPER+SHIFT+Print** - Screenshot (full screen)
-- **Arrow keys** - Navigate windows
+- **Arrow keys** - Navigate windows (scrolling layout)
+- **SHIFT+Arrow keys** - Move windows
+- **SUPER+, / SUPER+.** - Cycle window sizes (scrolling layout)
 - **0-9** - Switch workspaces
 
 ### Vicinae:
@@ -212,7 +217,7 @@ cosign verify --key cosign.pub ghcr.io/denogio/tarion
 
 Key configuration locations:
 - **Hyprland:** `~/.config/hypr/hyprland.conf`
-- **Waybar:** `~/.config/waybar/`
+- **DMS:** `~/.config/dms/`
 - **Vicinae:** `~/.config/vicinae/`
 - **Ghostty:** `~/.config/ghostty/config`
 - **Neovim:** `~/.config/nvim/init.lua`
@@ -225,9 +230,9 @@ Key configuration locations:
 systemctl --user restart vicinae
 ```
 
-### Waybar not showing
+### DMS not showing/responding
 ```bash
-systemctl --user restart waybar
+dms reload
 ```
 
 ### Reset Hyprland config
@@ -317,6 +322,9 @@ Built with ❤️ using:
 - [Universal Blue](https://universal-blue.org/)
 - [Fedora Atomic](https://fedoraproject.org/atomic-desktops/)
 - [Hyprland](https://hyprland.org/)
+- [DankMaterialShell](https://github.com/avengemedia/dms) - Premium desktop shell
+- [Hyprscrolling](https://github.com/hyprwm/contrib) - PaperWM-style window management
+- [greetd](https://git.sr.ht/~kennylevinsen/greetd) - Login manager daemon
 - [Vicinae](https://vicinae.com/)
 - [Blue Build](https://blue-build.org/)
 - [Wayblue](https://github.com/wayblueorg)

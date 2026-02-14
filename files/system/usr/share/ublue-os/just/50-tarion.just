@@ -5,7 +5,6 @@ tarion-menu:
     tarion-menu
 
 # Tarion system scripts - Essential utilities for Tarion
-# All scripts are installed to ~/.local/bin on first boot via tarion-install-scripts
 
 # Show all available Tarion commands
 list:
@@ -31,10 +30,6 @@ list:
     echo "  tarion-screenshot          - Take screenshots"
     echo "  tarion-pkg-remove         - Remove packages"
     echo "  tarion-pkg-present         - Check package presence"
-    echo ""
-    echo "Update & Maintenance:"
-    echo "  tarion-update-scripts      - Update all Tarion scripts"
-    echo "  tarion-install-scripts     - Install Tarion scripts"
     echo ""
 
 # Update Tarion scripts from system

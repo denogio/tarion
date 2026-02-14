@@ -31,9 +31,9 @@ recipes/
 ├── stages/
 │   └── cargo-builder.yml         # Rust build stage
 └── common/
-    ├── sddm-modules.yml          # Display manager
+    ├── greetd-modules.yml        # Login manager (greetd + dms)
     ├── common-modules.yml        # Core packages
-    ├── hyprland-modules.yml      # Window manager
+    ├── hyprland-modules.yml      # Window manager & plugins
     ├── developer-tools.yml       # Dev tools (code, neovim)
     ├── cargo-binaries.yml        # Rust apps
     ├── extra-packages.yml        # Additional packages

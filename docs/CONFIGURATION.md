@@ -32,16 +32,27 @@ See: https://docs.vicinae.com/scripts/getting-started
 hyprctl reload
 ```
 
-## Waybar
+## DankMaterialShell (DMS)
+DMS provides the top bar, widgets, and notification management.
 
 ### Location
-- Config: `~/.config/waybar/config.jsonc`
-- Style: `~/.config/waybar/style.css`
+- Config: `~/.config/dms/`
 
 ### Reloading
 ```bash
-killall waybar
+dms reload
 ```
+
+## Hyprscrolling (Layout)
+Tarion uses a scrolling layout similar to PaperWM.
+
+### Configuration
+Located in `/usr/share/tarion/defaults/hypr/looknfeel.conf`.
+
+### Common Dispatchers
+- `scroller:movefocus`: Navigate columns
+- `scroller:movewindow`: Move columns/windows
+- `scroller:cyclesize`: Change column width
 
 ## Ghostty
 
@@ -74,16 +85,6 @@ Edit `~/.bashrc`:
 alias mycommand='actual command'
 ```
 
-## Mako (Notifications)
-
-### Location
-- Config: `~/.config/mako/config`
-
-### Reloading
-```bash
-pkill mako && mako &
-```
-
 ## System-wide Configuration
 
 ### GSettings Overrides
@@ -114,7 +115,7 @@ tarion-backup
 
 Backs up:
 - Hyprland config
-- Waybar config
+- DMS config
 - Vicinae config
 - Neovim config
 - Ghostty config

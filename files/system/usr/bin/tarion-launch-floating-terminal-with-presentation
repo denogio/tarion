@@ -1,0 +1,18 @@
+#!/bin/bash
+
+# Launch a floating terminal with the Tarion logo presentation, 
+# then execute the command passed in, and finally end with the tarion-show-done presentation.
+# Used by actions such as Update System.
+
+if [ "$#" -eq 0 ]; then
+    echo "Usage: $0 <command> [args...]"
+    exit 1
+fi
+
+cmd="$*"
+
+# Use absolute paths for internal helpers
+LOGO_HELPER="/usr/lib/tarion-scripts/tarion-show-logo"
+DONE_HELPER="/usr/lib/tarion-scripts/tarion-show-done"
+
+exec setsid uwsm-app -- xdg-terminal-exec --app-id=org.tarion.terminal --title=Tarion -e bash -c "${LOGO_HELPER}; ${cmd}; if [ \$? -ne 130 ]; then ${DONE_HELPER}; fi"

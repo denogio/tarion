@@ -27,19 +27,6 @@ echo ""
 # Create config directory
 mkdir -p "${HOME}/.config/tarion"
 
-# Step 0: Install Tarion scripts
-if ! command -v tarion-menu &> /dev/null; then
-    if gum confirm "Install Tarion system scripts? (Essential utilities)" --default=true; then
-        gum spin --spinner dot --title "Installing Tarion scripts..." -- tarion-install-scripts
-        gum style --foreground 46 "✓ Tarion scripts installed"
-    else
-        gum style --foreground 196 "⚠️  Tarion scripts skipped"
-        gum style --foreground 244 "You can install later with: tarion-install-scripts"
-    fi
-else
-    gum style --foreground 244 "✓ Tarion scripts already installed"
-fi
-
 # Step 1: Developer tools
 if gum confirm "Install developer tools? (ripgrep, fd, bat, eza, starship, lazygit, zoxide, VSCode, Antigravity)" --default=true; then
     if ! command -v brew &> /dev/null; then
@@ -52,7 +39,7 @@ if gum confirm "Install developer tools? (ripgrep, fd, bat, eza, starship, lazyg
 
     gum spin --spinner dot --title "Installing developer tools..." -- bash -c "
         brew tap ublue-os/tap 2>/dev/null || true
-        brew install ripgrep fd-find bat eza starship lazygit zoxide
+        brew install ripgrep fd bat eza starship lazygit zoxide
         brew install --cask ublue-os/tap/visual-studio-code-linux
         brew install --cask ublue-os/tap/antigravity-linux
     "
@@ -180,9 +167,9 @@ gum style --foreground 226 "  - tarion-update          : Update Tarion system"
 gum style --foreground 226 "  - just               : Show all available commands"
 echo ""
 gum style --foreground 212 "Keyboard Shortcuts:"
-gum style --foreground 226 "  - SUPER+R         : Open Vicinae launcher"
+gum style --foreground 226 "  - SUPER+Space     : Open Vicinae launcher"
 gum style --foreground 226 "  - SUPER+SHIFT+R   : System controls (dmenu)"
-gum style --foreground 226 "  - SUPER+Q         : Terminal (Ghostty)"
+gum style --foreground 226 "  - SUPER+Enter     : Terminal (Ghostty)"
 gum style --foreground 226 "  - SUPER+E         : File manager (Thunar)"
 echo ""
 
