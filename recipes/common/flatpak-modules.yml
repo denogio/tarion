@@ -7,7 +7,7 @@ modules:
           title: Flathub (system)
         install:
           # Essential flatpaks - minimal set
-          - io.github.flattool.Flatseal       # Flatpak permissions manager
+          - com.github.tchx84.Flatseal       # Flatpak permissions manager
           - io.github.flattool.Warehouse       # Flatpak package manager
           # Default browser - Tarion's preferred browser
           - org.chromium.Chromium            # Chromium web browser
