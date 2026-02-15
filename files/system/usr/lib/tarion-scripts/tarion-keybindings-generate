@@ -5,6 +5,10 @@ declare -A KEYCODE_SYM_MAP
 declare -A BINDINGS
 declare -A CONFLICTS
 
+# shellcheck disable=SC2034
+# KEYCODE_SYM_MAP is intentionally kept for future keycode parsing support
+# shellcheck enable=SC2034
+
 CACHE_DIR="${HOME}/.cache/tarion"
 CACHE_FILE="${CACHE_DIR}/keybindings.cache"
 DEFAULTS_DIR="/usr/share/tarion/defaults"
