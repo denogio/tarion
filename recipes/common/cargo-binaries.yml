@@ -8,3 +8,8 @@ modules:
     from: cargo-stage
     src: /usr/local/cargo/bin/impala
     dest: /usr/bin/impala
+
+  - type: copy
+    from: cargo-stage
+    src: /usr/local/cargo/bin/matugen
+    dest: /usr/bin/matugen
