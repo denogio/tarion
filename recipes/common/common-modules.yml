@@ -87,6 +87,7 @@ modules:
           - wlsunset
           - brightnessctl
           - kanshi
+          - xkbcommon-tools
 
 
         # theme and GUI

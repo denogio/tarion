@@ -2,12 +2,14 @@
 description: Provides comprehensive overviews of the Tarion project architecture and systems
 mode: subagent
 temperature: 0.3
+
 tools:
   read: true
   glob: true
   grep: true
   bash: true
-permission:
+
+permissions:
   write: false
   edit: false
   webfetch: true

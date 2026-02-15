@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -euo pipefail
 
 # Change gnome modes
 if [[ -f ~/.config/tarion/current/theme/light.mode ]]; then

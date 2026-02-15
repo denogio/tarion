@@ -4,7 +4,52 @@ set -euo pipefail
 CACHE_DIR="${HOME}/.cache/tarion"
 CACHE_FILE="${CACHE_DIR}/keybindings.cache"
 
-source /usr/share/tarion/gum-theme.sh
+check_dependencies() {
+  local deps=("gum" "awk")
+  local missing_deps=()
+  
+  for dep in "${deps[@]}"; do
+    if ! command -v "${dep}" &>/dev/null; then
+      missing_deps+=("${dep}")
+    fi
+  done
+  
+  if ! command -v tarion-keybindings-generate &>/dev/null; then
+    missing_deps+=("tarion-keybindings-generate")
+  fi
+  
+  if [[ ${#missing_deps[@]} -gt 0 ]]; then
+    echo "Error: Missing dependencies:" >&2
+    for dep in "${missing_deps[@]}"; do
+      echo "  - ${dep}" >&2
+    done
+    
+    if [[ " ${missing_deps[*]} " =~ " gum " ]]; then
+      echo "Install gum with: sudo dnf install gum" >&2
+    fi
+    
+    if [[ " ${missing_deps[*]} " =~ " tarion-keybindings-generate " ]]; then
+      echo "tarion-keybindings-generate should be in /usr/bin/" >&2
+    fi
+    
+    return 1
+  fi
+  
+  if [[ ! -f /usr/share/tarion/gum-theme.sh ]]; then
+    echo "Warning: gum-theme.sh not found at /usr/share/tarion/gum-theme.sh" >&2
+  fi
+}
+
+# Try to source gum theme, but continue if not found
+if [[ -f /usr/share/tarion/gum-theme.sh ]]; then
+  source /usr/share/tarion/gum-theme.sh
+else
+  # Define fallback functions if gum-theme.sh is missing
+  highlight_success() { echo "2"; }
+  highlight_error() { echo "1"; }
+  highlight_info() { echo "4"; }
+  TARION_NEUTRAL="7"
+fi
 
 declare -a CATEGORIES=(
   "Apps"
@@ -116,12 +161,23 @@ display_conflicts() {
 }
 
 display_all() {
-  gum style \
-    --foreground "$(highlight_info)" \
-    --border double \
-    --align center \
-    --padding "1 2" \
-    "$(cat /usr/share/tarion/logo.txt)" | tr -d '\n'
+  if [[ -f /usr/share/tarion/logo.txt ]]; then
+    gum style \
+      --foreground "$(highlight_info)" \
+      --border double \
+      --align center \
+      --padding "1 2" \
+      "$(cat /usr/share/tarion/logo.txt)" | tr -d '\n'
+  else
+    gum style \
+      --foreground "$(highlight_info)" \
+      --border double \
+      --align center \
+      --padding "1 2" \
+      "╔══════════════════════════╗
+       ║      TARION KEYBINDINGS     ║
+       ╚══════════════════════════╝" | tr -d '\n'
+  fi
 
   gum style \
     --foreground "$(highlight_info)" \
@@ -270,6 +326,7 @@ EOF
 }
 
 main() {
+  check_dependencies || exit 1
   check_cache
 
   local mode="menu"

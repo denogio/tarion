@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -euo pipefail
 
 TEMPLATES_DIR="${TARION_PATH}/default/themed"
 USER_TEMPLATES_DIR="${HOME}/.config/tarion/themed"

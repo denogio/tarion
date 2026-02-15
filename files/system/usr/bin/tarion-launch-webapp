@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -euo pipefail
 # Tarion Web App Launcher
 # Launches passed in URL as a web app in default browser.
 

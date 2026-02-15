@@ -134,10 +134,10 @@ fi
 # Step 4: Wallpaper
 if gum confirm "Set up wallpapers?" --default=true; then
     gum spin --spinner dot --title "Setting up wallpapers..." -- bash -c "
-        if command -v setup-default-wallpapers &> /dev/null; then
-            setup-default-wallpapers
+        if command -v setup-default-wallpapers.sh &> /dev/null; then
+            setup-default-wallpapers.sh
         else
-            /usr/lib/tarion-scripts/setup-default-wallpapers.sh
+            /usr/bin/setup-default-wallpapers.sh
         fi
     "
     gum style --foreground 46 "✓ Wallpapers set up"

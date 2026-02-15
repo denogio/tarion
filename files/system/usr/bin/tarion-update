@@ -7,14 +7,11 @@ set -euo pipefail
 if [ -z "${TARION_UPDATE_INTERNAL:-}" ]; then
     LAUNCHER="tarion-launch-floating-terminal-with-presentation"
     
-    # Try to find the launcher in PATH or standard location
+    # Try to find the launcher in PATH (now in /usr/bin/)
     if ! command -v "${LAUNCHER}" &> /dev/null; then
-        if [ -x "/usr/lib/tarion-scripts/${LAUNCHER}" ]; then
-            LAUNCHER="/usr/lib/tarion-scripts/${LAUNCHER}"
-        else
-            echo "Error: ${LAUNCHER} not found."
-            exit 1
-        fi
+        echo "Error: ${LAUNCHER} not found in PATH."
+        echo "Tarion scripts are now installed in /usr/bin/"
+        exit 1
     fi
 
     export TARION_UPDATE_INTERNAL=1

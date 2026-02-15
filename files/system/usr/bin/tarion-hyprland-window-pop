@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -euo pipefail
 # Tarion Window Pop Toggle
 # Toggle to pop-out a tile to stay fixed on a display basis.
 

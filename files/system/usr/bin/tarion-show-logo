@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -euo pipefail
 
 LOGO_FILE="${HOME}/.local/share/tarion/logo.txt"
 SYSTEM_LOGO="/usr/share/tarion/logo.txt"

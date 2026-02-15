@@ -154,3 +154,13 @@ echo "  tarion-wallpaper-switcher next      - Cycle to next wallpaper"
 echo "  tarion-wallpaper-switcher prev      - Cycle to previous wallpaper"
 echo "  tarion-wallpaper-switcher list      - List all wallpapers"
 echo "  tarion-wallpaper-switcher set <file>- Set specific wallpaper"
+
+# Try to set a random wallpaper if DMS is running
+if command -v dms &>/dev/null && pgrep -x "dms" >/dev/null; then
+    echo ""
+    echo "Setting a random wallpaper..."
+    if command -v tarion-wallpaper-switcher &>/dev/null; then
+        tarion-wallpaper-switcher random --quiet 2>/dev/null || true
+        echo "✓ Random wallpaper set via DMS"
+    fi
+fi

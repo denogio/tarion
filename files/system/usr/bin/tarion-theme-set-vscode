@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -euo pipefail
 
 # Sync Tarion theme to VS Code, VSCodium, and Cursor
 

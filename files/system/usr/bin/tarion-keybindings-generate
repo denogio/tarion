@@ -4,18 +4,44 @@
 set -euo pipefail
 
 declare -A KEYCODE_SYM_MAP
-declare -A BINDINGS
-declare -A CONFLICTS
+declare -A BINDINGS=()
+declare -A CONFLICTS=()
 
 CACHE_DIR="${HOME}/.cache/tarion"
 CACHE_FILE="${CACHE_DIR}/keybindings.cache"
 DEFAULTS_DIR="/usr/share/tarion/defaults"
 
-build_keymap_cache() {
-  local keymap
-  keymap="$(xkbcli compile-keymap)" || {
-    echo "Failed to compile keymap" >&2
+check_dependencies() {
+  local deps=("xkbcli" "awk")
+  local missing_deps=()
+  
+  for dep in "${deps[@]}"; do
+    if ! command -v "${dep}" &>/dev/null; then
+      missing_deps+=("${dep}")
+    fi
+  done
+  
+  if [[ ${#missing_deps[@]} -gt 0 ]]; then
+    echo "Error: Missing dependencies:" >&2
+    for dep in "${missing_deps[@]}"; do
+      echo "  - ${dep}" >&2
+    done
+    echo "Install with: sudo dnf install xkbcommon-tools" >&2
     return 1
+  fi
+}
+
+build_keymap_cache() {
+  if ! command -v xkbcli &>/dev/null; then
+    echo "Warning: xkbcli not found. Keycode mapping will be limited." >&2
+    echo "Install xkbcommon-tools for full keycode support." >&2
+    return 0
+  fi
+  
+  local keymap
+  keymap="$(xkbcli compile-keymap 2>/dev/null)" || {
+    echo "Warning: Failed to compile keymap. Continuing without keycode mapping." >&2
+    return 0
   }
 
   while IFS=, read -r code sym; do
@@ -199,6 +225,7 @@ generate_cache() {
 }
 
 main() {
+  check_dependencies || exit 1
   build_keymap_cache
 
   echo "Scanning keybinding configurations..."
