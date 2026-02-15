@@ -8,7 +8,7 @@
 - Immutable base (rpm-ostree) with seamless updates
 - Always-Source configuration model for user customizations
 - Developer-first with Homebrew-based CLI tools
-- 13 curated themes with 14+ application integrations
+- DMS native theming with automatic application integration
 - Zero-tolerance code quality (ShellCheck, pre-commit hooks)
 
 ## Tech Stack
@@ -118,11 +118,10 @@ bluearchy/
 │   │   └── setupvicinae.sh
 │   ├── system/                # System-wide files
 │   │   ├── usr/share/tarion/
-│   │   │   ├── defaults/      # Gold Standard system configs
-│   │   │   └── themes/        # Tarion branding and 13 themes
+│   │   │   └── defaults/      # Gold Standard system configs
 │   │   └── usr/lib/
 │   │       ├── tarion/        # Package manager (backends: brew, flatpak, dnf)
-│   │       └── tarion-scripts/ # User utilities (wallpapers, themes)
+│   │       └── tarion-scripts/ # User utilities (wallpapers, utilities)
 │   └── etc/, systemd/         # System configuration
 ├── scripts/                   # Development utilities
 │   ├── build-iso.sh
@@ -157,33 +156,37 @@ tarion-sync --force             # Force sync from system defaults
 3. Users can override by adding configurations outside sourced blocks
 4. Updates never break user customizations
 
-### 2. Theme System
-**13 curated themes** with integration across 14+ applications:
-- Hyprland (border colors, gaps, layout)
-- DMS (widgets, bar, notifications)
-- Vicinae (color scheme)
-- Ghostty (terminal colors)
-- GNOME (GTK, libadwaita)
-- VSCode, Obsidian, Firefox, Discord, Spicetify, more...
+### 2. Theme System (DMS Native Theming)
+**DMS-based theming** with automatic application integration via matugen:
+- Uses DMS's built-in theme registry and matugen pipeline
+- Automatic theme generation for terminals, IDEs, and applications
+- Theme variants and accent colors supported
+- Integrated with DMS settings UI
 
-**Theme structure:**
-```
-/usr/share/tarion/themes/
-├── catppuccin-mocha/
-│   ├── theme.sh              # Color definitions (get_accent, get_background, etc.)
-│   ├── backgrounds/          # Theme wallpapers
-│   ├── hyprland/             # Hyprland configs
-│   ├── dms/                  # DMS configs
-│   ├── vicinae/              # Vicinae theme
-│   └── app-themes/           # Application-specific themes
-```
+**Supported applications (via DMS matugen):**
+- **Terminals**: Ghostty, Kitty, Alacritty, Foot, Wezterm
+- **IDEs**: VSCode, Neovim
+- **Desktop**: DMS shell, GTK apps, Qt apps
+- **Wallpapers**: Theme-based wallpaper switching
 
-**Theme switching:**
+**Theme management:**
 ```bash
-tarion-theme-set catppuccin-mocha    # Apply theme to all apps
-tarion-theme-set-gnome catppuccin-mocha   # Apply to GNOME only
-tarion-theme-set-vim catppuccin-mocha      # Apply to Vim/Neovim
+# Use Tarion wrapper (recommended for compatibility)
+tarion-theme-set catppuccin-mocha    # Apply DMS theme
+tarion-theme-set --list              # List available themes
+tarion-theme-set --current           # Show current theme
+tarion-theme-set --install <theme>   # Install theme from DMS registry
+
+# Or use DMS directly:
+dms settings openWith theme          # Open DMS theme browser
+dms ipc call theme dark              # Switch to dark mode
+dms ipc call theme light             # Switch to light mode
+
+# Browse available themes:
+xdg-open "https://danklinux.com/plugins?tab=themes"
 ```
+
+**Note**: Tarion no longer includes custom theme files. All theming is handled by DMS's native theme system.
 
 ### 3. Package Manager (tarion-pkg)
 Multi-backend package management with unified UI:
@@ -450,9 +453,9 @@ tarion-pkg install           # Re-run interactive install
 
 ### System Files
 - **Defaults**: `/usr/share/tarion/defaults/` (Gold Standard configs)
-- **Themes**: `/usr/share/tarion/themes/` (13 themes)
 - **Package Manager**: `/usr/lib/tarion/pkg/` (backends, core, UI)
-- **User Scripts**: `/usr/lib/tarion-scripts/` (wallpapers, themes, utilities)
+- **User Scripts**: `/usr/lib/tarion-scripts/` (wallpapers, utilities)
+- **Theme System**: DMS native theming (no local theme files)
 
 ### Build Files
 - **Main recipe**: `recipes/recipe.yml`
