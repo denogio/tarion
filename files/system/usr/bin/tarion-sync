@@ -150,6 +150,13 @@ if [ ! -e "${THEME_LINK}" ]; then
     ln -sf "${TARGET_THEME}" "${THEME_LINK}"
 fi
 
+# Keybindings cache
+# Generate cache for keybinding viewer
+echo "Generating keybindings cache..."
+if command -v tarion-keybindings-generate &>/dev/null; then
+    tarion-keybindings-generate > /dev/null
+fi
+
 # Update state
 mkdir -p "${STATE_DIR}"
 echo "${IMAGE_ID}" > "${STATE_FILE}"
