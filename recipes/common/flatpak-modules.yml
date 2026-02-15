@@ -1,0 +1,22 @@
+modules:
+  - type: default-flatpaks
+    configurations:
+      # System scope - install for all users on first boot
+      - scope: system
+        repo:
+          title: Flathub (system)
+        install:
+          # Essential flatpaks - minimal set
+          - io.github.flattool.Flatseal       # Flatpak permissions manager
+          - io.github.flattool.Warehouse       # Flatpak package manager
+          # Default browser - Tarion's preferred browser
+          - org.chromium.Chromium            # Chromium web browser
+        notify: true
+
+      # User scope - optional user-preferred apps
+      # Users can add their own flatpaks here
+      - scope: user
+        repo:
+          title: Flathub
+        install: []
+        notify: false
