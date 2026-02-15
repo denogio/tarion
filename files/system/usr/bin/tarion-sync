@@ -60,8 +60,31 @@ sync_app() {
     fi
 }
 
-# Hyprland
-sync_app "Hyprland" "${DEFAULTS_DIR}/hyprland.conf" "${USER_CONFIG_DIR}/hypr/hyprland.conf" "source ="
+# Hyprland - Create user config that sources system defaults + user overrides
+HYPR_USER_CONF="${USER_CONFIG_DIR}/hypr/hyprland.conf"
+mkdir -p "$(dirname "${HYPR_USER_CONF}")"
+
+if [ ! -f "${HYPR_USER_CONF}" ] || grep -q "${SYNC_HEADER}" "${HYPR_USER_CONF}"; then
+    echo "Creating Hyprland user config..."
+    cat > "${HYPR_USER_CONF}" <<EOF
+${SYNC_HEADER}
+# Tarion Hyprland Configuration
+# This file sources system defaults and then applies user-specific overrides
+
+# 1. Source system defaults (keybindings, look & feel, etc.)
+source = ${DEFAULTS_DIR}/hyprland.conf
+
+# 2. Source user-specific input config (keyboard layout, etc.)
+source = ?~/.config/hypr/input.conf
+
+# 3. Source current theme
+source = ?~/.config/tarion/current/theme/hyprland.conf
+
+# 4. Add your custom overrides below this line
+# Example:
+# bind = SUPER, T, exec, custom-script
+EOF
+fi
 
 # Ghostty
 sync_app "Ghostty" "${DEFAULTS_DIR}/ghostty/config" "${USER_CONFIG_DIR}/ghostty/config" "config-file ="
@@ -75,7 +98,7 @@ LOCALE_LANG="${LANG%%.*}"  # e.g., "da_DK" -> "da_DK"
 KB_LAYOUT="us"  # Default fallback
 
 case "${LOCALE_LANG}" in
-    da_*|dk_*) KB_LAYOUT="dk" ;;
+    da_*|dk_*|*_dk) KB_LAYOUT="dk" ;;
     de_*) KB_LAYOUT="de" ;;
     fr_*) KB_LAYOUT="fr" ;;
     es_*) KB_LAYOUT="es" ;;
