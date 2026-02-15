@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Tarion Package Manager CLI
-# Wrapper for the modular package management system
+# Wrapper for modular package management system
 
 set -euo pipefail
 
@@ -106,7 +106,7 @@ main() {
             args+=("${arg}")
         fi
     done
-
+    
     # Default backend priority
     if [ -z "${backend}" ]; then
         if command -v brew &>/dev/null; then
@@ -133,14 +133,100 @@ main() {
             ;;
         install)
             if [ ${#args[@]} -eq 0 ]; then
-                # Interactive mode
-                if command -v tarion-webapp-install &>/dev/null; then
-                     tarion-webapp-install
-                     exit 0
+                # Interactive mode with menu selection
+                echo ""
+                if command -v gum &>/dev/null; then
+                    gum style --foreground 212 --border double --align center --margin "1 2" "Package Management Options"
                 else
-                    echo "Usage: tarion-pkg install <package...> [backend]"
-                    exit 1
+                    echo "Package Management Options"
+                    echo "======================"
+                    echo ""
                 fi
+
+                if command -v vicinae &>/dev/null; then
+                    selected=$(vicinae dmenu -p "What would you like to do?" --no-section --no-quick-look --no-metadata "Search and install package
+Create new web app
+Show help" 2>/dev/null)
+                elif command -v gum &>/dev/null; then
+                    selected=$(gum choose "Search and install package" "Create new web app" "Show help" --header "What would you like to do?")
+                else
+                    selected=$(echo -e "1) Search and install package\n2) Create new web app\n3) Show help" | fzf --prompt "What would you like to do? " --height 10)
+                fi
+
+                case "${selected,,}" in
+                    *search*|*install*)
+                        # Interactive package installation
+                        if command -v gum &>/dev/null; then
+                            gum style --foreground "$(get_accent)" "Enter package name or search term:"
+                            search_term=$(gum input --placeholder "e.g. discord, vscode")
+                        else
+                            read -r "Enter package name or search term: " search_term
+                        fi
+
+                        if [ -n "${search_term}" ]; then
+                            # Determine backend
+                            local backend=""
+                            if command -v flatpak &>/dev/null; then
+                                backend="flatpak"
+                            elif command -v brew &>/dev/null; then
+                                backend="brew"
+                            else
+                                backend="dnf"
+                            fi
+
+                            # Show search results
+                            if command -v gum &>/dev/null; then
+                                gum style --foreground "$(highlight_info)" "Searching ${backend} for '${search_term}'..."
+                            else
+                                echo "Searching ${backend} for '${search_term}'..."
+                            fi
+                            run_backend_cmd search "${backend}" "${search_term}"
+
+                            # Ask if user wants to install
+                            if command -v gum &>/dev/null; then
+                                if gum confirm --affirmative "Install a package from search results?" --default=false; then
+                                    gum style --foreground "$(get_accent)" "Enter package ID to install:"
+                                    pkg_id=$(gum input --placeholder "e.g. com.spotify.Client")
+
+                                    if [ -n "${pkg_id}" ]; then
+                                        if command -v gum &>/dev/null; then
+                                            gum style --foreground "$(highlight_info)" "Installing ${pkg_id} via ${backend}..."
+                                        else
+                                            echo "Installing ${pkg_id} via ${backend}..."
+                                        fi
+                                        run_backend_cmd install "${backend}" "${pkg_id}"
+                                    fi
+                                fi
+                            else
+                                read -r "Enter package ID to install: " pkg_id
+                                if [ -n "${pkg_id}" ]; then
+                                    run_backend_cmd install "${backend}" "${pkg_id}"
+                                fi
+                            fi
+                        fi
+                        ;;
+                    *create*|*web*)
+                        # Launch webapp installer
+                        if command -v tarion-webapp-install &>/dev/null; then
+                            tarion-webapp-install
+                        else
+                            if command -v gum &>/dev/null; then
+                                gum style --foreground 196 "✗ tarion-webapp-install not found"
+                            else
+                                echo "Error: tarion-webapp-install not found"
+                            fi
+                            exit 1
+                        fi
+                        ;;
+                    *help*|*show*)
+                        show_help
+                        exit 0
+                        ;;
+                    *)
+                        exit 0
+                        ;;
+                esac
+                exit 0
             fi
             echo "Installing ${args[*]} via ${backend}..."
             run_backend_cmd install "${backend}" "${args[@]}"
