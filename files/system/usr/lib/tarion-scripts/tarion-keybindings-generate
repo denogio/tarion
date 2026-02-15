@@ -187,8 +187,8 @@ generate_cache() {
       local key="${conflict_key#*,}"
       local combo
       combo=$(format_key_combo "${key_mod}" "${key}")
-      local categories="${CONFLICTS["${conflict_key}"]}"
-      cache_content+="  ${combo}|${categories}\n"
+      local cats="${CONFLICTS[${conflict_key}]}"
+      cache_content+="  ${combo}|${cats}\n"
     done
     cache_content+="\n"
   fi
