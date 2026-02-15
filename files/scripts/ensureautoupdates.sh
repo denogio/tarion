@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -oue pipefail
+set -euo pipefail
 
 systemctl enable rpm-ostreed-automatic.timer
 systemctl enable podman-auto-update.timer

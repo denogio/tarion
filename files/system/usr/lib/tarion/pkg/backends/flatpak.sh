@@ -73,10 +73,10 @@ tarion_flatpak_uninstall() {
 
   if [ -n "${installed_apps}" ]; then
     # Remove selected apps (multi-select)
-    IFS=$'\n' read -r selected_apps
-    for app in ${selected_apps}; do
-      flatpak uninstall -y "${app}" 2>/dev/null || echo "Failed to uninstall: ${app}"
-    done
+    # Process each selected app line by line
+    while IFS= read -r app; do
+      [ -n "${app}" ] && flatpak uninstall -y "${app}" 2>/dev/null || echo "Failed to uninstall: ${app}"
+    done <<< "${installed_apps}"
 
     gum style --foreground "$(highlight_success)" "✓ Apps removed"
   else

@@ -48,4 +48,4 @@ else
     echo "⚠️  KVM not available, performance will be slow."
 fi
 
-echo "$QEMU_CMD "${QEMU_OPTS[@]}""
+echo "${QEMU_CMD} ${QEMU_OPTS[*]}"

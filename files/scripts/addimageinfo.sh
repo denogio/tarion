@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -oue pipefail
+set -euo pipefail
 
 # This file includes code from Universal Blue which is licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@ set -oue pipefail
 # governing permissions and limitations under the License.
 
 IMAGE_PRETTY_NAME="tarion"
+IMAGE_NAME="tarion"
 IMAGE_LIKE="ublue"
 HOME_URL="https://github.com/denogio/tarion"
 DOCUMENTATION_URL="https://github.com/denogio/tarion"

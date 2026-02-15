@@ -58,6 +58,7 @@ TARION_PRIMARY="#7aa2f7"  # Deep purple
 TARION_SECONDARY="#42a5f5"  # Blue-green
 TARION_ACCENT="#f7768e"  # Red-orange
 TARION_NEUTRAL="#9ca0af"   # Gray
+TARION_BG="#1e1e2e"  # Dark background
 
 # Get theme color for gum (returns hex for Tarion accent)
 get_tarion_accent() {
