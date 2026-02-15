@@ -1,0 +1,103 @@
+#!/usr/bin/env bash
+# @vicinae.schemaVersion 1
+# @vicinae.title DMS Wallpaper Switcher
+# @vicinae.mode dmenu
+# @vicinae.description Manage wallpapers using DMS IPC for seamless integration
+
+set -euo pipefail
+
+# Source DMS IPC library
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "${SCRIPT_DIR}/dms-ipc.sh"
+
+# Check DMS is running
+if ! dms_check_running; then
+    echo "DMS is not running. Please start DMS first."
+    exit 1
+fi
+
+show_menu() {
+    cat << 'EOF'
+🎲 Random Wallpaper
+⏭️  Next Wallpaper
+◀️  Previous Wallpaper
+🎨 Theme Wallpaper
+📋 Select Wallpaper...
+🔄 Refresh List
+🔁 Sync to Greeter
+EOF
+}
+
+handle_selection() {
+    local selection="$1"
+    
+    case "${selection}" in
+        *Random*)
+            dms_wallpaper_set_random
+            if command -v notify-send &> /dev/null; then
+                notify-send "Wallpaper Changed" "Random wallpaper set"
+            fi
+            ;;
+        *Next*)
+            dms_wallpaper_next
+            if command -v notify-send &> /dev/null; then
+                notify-send "Wallpaper Changed" "Next wallpaper"
+            fi
+            ;;
+        *Prev*)
+            dms_wallpaper_prev
+            if command -v notify-send &> /dev/null; then
+                notify-send "Wallpaper Changed" "Previous wallpaper"
+            fi
+            ;;
+        *Theme*)
+            dms_wallpaper_set_from_theme
+            if command -v notify-send &> /dev/null; then
+                notify-send "Wallpaper Changed" "Theme wallpaper set"
+            fi
+            ;;
+        *Select*)
+            WALLPAPER_DIR="${HOME}/Pictures/Wallpapers"
+            
+            if [ ! -d "${WALLPAPER_DIR}" ]; then
+                mkdir -p "${WALLPAPER_DIR}"
+                echo "Wallpapers directory created at ${WALLPAPER_DIR}"
+                exit 0
+            fi
+            
+            wallpaper=$(find "${WALLPAPER_DIR}" -type f | vicinae dmenu --placeholder "Select wallpaper...")
+            if [ -n "${wallpaper}" ]; then
+                dms_wallpaper_set "${wallpaper}"
+                if command -v notify-send &> /dev/null; then
+                    notify-send "Wallpaper Changed" "$(basename "${wallpaper}")"
+                fi
+            fi
+            ;;
+        *Refresh*)
+            WALLPAPER_DIR="${HOME}/Pictures/Wallpapers"
+            declare count
+            count=$(find "${WALLPAPER_DIR}" -type f 2>/dev/null | wc -l || echo "0")
+            notify-send "Wallpaper List Refreshed" "${count} wallpapers found"
+            ;;
+        *Sync*)
+            dms_sync_greeter
+            if command -v notify-send &> /dev/null; then
+                notify-send "Greeter Synced" "Wallpaper synced to DMS-greeter"
+            fi
+            ;;
+        *)
+            echo "Unknown selection: ${selection}"
+            ;;
+    esac
+}
+
+main() {
+    local selection
+    selection=$(show_menu | vicinae dmenu --placeholder "DMS Wallpaper Switcher...")
+    
+    if [ -n "${selection}" ]; then
+        handle_selection "${selection}"
+    fi
+}
+
+main

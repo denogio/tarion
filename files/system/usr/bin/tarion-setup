@@ -132,9 +132,19 @@ if gum confirm "Generate SSH keys?" --default=false; then
 fi
 
 # Step 4: Wallpaper
-if gum confirm "Set a default wallpaper?" --default=true; then
+if gum confirm "Set up wallpapers?" --default=true; then
+    gum spin --spinner dot --title "Setting up wallpapers..." -- bash -c "
+        if command -v setup-default-wallpapers &> /dev/null; then
+            setup-default-wallpapers
+        else
+            /usr/lib/tarion-scripts/setup-default-wallpapers.sh
+        fi
+    "
+    gum style --foreground 46 "✓ Wallpapers set up"
+    echo ""
     if command -v vicinae &> /dev/null; then
-        gum style --foreground 220 "💡 Open Vicinae (SUPER+R) and select 'Wallpaper Picker' to set a wallpaper"
+        gum style --foreground 220 "💡 Open Vicinae (SUPER+R) and select 'Wallpaper Switcher' to set a wallpaper"
+        gum style --foreground 220 "   Or use SUPER+W for random, SUPER+SHIFT+W for next wallpaper"
     fi
 fi
 
@@ -174,14 +184,21 @@ gum style \
 
 # Show quick reference
 gum style --foreground 212 "Quick Start Commands:"
-gum style --foreground 226 "  - just dev-info      : Show installed dev tools"
-gum style --foreground 226 "  - just dev-setup     : Reconfigure dev tools"
-gum style --foreground 226 "  - tarion-update          : Update Tarion system"
-gum style --foreground 226 "  - just               : Show all available commands"
+gum style --foreground 226 "  - tarion-wallpaper-switcher random : Random wallpaper"
+gum style --foreground 226 "  - tarion-wallpaper-switcher next   : Next wallpaper"
+gum style --foreground 226 "  - tarion-wallpaper-switcher prev   : Previous wallpaper"
+gum style --foreground 226 "  - tarion-wallpaper-switcher list   : List all wallpapers"
+gum style --foreground 226 "  - just dev-info                   : Show installed dev tools"
+gum style --foreground 226 "  - just dev-setup                : Reconfigure dev tools"
+gum style --foreground 226 "  - tarion-update                : Update Tarion system"
+gum style --foreground 226 "  - just                         : Show all available commands"
 echo ""
 gum style --foreground 212 "Keyboard Shortcuts:"
 gum style --foreground 226 "  - SUPER+Space     : Open Vicinae launcher"
 gum style --foreground 226 "  - SUPER+SHIFT+R   : System controls (dmenu)"
+gum style --foreground 226 "  - SUPER+W         : Random wallpaper"
+gum style --foreground 226 "  - SUPER+SHIFT+W   : Next wallpaper"
+gum style --foreground 226 "  - SUPER+ALT+W    : Previous wallpaper"
 gum style --foreground 226 "  - SUPER+Enter     : Terminal (Ghostty)"
 gum style --foreground 226 "  - SUPER+E         : File manager (Thunar)"
 echo ""

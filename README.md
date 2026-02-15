@@ -127,6 +127,8 @@ Tarion uses Vicinae as the primary launcher with extensive customizations:
 - **SUPER+SHIFT+R** - Vicinae system controls (dmenu)
 - **CTRL+ALT+Space** - Vicinae window selection mode
 - **SUPER+L** - Lock screen (DMS)
+- **SUPER+W** - Random wallpaper
+- **SUPER+SHIFT+W** - Next wallpaper
 - **SUPER+Print** - Screenshot (region)
 - **SUPER+SHIFT+Print** - Screenshot (full screen)
 - **Arrow keys** - Navigate windows (scrolling layout)
@@ -142,13 +144,78 @@ Tarion uses Vicinae as the primary launcher with extensive customizations:
 
 ## Wallpaper Management
 
-Set wallpapers using Vicinae:
+Tarion includes a powerful wallpaper switcher using DMS IPC for seamless wallpaper management.
+
+### Via Vicinae (Recommended)
 
 1. Press SUPER+R to open Vicinae
-2. Select "Wallpaper Picker"
-3. Browse and select a wallpaper
+2. Select "Wallpaper Switcher"
+3. Choose from:
+    - 🎲 Random Wallpaper - Select a random wallpaper
+    - ⏭️ Next Wallpaper - Cycle to next wallpaper
+    - ◀️ Previous Wallpaper - Cycle to previous wallpaper
+    - 🎨 Theme Wallpaper - Use a random wallpaper from current theme
+    - 📋 Select Wallpaper - Manual wallpaper selection
+    - 🔄 Refresh List - Scan for new wallpapers
+    - 🔁 Sync to Greeter - Sync current wallpaper to login screen
 
-Wallpapers should be placed in: `~/Pictures/Wallpapers/`
+### Via Keybindings
+
+- **SUPER+W** - Random wallpaper
+- **SUPER+SHIFT+W** - Next wallpaper
+- **SUPER+ALT+W** - Previous wallpaper
+
+### Via CLI
+
+```bash
+# Random wallpaper
+tarion-wallpaper-switcher random
+
+# Next wallpaper
+tarion-wallpaper-switcher next
+
+# Previous wallpaper
+tarion-wallpaper-switcher prev
+
+# Get current wallpaper
+tarion-wallpaper-switcher get
+
+# Use theme wallpaper
+tarion-wallpaper-switcher from-theme
+
+# Set specific wallpaper
+tarion-wallpaper-switcher set ~/Pictures/Wallpapers/my-wallpaper.jpg
+
+# List all wallpapers
+tarion-wallpaper-switcher list
+
+# Sync wallpaper to DMS-greeter (login screen)
+tarion-wallpaper-switcher sync-greeter
+
+# Refresh wallpaper list
+tarion-wallpaper-switcher refresh
+```
+
+### Wallpaper Storage
+
+- User wallpapers: `~/Pictures/Wallpapers/`
+- Theme wallpapers: `~/.config/tarion/current/theme/backgrounds/`
+- State file: `~/.config/tarion/wallpaper-state`
+
+### How It Works
+
+The wallpaper switcher uses **DMS IPC calls** for wallpaper management:
+- `dms ipc call wallpaper set <path>` - Set wallpaper
+- `dms ipc call wallpaper next` - Next wallpaper
+- `dms ipc call wallpaper prev` - Previous wallpaper
+- `dms ipc call wallpaper get` - Get current wallpaper
+
+DMS handles all wallpaper rendering, ensuring seamless integration with the desktop shell.
+- State file: `~/.config/tarion/wallpaper-state`
+
+### First-time Setup
+
+The setup wizard downloads 18 curated high-quality wallpapers from Unsplash on first login. Wallpapers include abstract gradients, dark minimalist designs, cyberpunk aesthetics, landscapes, and space imagery.
 
 ## Backups & Restore
 

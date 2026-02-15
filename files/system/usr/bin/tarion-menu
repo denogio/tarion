@@ -113,17 +113,41 @@ show_trigger_menu() {
 }
 
 show_style_menu() {
-  case $(menu "Style" "󰸌  Theme Selector\n  Wallpaper\n  Hyprland Config\n  About Tarion") in
+  case $(menu "Style" "�希  Theme Selector\n  Wallpaper (Quick)\n   📋 Wallpaper (Menu)...\n  Hyprland Config\n  About Tarion") in
     *Theme*) 
         # TODO: Interactive theme selector
         notify-send "Coming soon" "Interactive theme selector"
         ;;
-    *Wallpaper*) 
-        if command -v waypaper &>/dev/null; then
-            waypaper
-        else
-            nautilus "${HOME}/Pictures/Wallpapers" 
-        fi
+    *Wallpaper*Quick*)
+        # Quick wallpaper actions
+        case $(menu "Wallpaper" "🎲 Random\n⏭️  Next\n◀️  Previous\n⬆️  Back to Style") in
+            *Random*)
+                if command -v tarion-wallpaper-switcher &>/dev/null; then
+                    tarion-wallpaper-switcher random
+                else
+                    notify-send "Error" "tarion-wallpaper-switcher not found"
+                fi
+                ;;
+            *Next*)
+                if command -v tarion-wallpaper-switcher &>/dev/null; then
+                    tarion-wallpaper-switcher next
+                else
+                    notify-send "Error" "tarion-wallpaper-switcher not found"
+                fi
+                ;;
+            *Previous*)
+                if command -v tarion-wallpaper-switcher &>/dev/null; then
+                    tarion-wallpaper-switcher prev
+                else
+                    notify-send "Error" "tarion-wallpaper-switcher not found"
+                fi
+                ;;
+            *Back*) show_style_menu "$@" ;;
+            *) show_style_menu "$@" ;;
+        esac
+        ;;
+    *Wallpaper*Menu*)
+        show_wallpaper_menu "$@"
         ;;
     *Hyprland*) open_in_editor ~/.config/hypr/hyprland.conf ;;
     *About*) open_in_editor /usr/share/tarion/defaults/README.md ;;
@@ -131,8 +155,96 @@ show_style_menu() {
   esac
 }
 
+show_wallpaper_menu() {
+  case $(menu "Wallpaper" "🎲 Random Wallpaper\n⏭️  Next Wallpaper\n◀️  Previous Wallpaper\n🎨 Theme Wallpaper\n📋 Select Wallpaper...\n🔄 Refresh List\n🔁 Sync to Greeter\n🖥️  Clear All\n⬆️  Get Current Wallpaper\n⬆️  Back to Style") in
+    *Random*)
+        if command -v tarion-wallpaper-switcher &>/dev/null; then
+            tarion-wallpaper-switcher random
+        elif [ -f "/usr/lib/vicinae/scripts/wallpaper-switcher" ]; then
+            vicinae vicinae://extensions/vicinae/scripts/wallpaper-switcher
+        else
+            notify-send "Error" "tarion-wallpaper-switcher not found"
+        fi
+        ;;
+    *Next*)
+        if command -v tarion-wallpaper-switcher &>/dev/null; then
+            tarion-wallpaper-switcher next
+        else
+            notify-send "Error" "tarion-wallpaper-switcher not found"
+        fi
+        ;;
+    *Previous*)
+        if command -v tarion-wallpaper-switcher &>/dev/null; then
+            tarion-wallpaper-switcher prev
+        else
+            notify-send "Error" "tarion-wallpaper-switcher not found"
+        fi
+        ;;
+    *Theme*)
+        if command -v tarion-wallpaper-switcher &>/dev/null; then
+            tarion-wallpaper-switcher from-theme
+        else
+            notify-send "Error" "tarion-wallpaper-switcher not found"
+        fi
+        ;;
+    *Select*)
+        # Manual wallpaper selection
+        WALLPAPER_DIR="${HOME}/Pictures/Wallpapers"
+        if [ ! -d "${WALLPAPER_DIR}" ]; then
+            mkdir -p "${WALLPAPER_DIR}"
+            notify-send "Wallpapers directory created" "${WALLPAPER_DIR}"
+        fi
+        
+        if command -v tarion-wallpaper-switcher &>/dev/null; then
+            wallpaper=$(find "${WALLPAPER_DIR}" -type f \( -name "*.jpg" -o -name "*.png" -o -name "*.jpeg" \) | vicinae dmenu --placeholder "Select wallpaper...")
+            if [ -n "${wallpaper}" ]; then
+                tarion-wallpaper-switcher set "${wallpaper}"
+            fi
+        elif [ -f "/usr/lib/vicinae/scripts/wallpaper-switcher" ]; then
+            vicinae vicinae://extensions/vicinae/scripts/wallpaper-switcher
+        elif command -v waypaper &>/dev/null; then
+            waypaper
+        else
+            nautilus "${WALLPAPER_DIR}"
+        fi
+        ;;
+    *Refresh*)
+        if command -v tarion-wallpaper-switcher &>/dev/null; then
+            tarion-wallpaper-switcher list
+        else
+            notify-send "Error" "tarion-wallpaper-switcher not found"
+        fi
+        ;;
+    *Sync*)
+        if command -v tarion-wallpaper-switcher &>/dev/null; then
+            tarion-wallpaper-switcher sync-greeter
+        else
+            notify-send "Error" "tarion-wallpaper-switcher not found"
+        fi
+        ;;
+    *Clear*)
+        if command -v tarion-wallpaper-switcher &>/dev/null; then
+            tarion-wallpaper-switcher clear
+        else
+            notify-send "Error" "tarion-wallpaper-switcher not found"
+        fi
+        ;;
+    *Get*)
+        if command -v tarion-wallpaper-switcher &>/dev/null; then
+            current=$(tarion-wallpaper-switcher get)
+            notify-send "Current Wallpaper" "${current}"
+            echo "Current wallpaper: ${current}"
+        else
+            notify-send "Error" "tarion-wallpaper-switcher not found"
+        fi
+        ;;
+    *Back*) show_style_menu "$@" ;;
+    *) show_wallpaper_menu "$@" ;;
+  esac
+}
+
 show_setup_menu() {
-    case $(menu "Settings" "  Audio\n󰂯  Bluetooth\n󰀲  Power\n󰂯  Displays\n  All Settings") in
+  case $(menu "Settings" "  Audio\n󰂯  Bluetooth\n󰀲  Power\n󰂯  Displays\n  All Settings") in
       *Audio*) pavucontrol ;;
       *Bluetooth*) blueman-manager ;;
       *Power*) gnome-control-center power ;;

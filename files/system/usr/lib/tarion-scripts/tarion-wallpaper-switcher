@@ -1,0 +1,367 @@
+#!/usr/bin/env bash
+# Tarion Wallpaper Switcher - CLI tool for managing wallpapers
+# Uses DMS IPC for wallpaper management
+
+set -euo pipefail
+
+WALLPAPER_DIR="${HOME}/Pictures/Wallpapers"
+STATE_FILE="${HOME}/.config/tarion/wallpaper-state"
+CONFIG_DIR="${HOME}/.config/tarion"
+
+ensure_config_dir() {
+    mkdir -p "${CONFIG_DIR}"
+}
+
+get_wallpaper_list() {
+    declare -a wallpapers
+    
+    if [ -d "${WALLPAPER_DIR}" ]; then
+        while IFS= read -r -d '' file; do
+            wallpapers+=("${file}")
+        done < <(find "${WALLPAPER_DIR}" -type f \( -name "*.jpg" -o -name "*.png" -o -name "*.jpeg" \) -print0 | sort -z)
+    fi
+    
+    printf '%s\n' "${wallpapers[@]}"
+}
+
+load_state() {
+    if [ -f "${STATE_FILE}" ]; then
+        cat "${STATE_FILE}"
+    else
+        echo "last_random="
+    fi
+}
+
+get_state_value() {
+    local key="$1"
+    load_state | grep "^${key}=" | cut -d'=' -f2-
+}
+
+set_state_value() {
+    local key="$1"
+    local value="$2"
+    
+    ensure_config_dir
+    
+    local temp_state="${STATE_FILE}.tmp"
+    
+    if [ -f "${STATE_FILE}" ]; then
+        while IFS='=' read -r k v; do
+            if [ "${k}" = "${key}" ]; then
+                echo "${key}=${value}"
+            else
+                echo "${k}=${v}"
+            fi
+        done < "${STATE_FILE}" > "${temp_state}"
+    else
+        echo "${key}=${value}" > "${temp_state}"
+    fi
+    
+    mv "${temp_state}" "${STATE_FILE}"
+}
+
+update_wallpaper_list() {
+    ensure_config_dir
+    declare -a wallpapers
+    
+    while IFS= read -r wallpaper; do
+        if [ -n "${wallpaper}" ]; then
+            wallpapers+=("${wallpaper}")
+        fi
+    done < <(get_wallpaper_list)
+    
+    local count=${#wallpapers[@]}
+    echo "Updated wallpaper list: ${count} wallpapers found"
+}
+
+check_dms() {
+    if ! command -v dms &> /dev/null; then
+        echo "Error: DMS is not installed or not in PATH"
+        return 1
+    fi
+    
+    if ! pgrep -x "dms" > /dev/null; then
+        echo "Error: DMS is not running"
+        return 1
+    fi
+    
+    return 0
+}
+
+set_wallpaper() {
+    local wallpaper_path="$1"
+    
+    if [ ! -f "${wallpaper_path}" ]; then
+        echo "Error: Wallpaper not found: ${wallpaper_path}"
+        return 1
+    fi
+    
+    check_dms || return 1
+    
+    dms ipc call wallpaper set "${wallpaper_path}"
+    
+    set_state_value "last_wallpaper" "${wallpaper_path}"
+    
+    echo "Wallpaper set: ${wallpaper_path}"
+    
+    if command -v notify-send &> /dev/null; then
+        notify-send "Wallpaper Changed" "$(basename "${wallpaper_path}")"
+    fi
+    
+    return 0
+}
+
+set_random_wallpaper() {
+    declare -a wallpapers
+    while IFS= read -r wallpaper; do
+        if [ -n "${wallpaper}" ]; then
+            wallpapers+=("${wallpaper}")
+        fi
+    done < <(get_wallpaper_list)
+    
+    if [ ${#wallpapers[@]} -eq 0 ]; then
+        echo "Error: No wallpapers found in ${WALLPAPER_DIR}"
+        echo "Run 'tarion-wallpaper-switcher refresh' to scan for wallpapers"
+        return 1
+    fi
+    
+    check_dms || return 1
+    
+    update_wallpaper_list
+    
+    declare last_random
+    last_random=$(get_state_value "last_random")
+    local random_wallpaper
+    
+    local attempts=0
+    local max_attempts=10
+    
+    while [ "${attempts}" -lt "${max_attempts}" ]; do
+        random_wallpaper="${wallpapers[${RANDOM} % ${#wallpapers[@]}]}"
+        
+        if [ "${random_wallpaper}" != "${last_random}" ] || [ ${#wallpapers[@]} -eq 1 ]; then
+            break
+        fi
+        
+        attempts=$((attempts + 1))
+    done
+    
+    set_state_value "last_random" "${random_wallpaper}"
+    dms ipc call wallpaper set "${random_wallpaper}"
+    set_state_value "last_wallpaper" "${random_wallpaper}"
+    
+    echo "Wallpaper set: ${random_wallpaper}"
+    
+    if command -v notify-send &> /dev/null; then
+        notify-send "Wallpaper Changed" "$(basename "${random_wallpaper}")"
+    fi
+    
+    echo "${random_wallpaper}"
+    return 0
+}
+
+set_next_wallpaper() {
+    check_dms || return 1
+    
+    dms ipc call wallpaper next
+    
+    declare current_wallpaper
+    current_wallpaper=$(dms ipc call wallpaper get 2>/dev/null || echo "")
+    if [ -n "${current_wallpaper}" ]; then
+        set_state_value "last_wallpaper" "${current_wallpaper}"
+        echo "Cycled to next wallpaper"
+    else
+        echo "Cycled to next wallpaper"
+    fi
+    
+    return 0
+}
+
+set_prev_wallpaper() {
+    check_dms || return 1
+    
+    dms ipc call wallpaper prev
+    
+    declare current_wallpaper
+    current_wallpaper=$(dms ipc call wallpaper get 2>/dev/null || echo "")
+    if [ -n "${current_wallpaper}" ]; then
+        set_state_value "last_wallpaper" "${current_wallpaper}"
+        echo "Cycled to previous wallpaper"
+    else
+        echo "Cycled to previous wallpaper"
+    fi
+    
+    return 0
+}
+
+set_theme_wallpaper() {
+    local theme_dir="${HOME}/.config/tarion/current/theme"
+    local theme_backgrounds="${theme_dir}/backgrounds"
+    
+    if [ ! -d "${theme_backgrounds}" ]; then
+        echo "Error: Theme backgrounds directory not found: ${theme_backgrounds}"
+        return 1
+    fi
+    
+    check_dms || return 1
+    
+    declare -a wallpapers
+    while IFS= read -r -d '' file; do
+        wallpapers+=("${file}")
+    done < <(find "${theme_backgrounds}" -type f \( -name "*.jpg" -o -name "*.png" -o -name "*.jpeg" \) -print0 | sort -z)
+    
+    if [ ${#wallpapers[@]} -eq 0 ]; then
+        echo "Error: No wallpapers found in theme backgrounds"
+        return 1
+    fi
+    
+    local theme_wallpaper="${wallpapers[${RANDOM} % ${#wallpapers[@]}]}"
+    dms ipc call wallpaper set "${theme_wallpaper}"
+    set_state_value "last_wallpaper" "${theme_wallpaper}"
+    
+    echo "Wallpaper set: ${theme_wallpaper}"
+    
+    if command -v notify-send &> /dev/null; then
+        notify-send "Wallpaper Changed" "$(basename "${theme_wallpaper}")"
+    fi
+    
+    echo "${theme_wallpaper}"
+    return 0
+}
+
+sync_greeter() {
+    if command -v dms &> /dev/null; then
+        echo "Syncing wallpaper to DMS-greeter..."
+        dms greeter sync 2>/dev/null || {
+            echo "Warning: dms greeter sync failed"
+            return 1
+        }
+        echo "Greeter synced successfully"
+    else
+        echo "Error: dms command not found"
+        return 1
+    fi
+}
+
+get_current_wallpaper() {
+    check_dms || return 1
+    
+    declare wallpaper
+    wallpaper=$(dms ipc call wallpaper get 2>/dev/null || echo "Unable to get current wallpaper")
+    echo "${wallpaper}"
+    return 0
+}
+
+list_wallpapers() {
+    update_wallpaper_list
+    declare last_wp
+    last_wp=$(get_state_value "last_wallpaper")
+    
+    echo "Available wallpapers:"
+    echo ""
+    
+    local index=0
+    while IFS= read -r wallpaper; do
+        local is_current=""
+        
+        if [ "${wallpaper}" = "${last_wp}" ]; then
+            is_current=" [LAST SET]"
+        fi
+        
+        declare filename
+        filename=$(basename "${wallpaper}")
+        printf "  %2d) %s%s\n" "${index}" "${filename}" "${is_current}"
+        
+        index=$((index + 1))
+    done < <(get_wallpaper_list)
+    
+    echo ""
+    echo "Total: ${index} wallpapers"
+}
+
+show_help() {
+    cat << EOF
+Tarion Wallpaper Switcher - Manage wallpapers using DMS IPC
+
+USAGE:
+    tarion-wallpaper-switcher <COMMAND> [OPTIONS]
+
+COMMANDS:
+    random              Select a random wallpaper
+    next                Cycle to next wallpaper
+    prev                Cycle to previous wallpaper
+    get                  Get current wallpaper path
+    list                List all available wallpapers
+    set <file>          Set specific wallpaper by path
+    from-theme          Use a random wallpaper from current theme
+    help                Show this help message
+
+EXAMPLES:
+    tarion-wallpaper-switcher random
+    tarion-wallpaper-switcher next
+    tarion-wallpaper-switcher prev
+    tarion-wallpaper-switcher get
+    tarion-wallpaper-switcher set ~/Pictures/Wallpapers/my-wallpaper.jpg
+    tarion-wallpaper-switcher from-theme
+
+NOTES:
+    - Wallpapers are searched in: ${WALLPAPER_DIR}
+    - State is stored in: ${STATE_FILE}
+    - Uses DMS IPC for wallpaper management (dms ipc call wallpaper ...)
+    - DMS must be running for commands to work
+
+EOF
+}
+
+main() {
+    if [ $# -eq 0 ]; then
+        show_help
+        exit 0
+    fi
+
+    local command="$1"
+    shift || true
+
+    case "${command}" in
+        random)
+            set_random_wallpaper
+            ;;
+        next)
+            set_next_wallpaper
+            ;;
+        prev|previous)
+            set_prev_wallpaper
+            ;;
+        get|current)
+            get_current_wallpaper
+            ;;
+        list)
+            list_wallpapers
+            ;;
+        set)
+            if [ $# -eq 0 ]; then
+                echo "Error: Please specify a wallpaper file"
+                echo "Usage: tarion-wallpaper-switcher set <file>"
+                exit 1
+            fi
+            set_wallpaper "$1"
+            ;;
+        from-theme)
+            set_theme_wallpaper
+            ;;
+        sync-greeter)
+            sync_greeter
+            ;;
+        help|--help|-h)
+            show_help
+            ;;
+        *)
+            echo "Error: Unknown command '${command}'"
+            echo ""
+            show_help
+            exit 1
+            ;;
+    esac
+}
+
+main "$@"
