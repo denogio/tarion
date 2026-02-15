@@ -1,0 +1,345 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+CACHE_DIR="${HOME}/.cache/tarion"
+CACHE_FILE="${CACHE_DIR}/keybindings.cache"
+
+source /usr/share/tarion/gum-theme.sh
+
+declare -a CATEGORIES=(
+  "Apps"
+  "Media"
+  "Utilities"
+  "Window Management"
+  "Scrolling"
+  "Clipboard"
+  "Conflicts"
+)
+
+check_cache() {
+  if [[ ! -f "${CACHE_FILE}" ]]; then
+    gum style \
+      --foreground "$(highlight_error)" \
+      "No cache found. Generating now..."
+    tarion-keybindings-generate > /dev/null
+  fi
+}
+
+display_category() {
+  local category="$1"
+
+  local bindings
+  bindings=$(awk -v cat="${category}" '
+    BEGIN { in_section = 0 }
+    /^## / {
+      in_section = ($2 == cat)
+      next
+    }
+    in_section && /^[[:space:]]*[^#]/ {
+      print $0
+    }
+  ' "${CACHE_FILE}")
+
+  if [[ -z "${bindings}" || "${bindings}" =~ \(none\) ]]; then
+    gum style \
+      --foreground "$(highlight_info)" \
+      --margin "1 0" \
+      "No bindings in this category"
+    return
+  fi
+
+  echo "${bindings}" | while IFS='|' read -r key action; do
+    [[ -z "${key}" ]] && continue
+
+    key=$(echo "${key}" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+    action=$(echo "${action}" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+
+    gum style \
+      --foreground "$(highlight_success)" \
+      --width 30 \
+      "${key}" | tr -d '\n'
+
+    gum style --foreground "${TARION_NEUTRAL}" " → " | tr -d '\n'
+
+    gum style \
+      --foreground "${TARION_NEUTRAL}" \
+      "${action}"
+  done | gum table --separator="|" --columns "KEY,ACTION" --border rounded
+}
+
+display_conflicts() {
+  local conflicts
+  conflicts=$(awk '
+    BEGIN { in_section = 0 }
+    /^## Conflicts/ {
+      in_section = 1
+      next
+    }
+    /^## / && in_section {
+      in_section = 0
+      next
+    }
+    in_section && /^[[:space:]]*[^#]/ {
+      print $0
+    }
+  ' "${CACHE_FILE}")
+
+  if [[ -z "${conflicts}" ]]; then
+    gum style \
+      --foreground "$(highlight_success)" \
+      --margin "1 0" \
+      "✓ No conflicts detected!"
+    return
+  fi
+
+  gum style \
+    --foreground "$(highlight_error)" \
+    --margin "1 0" \
+    "⚠️  Keybinding conflicts detected:"
+
+  echo "${conflicts}" | while IFS='|' read -r key categories; do
+    [[ -z "${key}" ]] && continue
+
+    key=$(echo "${key}" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+
+    gum style \
+      --foreground "$(highlight_error)" \
+      --width 30 \
+      "${key}" | tr -d '\n'
+
+    gum style --foreground "${TARION_NEUTRAL}" " → " | tr -d '\n'
+
+    gum style \
+      --foreground "${TARION_NEUTRAL}" \
+      "Conflicts: ${categories}"
+  done | gum table --separator="|" --columns "KEY,CONFLICTS" --border rounded
+}
+
+display_all() {
+  gum style \
+    --foreground "$(highlight_info)" \
+    --border double \
+    --align center \
+    --padding "1 2" \
+    "$(cat /usr/share/tarion/logo.txt)" | tr -d '\n'
+
+  gum style \
+    --foreground "$(highlight_info)" \
+    --margin "1 0" \
+    "Tarion Keybindings Reference"
+
+  for category in "${CATEGORIES[@]}"; do
+    [[ "${category}" == "Conflicts" ]] && continue
+
+    gum style \
+      --foreground "$(highlight_success)" \
+      --margin "1 0 0 0" \
+      "## ${category}"
+
+    display_category "${category}"
+    echo ""
+  done
+}
+
+search_bindings() {
+  local query="$1"
+
+  local matches
+  matches=$(awk -v q="${query}" -v IGNORECASE=1 '
+    BEGIN { in_section = 0; section = "" }
+    /^## / {
+      section = $2
+      in_section = 1
+      next
+    }
+    in_section && /^[[:space:]]*[^#]/ {
+      line = $0
+      gsub(/^[[:space:]]*|[[:space:]]*$/, "", line)
+      if (line ~ q) {
+        print section "|" line
+      }
+    }
+  ' "${CACHE_FILE}")
+
+  if [[ -z "${matches}" ]]; then
+    gum style \
+      --foreground "$(highlight_info)" \
+      --margin "1 0" \
+      "No matches found for: ${query}"
+    return
+  fi
+
+  echo "${matches}" | while IFS='|' read -r category binding; do
+    local key action
+    key=$(echo "${binding}" | cut -d'|' -f1)
+    action=$(echo "${binding}" | cut -d'|' -f2-)
+
+    key=$(echo "${key}" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+    action=$(echo "${action}" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+
+    gum style \
+      --foreground "$(highlight_success)" \
+      --width 30 \
+      "${key}" | tr -d '\n'
+
+    gum style --foreground "${TARION_NEUTRAL}" " → " | tr -d '\n'
+
+    gum style \
+      --foreground "${TARION_NEUTRAL}" \
+      "${action}" | tr -d '\n'
+
+    gum style \
+      --foreground "$(highlight_info)" \
+      " [${category}]"
+  done | gum table --separator="|" --columns "KEY,ACTION,CATEGORY" --border rounded
+}
+
+main_menu() {
+  local selection
+  selection=$(gum choose \
+    --header="Select a category to view:" \
+    --cursor="👉 " \
+    --height 10 \
+    "${CATEGORIES[@]}" \
+    "Search..." \
+    "Show All")
+
+  case "${selection}" in
+    "Search...")
+      local query
+      query=$(gum input --placeholder "Search bindings..." --prompt "> ")
+      clear
+      gum style \
+        --foreground "$(highlight_info)" \
+        --margin "1 0" \
+        "Search results for: ${query}"
+      echo ""
+      search_bindings "${query}"
+      ;;
+    "Show All")
+      clear
+      display_all
+      ;;
+    *)
+      clear
+      gum style \
+        --foreground "$(highlight_success)" \
+        --margin "1 0" \
+        "## ${selection}"
+      echo ""
+
+      if [[ "${selection}" == "Conflicts" ]]; then
+        display_conflicts
+      else
+        display_category "${selection}"
+      fi
+      ;;
+  esac
+}
+
+show_usage() {
+  cat << 'EOF'
+Usage: tarion-keybindings-show [OPTIONS]
+
+Display Tarion keybindings in a beautiful TUI.
+
+OPTIONS:
+  --all, -a           Show all bindings
+  --category, -c CAT  Show specific category
+  --search, -s QUERY   Search bindings
+  --conflicts, -x      Show only conflicts
+  --generate, -g       Force cache regeneration
+  --help, -h           Show this help message
+
+CATEGORIES:
+  Apps                 Application launchers
+  Media                Volume, brightness, media controls
+  Utilities            Menus, screenshots, wallpapers
+  Window Management    Focus, resize, workspace navigation
+  Scrolling            Column-based tiling bindings
+  Clipboard            Copy/paste shortcuts
+
+EXAMPLES:
+  tarion-keybindings-show           # Interactive menu
+  tarion-keybindings-show --all      # Show all bindings
+  tarion-keybindings-show -c Media   # Show media bindings
+  tarion-keybindings-show -s fullscreen  # Search for fullscreen
+  tarion-keybindings-show --conflicts # Show conflicts only
+
+EOF
+}
+
+main() {
+  check_cache
+
+  local mode="menu"
+  local query=""
+  local category=""
+
+  while [[ $# -gt 0 ]]; do
+    case "${1}" in
+      --all|-a)
+        mode="all"
+        shift
+        ;;
+      --category|-c)
+        mode="category"
+        category="${2}"
+        shift 2
+        ;;
+      --search|-s)
+        mode="search"
+        query="${2}"
+        shift 2
+        ;;
+      --conflicts|-x)
+        mode="conflicts"
+        shift
+        ;;
+      --generate|-g)
+        mode="generate"
+        shift
+        ;;
+      --help|-h)
+        show_usage
+        exit 0
+        ;;
+      *)
+        echo "Unknown option: ${1}" >&2
+        show_usage >&2
+        exit 1
+        ;;
+    esac
+  done
+
+  case "${mode}" in
+    generate)
+      tarion-keybindings-generate
+      ;;
+    all)
+      display_all
+      ;;
+    category)
+      if [[ -z "${category}" ]]; then
+        echo "Error: --category requires a value" >&2
+        exit 1
+      fi
+      display_category "${category}"
+      ;;
+    search)
+      if [[ -z "${query}" ]]; then
+        echo "Error: --search requires a value" >&2
+        exit 1
+      fi
+      search_bindings "${query}"
+      ;;
+    conflicts)
+      display_conflicts
+      ;;
+    *)
+      main_menu
+      ;;
+  esac
+}
+
+main "$@"
