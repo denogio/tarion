@@ -2,11 +2,14 @@
 # Tarion backup utility using gum for beautiful UX
 set -euo pipefail
 
-BACKUP_DIR="${HOME}/.config/tarion/backups"
+# Source XDG path helper
+source /usr/lib/tarion/xdg-paths.sh
+
+BACKUP_DIR=$(get_tarion_file "data" "backups")
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 BACKUP_FILE="${BACKUP_DIR}/tarion-backup-${TIMESTAMP}.tar.gz"
 
-mkdir -p "${BACKUP_DIR}"
+ensure_tarion_dirs
 
 # Show backup header
 gum style \

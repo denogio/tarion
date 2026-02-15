@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-CACHE_DIR="${HOME}/.cache/tarion"
+# Source XDG path helper
+source /usr/lib/tarion/xdg-paths.sh
+
+CACHE_DIR=$(get_tarion_cache_dir)
 CACHE_FILE="${CACHE_DIR}/keybindings.cache"
 
 check_dependencies() {

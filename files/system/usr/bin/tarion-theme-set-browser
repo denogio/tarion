@@ -1,8 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Source XDG path helper
+source /usr/lib/tarion/xdg-paths.sh
+
 # Sync Chromium/Brave theme
-CHROMIUM_THEME="${HOME}/.config/tarion/current/theme/chromium.theme"
+CHROMIUM_THEME=$(get_tarion_file "config" "current/theme/chromium.theme")
 
 if command -v tarion-cmd-present &>/dev/null && (tarion-cmd-present chromium || tarion-cmd-present brave); then
   if [[ -f "${CHROMIUM_THEME}" ]]; then

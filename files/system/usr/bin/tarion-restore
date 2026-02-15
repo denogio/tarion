@@ -2,7 +2,10 @@
 # Tarion restore utility using gum for beautiful UX
 set -euo pipefail
 
-BACKUP_DIR="${HOME}/.config/tarion/backups"
+# Source XDG path helper
+source /usr/lib/tarion/xdg-paths.sh
+
+BACKUP_DIR=$(get_tarion_file "data" "backups")
 
 # Check if backups exist
 if [ ! -d "${BACKUP_DIR}" ] || [ -z "$(ls -A "${BACKUP_DIR}" 2>/dev/null)" ]; then

@@ -3,10 +3,13 @@
 # Ensures ~/.config links to /usr/share/tarion/defaults/ for system defaults
 set -euo pipefail
 
+# Source XDG path helper
+source /usr/lib/tarion/xdg-paths.sh
+
 SYNC_HEADER="# -- TARION MANAGED --"
 DEFAULTS_DIR="/usr/share/tarion/defaults"
 USER_CONFIG_DIR="${HOME}/.config"
-STATE_DIR="${HOME}/.cache/tarion"
+STATE_DIR=$(get_tarion_cache_dir)  # Cache, not state (tracks last sync time)
 STATE_FILE="${STATE_DIR}/last-sync"
 
 # Smart Check: Only run if the image has changed
@@ -22,7 +25,8 @@ if [ "${IMAGE_ID}" == "${LAST_ID}" ]; then
 fi
 
 # Bootstrap Check: Ensure brew tools are installed on first use
-if [ ! -f "${HOME}/.config/tarion/bootstrap-done" ]; then
+BOOTSTRAP_DONE_FILE=$(get_tarion_file "state" "bootstrap-done")
+if [ ! -f "${BOOTSTRAP_DONE_FILE}" ]; then
     # Run bootstrap in a unified presentation window
     tarion-launch-floating-terminal-with-presentation tarion-bootstrap
 fi

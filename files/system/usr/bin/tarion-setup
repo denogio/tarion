@@ -4,8 +4,12 @@
 
 set -euo pipefail
 
+# Source XDG path helper
+source /usr/lib/tarion/xdg-paths.sh
+
 # Check if setup has been run before
-if [ -f "${HOME}/.config/tarion/setup-done" ]; then
+SETUP_DONE=$(get_tarion_file "state" "setup-done")
+if [ -f "${SETUP_DONE}" ]; then
     if ! gum confirm "Setup has already been completed. Re-run setup?" --default=false; then
         exit 0
     fi
@@ -24,8 +28,8 @@ gum style \
 
 echo ""
 
-# Create config directory
-mkdir -p "${HOME}/.config/tarion"
+# Ensure XDG directories exist
+ensure_tarion_dirs
 
 # Step 1: Developer tools
 if gum confirm "Install developer tools? (ripgrep, fd, bat, eza, starship, lazygit, zoxide, VSCode, Antigravity)" --default=true; then
@@ -204,6 +208,6 @@ gum style --foreground 226 "  - SUPER+E         : File manager (Thunar)"
 echo ""
 
 # Mark setup as complete
-touch "${HOME}/.config/tarion/setup-done"
+touch "${SETUP_DONE}"
 
 gum style --foreground 46 --margin "1 2" "✓ All done! Enjoy Tarion!"

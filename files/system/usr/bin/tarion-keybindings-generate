@@ -3,11 +3,14 @@
 # KEYCODE_SYM_MAP is intentionally populated for future keycode parsing support
 set -euo pipefail
 
+# Source XDG path helper
+source /usr/lib/tarion/xdg-paths.sh
+
 declare -A KEYCODE_SYM_MAP
 declare -A BINDINGS=()
 declare -A CONFLICTS=()
 
-CACHE_DIR="${HOME}/.cache/tarion"
+CACHE_DIR=$(get_tarion_cache_dir)
 CACHE_FILE="${CACHE_DIR}/keybindings.cache"
 DEFAULTS_DIR="/usr/share/tarion/defaults"
 

@@ -3,14 +3,17 @@
 # Installs core Homebrew packages on first run
 set -euo pipefail
 
-BOOTSTRAP_DONE="${HOME}/.config/tarion/bootstrap-done"
+# Source XDG path helper
+source /usr/lib/tarion/xdg-paths.sh
+
+BOOTSTRAP_DONE=$(get_tarion_file "state" "bootstrap-done")
 
 if [ -f "${BOOTSTRAP_DONE}" ]; then
     exit 0
 fi
 
-# Ensure .config/tarion exists
-mkdir -p "$(dirname "${BOOTSTRAP_DONE}")"
+# Ensure XDG directories exist
+ensure_tarion_dirs
 
 # Wait for brew to be available if it's being installed by blue-build
 # (Usually already there as it's a layer, but just in case)

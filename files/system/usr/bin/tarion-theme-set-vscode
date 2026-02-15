@@ -1,9 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Source XDG path helper
+source /usr/lib/tarion/xdg-paths.sh
+
 # Sync Tarion theme to VS Code, VSCodium, and Cursor
 
-VS_CODE_THEME="${HOME}/.config/tarion/current/theme/vscode.json"
+VS_CODE_THEME=$(get_tarion_file "config" "current/theme/vscode.json")
 
 set_theme() {
   local editor_cmd="$1"

@@ -4,12 +4,14 @@
 
 set -euo pipefail
 
+# Source XDG path helper
+source /usr/lib/tarion/xdg-paths.sh
+
 WALLPAPER_DIR="${HOME}/Pictures/Wallpapers"
-STATE_FILE="${HOME}/.config/tarion/wallpaper-state"
-CONFIG_DIR="${HOME}/.config/tarion"
+STATE_FILE=$(get_tarion_file "state" "wallpaper-state")
 
 ensure_config_dir() {
-    mkdir -p "${CONFIG_DIR}"
+    ensure_tarion_dirs
 }
 
 get_wallpaper_list() {
