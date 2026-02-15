@@ -11,7 +11,14 @@ if [[ "${1}" == "--get-cmd" ]]; then
       sed -n 's/^Exec=//p' {~/.local,~/.nix-profile,/usr,/var/lib/flatpak/exports}/share/applications/"${browser}" 2>/dev/null | head -1 | sed 's/ %[a-zA-Z]//g; s/@@u//g; s/@@//g'
       ;;
     *)
-      echo "chromium"
+      # Default: Chromium (Tarion's default browser)
+      if command -v flatpak &>/dev/null && flatpak list --app | grep -q "^org.chromium.Chromium$"; then
+        # Extract Exec line from .desktop file for uwsm-app compatibility
+        sed -n 's/^Exec=//p' {~/.local,~/.nix-profile,/usr,/var/lib/flatpak/exports}/share/applications/org.chromium.Chromium.desktop 2>/dev/null | head -1 | sed 's/ %[a-zA-Z]//g; s/@@u//g; s/@@//g'
+      else
+        # Fallback if Chromium not installed via Flatpak
+        echo "chromium"
+      fi
       ;;
   esac
   exit 0
