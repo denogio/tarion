@@ -15,7 +15,7 @@ CACHE_FILE="${CACHE_DIR}/keybindings.cache"
 DEFAULTS_DIR="/usr/share/tarion/defaults"
 
 check_dependencies() {
-  local deps=("xkbcli" "awk")
+  local deps=("awk")
   local missing_deps=()
   
   for dep in "${deps[@]}"; do
@@ -29,15 +29,22 @@ check_dependencies() {
     for dep in "${missing_deps[@]}"; do
       echo "  - ${dep}" >&2
     done
-    echo "Install with: sudo dnf install xkbcommon-tools" >&2
+    echo "Install awk (usually included in base system)" >&2
     return 1
+  fi
+  
+  # xkbcli is optional - provides better keycode mapping
+  if ! command -v xkbcli &>/dev/null; then
+    echo "Note: xkbcli not found. Keycode mapping will be limited." >&2
+    echo "For full support, install: sudo dnf install xkbcommon-tools" >&2
   fi
 }
 
 build_keymap_cache() {
+  # xkbcli is optional - provides keycode to symbol mapping for future use
+  # Current keybinding parsing works without it (uses key symbols from configs)
   if ! command -v xkbcli &>/dev/null; then
-    echo "Warning: xkbcli not found. Keycode mapping will be limited." >&2
-    echo "Install xkbcommon-tools for full keycode support." >&2
+    echo "Note: xkbcli not found. Skipping keycode mapping (optional)." >&2
     return 0
   fi
   
