@@ -1,0 +1,228 @@
+#!/usr/bin/env bash
+# shellcheck disable=SC2034
+# KEYCODE_SYM_MAP is intentionally populated for future keycode parsing support
+set -euo pipefail
+
+declare -A KEYCODE_SYM_MAP
+declare -A BINDINGS
+declare -A CONFLICTS
+
+CACHE_DIR="${HOME}/.cache/tarion"
+CACHE_FILE="${CACHE_DIR}/keybindings.cache"
+DEFAULTS_DIR="/usr/share/tarion/defaults"
+
+build_keymap_cache() {
+  local keymap
+  keymap="$(xkbcli compile-keymap)" || {
+    echo "Failed to compile keymap" >&2
+    return 1
+  }
+
+  while IFS=, read -r code sym; do
+    [[ -z "${code}" || -z "${sym}" ]] && continue
+    KEYCODE_SYM_MAP["${code}"]="${sym}"
+  done < <(
+    awk '
+      BEGIN { sec = "" }
+      /xkb_keycodes/ { sec = "codes"; next }
+      /xkb_symbols/  { sec = "syms";  next }
+      sec == "codes" {
+        if (match($0, /<([A-Za-z0-9_]+)>\s*=\s*([0-9]+)\s*;/, m)) code_by_name[m[1]] = m[2]
+      }
+      sec == "syms" {
+        if (match($0, /key\s*<([A-Za-z0-9_]+)>\s*\{\s*\[\s*([^, \]]+)/, m)) sym_by_name[m[1]] = m[2]
+      }
+      END {
+        for (k in code_by_name) {
+          c = code_by_name[k]
+          s = sym_by_name[k]
+          if (c != "" && s != "" && s != "NoSymbol") print c "," s
+        }
+      }
+    ' <<<"${keymap}"
+  )
+}
+
+get_bindings_from_config() {
+  local config_file="$1"
+  local category="$2"
+
+  [[ -f "${config_file}" ]] || return 0
+
+  while IFS= read -r line; do
+    [[ "${line}" =~ ^[[:space:]]*# ]] && continue
+    [[ -z "${line}" ]] && continue
+
+    if [[ "${line}" =~ ^bind(d|ld|md|r)[[:space:]]*=[[:space:]]*(.+)$ ]]; then
+      local binding="${BASH_REMATCH[2]}"
+      local key_mod key action dispatcher args
+
+      IFS=',' read -r key_mod key action dispatcher args <<< "${binding}"
+
+      key_mod=$(echo "${key_mod}" | xargs)
+      key=$(echo "${key}" | xargs)
+      action=$(echo "${action}" | xargs)
+      dispatcher=$(echo "${dispatcher}" | xargs)
+      args=$(echo "${args}" | xargs)
+
+      if [[ -z "${dispatcher}" || "${dispatcher}" == "null" ]]; then
+        dispatcher="${action}"
+        action=""
+      fi
+
+      if [[ -z "${action}" ]]; then
+        action="${dispatcher} ${args}"
+      fi
+
+      echo "${key_mod},${key},${action},${category}"
+    fi
+  done < "${config_file}"
+}
+
+determine_category() {
+  local file="$1"
+
+  case "${file}" in
+    */bindings.conf) echo "Apps" ;;
+    */bindings/media.conf) echo "Media" ;;
+    */bindings/utilities.conf) echo "Utilities" ;;
+    */bindings/tiling-v2.conf) echo "Window Management" ;;
+    */bindings/scrolling.conf) echo "Scrolling" ;;
+    */bindings/clipboard.conf) echo "Clipboard" ;;
+    */apps/defaults.conf) echo "Apps" ;;
+    *) echo "Other" ;;
+  esac
+}
+
+scan_config_files() {
+  local configs=(
+    "${DEFAULTS_DIR}/hypr/bindings.conf"
+    "${DEFAULTS_DIR}/hypr/bindings/media.conf"
+    "${DEFAULTS_DIR}/hypr/bindings/utilities.conf"
+    "${DEFAULTS_DIR}/hypr/bindings/tiling-v2.conf"
+    "${DEFAULTS_DIR}/hypr/bindings/scrolling.conf"
+    "${DEFAULTS_DIR}/hypr/bindings/clipboard.conf"
+    "${DEFAULTS_DIR}/hypr/apps/defaults.conf"
+  )
+
+  for config in "${configs[@]}"; do
+    local category
+    category=$(determine_category "${config}")
+    get_bindings_from_config "${config}" "${category}"
+  done
+}
+
+detect_conflicts() {
+  declare -a binding_keys
+
+  while IFS=, read -r key_mod key action category; do
+    [[ -z "${key_mod}" && -z "${key}" ]] && continue
+
+    local binding_key="${key_mod},${key}"
+    local existing_binding="${BINDINGS[${binding_key}]:-}"
+
+    if [[ -n "${existing_binding}" ]]; then
+      local existing_category="${existing_binding##*,}"
+      CONFLICTS["${binding_key}"]="${existing_category},${category}"
+    else
+      BINDINGS["${binding_key}"]="${action},${category}"
+      binding_keys+=("${binding_key}")
+    fi
+  done
+
+  echo "${binding_keys[@]}"
+}
+
+format_key_combo() {
+  local key_mod="$1"
+  local key="$2"
+
+  local combo=""
+  if [[ -n "${key_mod}" && "${key_mod}" != "," ]]; then
+    combo="${key_mod} + ${key}"
+  else
+    combo="${key}"
+  fi
+
+  echo "${combo}" | sed -e 's/^[ \t]*\+[ \t]*//' -e 's/[ \t]+$//'
+}
+
+generate_cache() {
+  mkdir -p "${CACHE_DIR}"
+
+  local cache_content=""
+  cache_content="# Tarion Keybindings Cache\n"
+  cache_content+="# Generated: $(date '+%Y-%m-%d %H:%M:%S')\n"
+  cache_content+="# Total Bindings: ${#BINDINGS[@]}\n"
+  cache_content+="# Conflicts: ${#CONFLICTS[@]}\n\n"
+
+  local categories=("Apps" "Media" "Utilities" "Window Management" "Scrolling" "Clipboard")
+
+  for category in "${categories[@]}"; do
+    cache_content+="## ${category}\n"
+    local found=0
+
+    for binding_key in "${!BINDINGS[@]}"; do
+      local binding="${BINDINGS[${binding_key}]}"
+      local binding_category="${binding##*,}"
+      local action="${binding%,*}"
+
+      [[ "${binding_category}" != "${category}" ]] && continue
+
+      local key_mod="${binding_key%%,*}"
+      local key="${binding_key#*,}"
+      local combo
+      combo=$(format_key_combo "${key_mod}" "${key}")
+
+      cache_content+="  ${combo}|${action}\n"
+      ((found++))
+    done
+
+    [[ ${found} -eq 0 ]] && cache_content+="  (none)\n"
+    cache_content+="\n"
+  done
+
+  if [[ ${#CONFLICTS[@]} -gt 0 ]]; then
+    cache_content+="## Conflicts\n"
+    for conflict_key in "${!CONFLICTS[@]}"; do
+      local key_mod="${conflict_key%%,*}"
+      local key="${conflict_key#*,}"
+      local combo
+      combo=$(format_key_combo "${key_mod}" "${key}")
+      local cats="${CONFLICTS[${conflict_key}]}"
+      cache_content+="  ${combo}|${cats}\n"
+    done
+    cache_content+="\n"
+  fi
+
+  printf "%b" "${cache_content}" > "${CACHE_FILE}"
+}
+
+main() {
+  build_keymap_cache
+
+  echo "Scanning keybinding configurations..."
+  local all_bindings
+  all_bindings=$(scan_config_files)
+
+  echo "Detecting conflicts..."
+  detect_conflicts <<< "${all_bindings}" > /dev/null
+
+  echo "Generating cache..."
+  generate_cache
+
+  local total=${#BINDINGS[@]}
+  local conflicts=${#CONFLICTS[@]}
+
+  echo "✓ Keybindings cache generated"
+  echo "  Total bindings: ${total}"
+  echo "  Conflicts: ${conflicts}"
+
+  if [[ ${conflicts} -gt 0 ]]; then
+    echo "  ⚠️  Conflicts found. Review with: tarion-keybindings-show --conflicts"
+  fi
+
+  exit 0
+}
+
+main "$@"
