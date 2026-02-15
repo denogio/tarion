@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# shellcheck disable=SC2034
+# KEYCODE_SYM_MAP is intentionally populated for future keycode parsing support
 set -euo pipefail
 
 declare -A KEYCODE_SYM_MAP
