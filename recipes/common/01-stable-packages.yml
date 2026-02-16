@@ -120,6 +120,7 @@ modules:
         
         # Fra extra-packages.yml - andet dnf modul (Vicinae)
         - vicinae
+        - iwd
         
         # Fra extra-packages.yml - tredje dnf modul
         # hypridle and hyprlock removed - DMS has built-in idle and lock functionality
