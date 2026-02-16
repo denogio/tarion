@@ -61,7 +61,6 @@ modules:
         - dms
         - hyprland-plugin-hyprscrolling
         - xdg-desktop-portal-hyprland
-        - hyprpolkitagent
         - hyprland-guiutils
         - nerd-fonts-jetbrainsmono
         - uwsm
