@@ -13,3 +13,8 @@ modules:
     from: cargo-stage
     src: /usr/local/cargo/bin/matugen
     dest: /usr/bin/matugen
+
+  - type: copy
+    from: cargo-stage
+    src: /usr/local/cargo/bin/satty
+    dest: /usr/bin/satty

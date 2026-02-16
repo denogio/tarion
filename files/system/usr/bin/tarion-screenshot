@@ -11,22 +11,22 @@ Region" | vicinae dmenu -p "Screenshot mode..." --no-section --no-metadata 2>/de
 case "${selection}" in
   *Entire*)
     # Pipe to Satty if available, otherwise save directly
-    if command -v flatpak &> /dev/null && flatpak list --app | grep -q "com.gabm.satty"; then
-        dms screenshot full --stdout | flatpak run com.gabm.satty --filename -
+    if command -v satty &> /dev/null; then
+        dms screenshot full --stdout | satty --filename -
     else
         dms screenshot full -d "${OUTDIR}"
     fi
     ;;
   *Window*)
-    if command -v flatpak &> /dev/null && flatpak list --app | grep -q "com.gabm.satty"; then
-        dms screenshot window --stdout | flatpak run com.gabm.satty --filename -
+    if command -v satty &> /dev/null; then
+        dms screenshot window --stdout | satty --filename -
     else
         dms screenshot window -d "${OUTDIR}"
     fi
     ;;
   *Region*)
-    if command -v flatpak &> /dev/null && flatpak list --app | grep -q "com.gabm.satty"; then
-        dms screenshot --stdout | flatpak run com.gabm.satty --filename -
+    if command -v satty &> /dev/null; then
+        dms screenshot --stdout | satty --filename -
     else
         dms screenshot -d "${OUTDIR}"
     fi

@@ -11,8 +11,6 @@ modules:
           - io.github.flattool.Warehouse       # Flatpak management GUI
           # Default browser - Tarion's preferred browser
           - org.chromium.Chromium            # Chromium web browser
-          # Screenshot annotation tool
-          - com.gabm.satty                   # Screenshot annotation tool
         notify: true
 
       # User scope - optional user-preferred apps

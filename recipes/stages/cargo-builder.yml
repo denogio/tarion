@@ -4,4 +4,4 @@ modules:
   - type: script
     snippets:
       - apt-get update && apt-get install -y pkg-config libssl-dev libdbus-1-dev
-      - cargo install bluetui impala matugen
+      - cargo install bluetui impala matugen satty
