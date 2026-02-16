@@ -128,7 +128,6 @@ modules:
         # - walker
         
         # Fra extra-packages.yml - fjerde dnf modul
-        - polkit-gnome
         - gnome-keyring
         - gnome-keyring-pam
         - seahorse
