@@ -122,7 +122,7 @@ modules:
         - hyprpolkitagent
         - hyprland-guiutils
         - hyprshot
-        - jetbrains-mono-fonts
+        - nerd-fonts-jetbrainsmono
         - uwsm
         - xdg-terminal-exec
         
@@ -150,3 +150,6 @@ modules:
         - vicinae
     replace:
       - from-repo: fedora
+        packages:
+          - old: OpenCL-ICD-Loader
+            new: ocl-icd
