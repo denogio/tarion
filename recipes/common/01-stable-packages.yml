@@ -118,6 +118,9 @@ modules:
         # - swaync  
         # - swaync-client
         
+        # Fra extra-packages.yml - andet dnf modul (Vicinae)
+        - vicinae
+        
         # Fra extra-packages.yml - tredje dnf modul
         # hypridle and hyprlock removed - DMS has built-in idle and lock functionality
         # - hypridle
