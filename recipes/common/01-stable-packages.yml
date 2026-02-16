@@ -9,30 +9,16 @@ modules:
       - RUN find /tmp/rpms
       - RUN rpm -q ublue-os-akmods-addons || dnf install -y /tmp/rpms/ublue-os/ublue-os-akmods-addons*.rpm
 
+  # Module 1: Base system packages (greetd, common, ublue-os)
   - type: dnf
     repos:
       copr:
         enable:
           # Fra greetd-modules.yml
           - avengemedia/danklinux
-          # Fra hyprland-modules.yml
-          - lionheartp/Hyprland
-          - scottames/ghostty
-          - avengemedia/dms
-          - washkinazy/wayland-wm-extras
-          - erikreider/SwayNotificationCenter
-          # Fra developer-tools.yml
-          - chronoscrat/devpod
-          # Fra extra-packages.yml
-          - scottames/vicinae
       files:
         # Fra common-modules.yml
         - https://copr.fedorainfracloud.org/coprs/ublue-os/packages/repo/fedora-%OS_VERSION%/ublue-os-packages-fedora-%OS_VERSION%.repo
-        # Fra developer-tools.yml
-        - https://packages.microsoft.com/yumrepos/vscode/config.repo
-      keys:
-        # Fra developer-tools.yml
-        - https://packages.microsoft.com/keys/microsoft.asc
     install:
       install-weak-deps: false
       packages:
@@ -47,65 +33,135 @@ modules:
         # Fra common-modules.yml - andet dnf modul (ublue-os pakker)
         - ublue-os-udev-rules
         - ublue-os-update-services
-        - ublue-os-signing
-        - ublue-os-luks
-        - ublue-os-just
         
-        # Fra common-modules.yml - tredje dnf modul (miljøpakker)
-        # environment
-        - fzf
-        - tuned-ppd
-        - xorg-x11-server-Xwayland
-        - headsetcontrol
-        - mediainfo
-        - fprintd-pam
-        - xdg-user-dirs
-        - dbus-tools
-        - dbus-daemon
-        - wl-clipboard
-        - pavucontrol
-        - playerctl
-        - qt5-qtwayland
-        - qt6-qtwayland
-        - google-noto-emoji-fonts
-        - gnome-disk-utility
-        - ddcutil
-        - openssl
-        - vim
-        - gum
-        - alsa-firmware
-        - p7zip
-        - distrobox
-        - steam-devices
-        
-        # sound
-        - wireplumber
-        - pipewire
-        - pamixer
-        - pulseaudio-utils
-        
-        # networking
-        - network-manager-applet
-        - NetworkManager-openconnect
-        - NetworkManager-openconnect-gnome
+        # Fra common-modules.yml - tredje dnf modul
         - bluez
         - bluez-tools
+        - bluez-cups
         - blueman
-        - firewall-config
+        - blueberry
+
+  # Module 2: Hyprland core packages (lionheartp/Hyprland COPR)
+  - type: dnf
+    repos:
+      copr:
+        enable:
+          - lionheartp/Hyprland
+          - scottames/ghostty
+          - avengemedia/dms
+    install:
+      install-weak-deps: false
+      packages:
+        # Fra hyprland-modules.yml - første dnf modul
+        - ghostty
+        - hyprland
+        - dms
+        - hyprland-plugin-hyprscrolling
+        - xdg-desktop-portal-hyprland
+        - hyprpaper
+        - hyprpolkitagent
+        - hyprland-guiutils
+        - hyprshot
+        - nerd-fonts-jetbrainsmono
+        - uwsm
+        - xdg-terminal-exec
+
+  # Module 3: Additional Hyprland packages (sdegler/hyprland COPR)
+  - type: dnf
+    repos:
+      copr:
+        enable:
+          - sdegler/hyprland
+    install:
+      install-weak-deps: false
+      packages:
+        # Fra hyprland-modules.yml - andet dnf modul
+        - hyprsysteminfo
+
+  # Module 4: Wayland WM extras
+  - type: dnf
+    repos:
+      copr:
+        enable:
+          - washkinazy/wayland-wm-extras
+          - erikreider/SwayNotificationCenter
+    install:
+      install-weak-deps: false
+      packages:
+        # Fra hyprland-modules.yml - tredje dnf modul
+        - waypaper
+        - gtk4-layer-shell
+
+  # Module 5: Developer tools
+  - type: files
+    files:
+      - source: dnf/antigravity.repo
+        destination: /etc/yum.repos.d/antigravity.repo
         
-        # screenshot
-        - slurp
-        - grim
+  - type: dnf
+    repos:
+      copr:
+        enable:
+          - chronoscrat/devpod
+      files:
+        # Fra developer-tools.yml
+        - https://packages.microsoft.com/yumrepos/vscode/config.repo
+      keys:
+        # Fra developer-tools.yml
+        - https://packages.microsoft.com/keys/microsoft.asc
+    install:
+      install-weak-deps: false
+      packages:
+        # Fra developer-tools.yml
+        - devpod
+        - code
+        - neovim
+        - antigravity
+
+  # Module 6: Extra packages (Vicinae, input methods, notifications)
+  - type: dnf
+    repos:
+      copr:
+        enable:
+          # Fra extra-packages.yml
+          - scottames/vicinae
+    install:
+      install-weak-deps: false
+      packages:
+        # Fra extra-packages.yml - første dnf modul
+        - wiremix
+        - fcitx5
+        - fcitx5-gtk
+        - fcitx5-qt
         
-        # display
-        - wlr-randr
-        - wlsunset
-        - brightnessctl
-        - kanshi
+        # Fra extra-packages.yml - andet dnf modul
+        - swayosd
+        - swaync
+        - swaync-client
         
-        # theme and GUI
-        - fontawesome-fonts-all
-        - gnome-themes-extra
+        # Fra extra-packages.yml - tredje dnf modul
+        - hypridle
+        - hyprlock
+        - mako
+        - elephant
+        - walker
+        
+        # Fra extra-packages.yml - fjerde dnf modul
+        - polkit-gnome
+        - gnome-keyring
+        - gnome-keyring-pam
+        - seahorse
+        
+        # Fra extra-packages.yml - femte dnf modul
+        - nerd-fonts-jetbrainsmono
+        - nerd-fonts-ubuntu
+        - nerd-fonts-ubuntumono
+        - nerd-fonts-dejavusansmono
+        - nerd-fonts-firacode
+        - nerd-fonts-hack
+        - nerd-fonts-sourcecodepro
+        
+        # Fra extra-packages.yml - sjette dnf modul
         - gnome-icon-theme
         - paper-icon-theme
         - breeze-icon-theme
