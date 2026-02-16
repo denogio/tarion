@@ -113,7 +113,6 @@ bluearchy/
 │       └── final-modules.yml
 ├── files/                     # Files copied into image
 │   ├── scripts/               # Build-time scripts
-│   │   ├── addimageinfo.sh
 │   │   ├── ensureautoupdates.sh
 │   │   └── setupvicinae.sh
 │   ├── system/                # System-wide files
@@ -234,6 +233,7 @@ dms-wallpaper-switcher sync-greeter   # Sync to login screen
 - `containerfile`: Inject Containerfile instructions
 - `copy`: Copy artifacts between stages
 - `brew`: Homebrew integration
+- `os-release`: Set OS release information in /etc/os-release
 
 **Build locally:**
 ```bash
@@ -347,10 +347,26 @@ done
 ```yaml
 - type: script
   scripts:
-    - addimageinfo.sh
     - ensureautoupdates.sh
   snippets:
     - 'echo "Build complete!"'
+```
+
+**OS-Release modules:**
+```yaml
+- type: os-release
+  properties:
+    VARIANT_ID: tarion
+    PRETTY_NAME: "tarion (powered by Universal Blue)"
+    NAME: "tarion"
+    HOME_URL: "https://github.com/denogio/tarion"
+    DOCUMENTATION_URL: "https://github.com/denogio/tarion"
+    SUPPORT_URL: "https://github.com/denogio/tarion/issues"
+    BUG_REPORT_URL: "https://github.com/denogio/tarion/issues"
+    CPE_NAME: "cpe:/o:wayblue:tarion"
+    DEFAULT_HOSTNAME: "tarion"
+    ID: "ublue"
+    ID_LIKE: "tarion"
 ```
 
 ### Configuration Patterns

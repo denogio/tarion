@@ -1,5 +1,20 @@
 # yaml-language-server: $schema=https://schema.blue-build.org/module-stage-list-v1.json
 modules:
+  # OS release information for Tarion
+  - type: os-release
+    properties:
+      VARIANT_ID: tarion
+      PRETTY_NAME: "tarion (powered by Universal Blue)"
+      NAME: "tarion"
+      HOME_URL: "https://github.com/denogio/tarion"
+      DOCUMENTATION_URL: "https://github.com/denogio/tarion"
+      SUPPORT_URL: "https://github.com/denogio/tarion/issues"
+      BUG_REPORT_URL: "https://github.com/denogio/tarion/issues"
+      CPE_NAME: "cpe:/o:wayblue:tarion"
+      DEFAULT_HOSTNAME: "tarion"
+      ID: "ublue"
+      ID_LIKE: "tarion"
+
   # Greeter cache initialization
   - type: script
     snippets:

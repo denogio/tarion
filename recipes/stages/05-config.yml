@@ -4,7 +4,6 @@ modules:
   - type: script
     scripts:
       - ensureautoupdates.sh
-      - addimageinfo.sh
   
   # Proprietary modules - only include non-DNF parts
   # Note: DNF modules from proprietary-modules.yml are handled separately

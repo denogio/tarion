@@ -5,7 +5,6 @@ modules:
     - type: script
       scripts:
         - ensureautoupdates.sh
-        - addimageinfo.sh
 
     - from-file: common/proprietary-modules.yml
 
