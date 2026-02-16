@@ -36,12 +36,17 @@ modules:
           - old: OpenCL-ICD-Loader
             new: ocl-icd
   
-  # Multimedia codecs from fedora-multimedia repository
+  # Install RPM Fusion repositories first
   - type: dnf
-    repos:
-      files:
+    install:
+      install-weak-deps: false
+      packages:
+        # RPM Fusion repositories
         - https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-%OS_VERSION%.noarch.rpm
         - https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-%OS_VERSION%.noarch.rpm
+  
+  # Multimedia codecs from RPM Fusion
+  - type: dnf
     install:
       install-weak-deps: false
       packages:

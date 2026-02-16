@@ -5,11 +5,8 @@ modules:
     scripts:
       - ensureautoupdates.sh
   
-  # Proprietary modules - only include non-DNF parts
+  # Proprietary modules - handled in 03-apps.yml with RPM Fusion
   # Note: DNF modules from proprietary-modules.yml are handled separately
-  - type: script
-    scripts:
-      - ensurenegativopresence.sh
   
   # Copy all system files
   - type: files
