@@ -39,7 +39,7 @@ modules:
         - bluez-tools
         - bluez-cups
         - blueman
-        - blueberry
+        # blueberry removed - not available in Fedora 43, blueman is sufficient
 
   # Module 2: Hyprland and Wayland packages
   - type: dnf
