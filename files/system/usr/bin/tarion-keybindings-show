@@ -2,7 +2,7 @@
 set -euo pipefail
 
 check_dependencies() {
-  local deps=("gum" "dms")
+  local deps=("dms" "vicinae")
   local missing_deps=()
   
   for dep in "${deps[@]}"; do
@@ -17,33 +17,19 @@ check_dependencies() {
       echo "  - ${dep}" >&2
     done
     
-    if [[ " ${missing_deps[*]} " =~ " gum " ]]; then
-      echo "Install gum with: sudo dnf install gum" >&2
-    fi
-    
     if [[ " ${missing_deps[*]} " =~ " dms " ]]; then
       echo "DMS is required for keybindings display" >&2
       echo "Ensure DMS is installed and running" >&2
     fi
     
+    if [[ " ${missing_deps[*]} " =~ " vicinae " ]]; then
+      echo "Vicinae is required for keybindings menu" >&2
+      echo "Ensure Vicinae is installed and running" >&2
+    fi
+    
     return 1
   fi
-  
-  if [[ ! -f /usr/share/tarion/gum-theme.sh ]]; then
-    echo "Warning: gum-theme.sh not found at /usr/share/tarion/gum-theme.sh" >&2
-  fi
 }
-
-# Try to source gum theme, but continue if not found
-if [[ -f /usr/share/tarion/gum-theme.sh ]]; then
-  source /usr/share/tarion/gum-theme.sh
-else
-  # Define fallback functions if gum-theme.sh is missing
-  highlight_success() { echo "2"; }
-  highlight_error() { echo "1"; }
-  highlight_info() { echo "4"; }
-  TARION_NEUTRAL="7"
-fi
 
 declare -a CATEGORIES=(
   "Apps"
@@ -58,133 +44,67 @@ display_category() {
   local category="$1"
 
   local bindings
-  bindings=$(dms keybinds list --category "${category}" --format json 2>/dev/null | jq -r '.[] | "\(.key)|\(.description)"' 2>/dev/null || echo "")
+  bindings=$(dms keybinds list --category "${category}" --format json 2>/dev/null | jq -r '.[] | "\(.key) → \(.description)"' 2>/dev/null || echo "")
 
   if [[ -z "${bindings}" ]]; then
-    gum style \
-      --foreground "$(highlight_info)" \
-      --margin "1 0" \
-      "No bindings in this category"
+    echo "No bindings in this category" >&2
     return
   fi
 
-  echo "${bindings}" | while IFS='|' read -r key action; do
-    [[ -z "${key}" ]] && continue
-
-    gum style \
-      --foreground "$(highlight_success)" \
-      --width 30 \
-      "${key}" | tr -d '\n'
-
-    gum style --foreground "${TARION_NEUTRAL}" " → " | tr -d '\n'
-
-    gum style \
-      --foreground "${TARION_NEUTRAL}" \
-      "${action}"
-  done | gum table --separator="|" --columns "KEY,ACTION" --border rounded
+  echo "${bindings}" | vicinae dmenu --prompt "Keybindings: ${category}"
 }
 
 display_all() {
-  if [[ -f /usr/share/tarion/logo.txt ]]; then
-    gum style \
-      --foreground "$(highlight_info)" \
-      --border double \
-      --align center \
-      --padding "1 2" \
-      "$(cat /usr/share/tarion/logo.txt)" | tr -d '\n'
-  else
-    gum style \
-      --foreground "$(highlight_info)" \
-      --border double \
-      --align center \
-      --padding "1 2" \
-      "╔══════════════════════════╗
-       ║      TARION KEYBINDINGS     ║
-       ╚══════════════════════════╝" | tr -d '\n'
+  local all_bindings=""
+  
+  for category in "${CATEGORIES[@]}"; do
+    local category_bindings
+    category_bindings=$(dms keybinds list --category "${category}" --format json 2>/dev/null | jq -r '.[] | "\(.key) → \(.description) [${category}]"' 2>/dev/null || echo "")
+    
+    if [[ -n "${category_bindings}" ]]; then
+      all_bindings+="${category_bindings}"$'\n'
+    fi
+  done
+
+  if [[ -z "${all_bindings}" ]]; then
+    echo "No keybindings found" >&2
+    return 1
   fi
 
-  gum style \
-    --foreground "$(highlight_info)" \
-    --margin "1 0" \
-    "Tarion Keybindings Reference"
-
-  for category in "${CATEGORIES[@]}"; do
-    gum style \
-      --foreground "$(highlight_success)" \
-      --margin "1 0 0 0" \
-      "## ${category}"
-
-    display_category "${category}"
-    echo ""
-  done
+  echo "${all_bindings}" | vicinae dmenu --prompt "All Keybindings"
 }
 
 search_bindings() {
   local query="$1"
 
   local matches
-  matches=$(dms keybinds search "${query}" --format json 2>/dev/null | jq -r '.[] | "\(.category)|\(.key)|\(.description)"' 2>/dev/null || echo "")
+  matches=$(dms keybinds search "${query}" --format json 2>/dev/null | jq -r '.[] | "\(.key) → \(.description) [\(.category)]"' 2>/dev/null || echo "")
 
   if [[ -z "${matches}" ]]; then
-    gum style \
-      --foreground "$(highlight_info)" \
-      --margin "1 0" \
-      "No matches found for: ${query}"
-    return
+    echo "No matches found for: ${query}" >&2
+    return 1
   fi
 
-  echo "${matches}" | while IFS='|' read -r category key action; do
-    gum style \
-      --foreground "$(highlight_success)" \
-      --width 30 \
-      "${key}" | tr -d '\n'
-
-    gum style --foreground "${TARION_NEUTRAL}" " → " | tr -d '\n'
-
-    gum style \
-      --foreground "${TARION_NEUTRAL}" \
-      "${action}" | tr -d '\n'
-
-    gum style \
-      --foreground "$(highlight_info)" \
-      " [${category}]"
-  done | gum table --separator="|" --columns "KEY,ACTION,CATEGORY" --border rounded
+  echo "${matches}" | vicinae dmenu --prompt "Search: ${query}"
 }
 
 main_menu() {
   local selection
-  selection=$(gum choose \
-    --header="Select a category to view:" \
-    --cursor="👉 " \
-    --height 10 \
-    "${CATEGORIES[@]}" \
-    "Search..." \
-    "Show All")
-
+  selection=$(printf "%s\n" "${CATEGORIES[@]}" "Search..." "Show All" | vicinae dmenu --prompt "Keybindings Menu")
+  
   case "${selection}" in
     "Search...")
       local query
-      query=$(gum input --placeholder "Search bindings..." --prompt "> ")
-      clear
-      gum style \
-        --foreground "$(highlight_info)" \
-        --margin "1 0" \
-        "Search results for: ${query}"
-      echo ""
+      query=$(vicinae dmenu --prompt "Search keybindings:")
       search_bindings "${query}"
       ;;
     "Show All")
-      clear
       display_all
       ;;
     *)
-      clear
-      gum style \
-        --foreground "$(highlight_success)" \
-        --margin "1 0" \
-        "## ${selection}"
-      echo ""
-      display_category "${selection}"
+      if [[ -n "${selection}" ]]; then
+        display_category "${selection}"
+      fi
       ;;
   esac
 }
@@ -193,7 +113,7 @@ show_usage() {
   cat << 'EOF'
 Usage: tarion-keybindings-show [OPTIONS]
 
-Display Tarion keybindings using DMS keybinds CLI.
+Display Tarion keybindings using Vicinae dmenu.
 
 OPTIONS:
   --all, -a           Show all bindings
