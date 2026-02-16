@@ -2,7 +2,7 @@
 # Developer-focused terminal
 
 # Font
-font-family = JetBrains Mono
+font-family = JetBrainsMono Nerd Font
 font-size = 11
 font-feature = +liga
 

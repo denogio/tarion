@@ -1,6 +1,80 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Map Hyprland key codes to human-readable names
+declare -A KEYCODE_MAP=(
+  ["code:10"]="1"
+  ["code:11"]="2"
+  ["code:12"]="3"
+  ["code:13"]="4"
+  ["code:14"]="5"
+  ["code:15"]="6"
+  ["code:16"]="7"
+  ["code:17"]="8"
+  ["code:18"]="9"
+  ["code:19"]="0"
+  ["code:20"]="-"
+  ["code:21"]="="
+  ["mouse:272"]="󰍽"  # Left mouse button (mouse icon)
+  ["mouse:273"]="󰍽"  # Right mouse button (mouse icon)
+  ["mouse_down"]="󰁿"  # Scroll Down (down arrow)
+  ["mouse_up"]="󰁹"    # Scroll Up (up arrow)
+  ["XF86AudioRaiseVolume"]="󰝝"  # Volume up
+  ["XF86AudioLowerVolume"]="󰝞"  # Volume down
+  ["XF86AudioMute"]="󰝟"        # Mute
+  ["XF86AudioMicMute"]="󰍬"     # Mic mute
+  ["XF86MonBrightnessUp"]="󰃠"   # Brightness up
+  ["XF86MonBrightnessDown"]="󰃞" # Brightness down
+  ["XF86AudioNext"]="󰒭"        # Next track
+  ["XF86AudioPause"]="󰏤"       # Pause
+  ["XF86AudioPlay"]="󰏤"        # Play
+  ["XF86AudioPrev"]="󰒮"        # Previous track
+  ["PRINT"]="󰹑"                # Print screen
+)
+
+# Convert Hyprland key format to human-readable
+format_key() {
+  local key="$1"
+  
+  # First replace special function keys with icons
+  for code in "${!KEYCODE_MAP[@]}"; do
+    if [[ "${key}" == *"${code}"* ]]; then
+      key="${key//${code}/${KEYCODE_MAP[${code}]}}"
+    fi
+  done
+  
+  # Replace modifiers with symbols (in correct order)
+  local formatted=""
+  # Split by + to handle each part
+  IFS='+' read -ra parts <<< "${key}"
+  for part in "${parts[@]}"; do
+    case "${part}" in
+      SUPER) formatted+=" " ;;   # Super key (Fedora logo)
+      ALT) formatted+="󰘵 " ;;     # Alt key
+      CTRL) formatted+="󰘴 " ;;   # Ctrl key
+      SHIFT) formatted+="󰘶 " ;;  # Shift key
+      RETURN|ENTER) formatted+="󰌑 " ;;  # Return/Enter key
+      SPACE) formatted+="󱁐 " ;;   # Space key
+      TAB) formatted+="󰌒 " ;;     # Tab key
+      DELETE) formatted+="󰆴 " ;;  # Delete key
+      BACKSPACE) formatted+="󰌍 " ;; # Backspace key
+      COMMA) formatted+="," ;;    # Comma
+      PERIOD) formatted+="." ;;   # Period
+      LEFT) formatted+="󰁍 " ;;    # Left arrow
+      RIGHT) formatted+="󰁔 " ;;   # Right arrow
+      UP) formatted+="󰁝 " ;;      # Up arrow
+      DOWN) formatted+="󰁅 " ;;    # Down arrow
+      *) formatted+="${part} " ;;
+    esac
+  done
+  
+  # Remove trailing space and clean up
+  formatted="${formatted% }"
+  # Replace double spaces with single space
+  formatted="${formatted//  / }"
+  echo "${formatted}"
+}
+
 check_dependencies() {
   local deps=("dms" "vicinae")
   local missing_deps=()
@@ -32,60 +106,77 @@ check_dependencies() {
 }
 
 declare -a CATEGORIES=(
-  "Apps"
-  "Media"
-  "Utilities"
-  "Window Management"
-  "Scrolling"
-  "Clipboard"
+  "Execute"
+  "Window"
+  "Workspace"
+  "Other"
 )
 
 display_category() {
   local category="$1"
 
   local bindings
-  bindings=$(dms keybinds list --category "${category}" --format json 2>/dev/null | jq -r '.[] | "\(.key) → \(.description)"' 2>/dev/null || echo "")
+  bindings=$(dms keybinds show hyprland 2>/dev/null | jq -r --arg cat "${category}" '.binds[$cat]? // [] | .[] | "\(.key)|\(.desc)"' || echo "")
 
   if [[ -z "${bindings}" ]]; then
     echo "No bindings in this category" >&2
     return
   fi
 
-  echo "${bindings}" | vicinae dmenu --prompt "Keybindings: ${category}"
+  # Format each line
+  local formatted_bindings=""
+  while IFS='|' read -r key desc; do
+    if [[ -n "${key}" && -n "${desc}" ]]; then
+      formatted_key=$(format_key "${key}")
+      formatted_bindings+="${formatted_key} → ${desc}"$'\n'
+    fi
+  done <<< "${bindings}"
+
+  echo "${formatted_bindings}" | vicinae dmenu --prompt "Keybindings: ${category}"
 }
 
 display_all() {
-  local all_bindings=""
+  local all_bindings
+  all_bindings=$(dms keybinds show hyprland 2>/dev/null | jq -r '.binds | to_entries[] | .key as $cat | .value[] | "\(.key)|\(.desc)|\($cat)"' || echo "")
   
-  for category in "${CATEGORIES[@]}"; do
-    local category_bindings
-    category_bindings=$(dms keybinds list --category "${category}" --format json 2>/dev/null | jq -r '.[] | "\(.key) → \(.description) [${category}]"' 2>/dev/null || echo "")
-    
-    if [[ -n "${category_bindings}" ]]; then
-      all_bindings+="${category_bindings}"$'\n'
-    fi
-  done
-
   if [[ -z "${all_bindings}" ]]; then
     echo "No keybindings found" >&2
     return 1
   fi
 
-  echo "${all_bindings}" | vicinae dmenu --prompt "All Keybindings"
+  # Format each line
+  local formatted_bindings=""
+  while IFS='|' read -r key desc category; do
+    if [[ -n "${key}" && -n "${desc}" ]]; then
+      formatted_key=$(format_key "${key}")
+      formatted_bindings+="${formatted_key} → ${desc} [${category}]"$'\n'
+    fi
+  done <<< "${all_bindings}"
+
+  echo "${formatted_bindings}" | vicinae dmenu --prompt "All Keybindings"
 }
 
 search_bindings() {
   local query="$1"
 
   local matches
-  matches=$(dms keybinds search "${query}" --format json 2>/dev/null | jq -r '.[] | "\(.key) → \(.description) [\(.category)]"' 2>/dev/null || echo "")
+  matches=$(dms keybinds show hyprland 2>/dev/null | jq -r --arg q "${query}" '.binds | to_entries[] | .key as $cat | .value[] | select(.desc | ascii_downcase | contains($q | ascii_downcase) or .key | ascii_downcase | contains($q | ascii_downcase)) | "\(.key)|\(.desc)|\($cat)"' || echo "")
 
   if [[ -z "${matches}" ]]; then
     echo "No matches found for: ${query}" >&2
     return 1
   fi
 
-  echo "${matches}" | vicinae dmenu --prompt "Search: ${query}"
+  # Format each line
+  local formatted_matches=""
+  while IFS='|' read -r key desc category; do
+    if [[ -n "${key}" && -n "${desc}" ]]; then
+      formatted_key=$(format_key "${key}")
+      formatted_matches+="${formatted_key} → ${desc} [${category}]"$'\n'
+    fi
+  done <<< "${matches}"
+
+  echo "${formatted_matches}" | vicinae dmenu --prompt "Search: ${query}"
 }
 
 main_menu() {
@@ -122,12 +213,10 @@ OPTIONS:
   --help, -h           Show this help message
 
 CATEGORIES:
-  Apps                 Application launchers
-  Media                Volume, brightness, media controls
-  Utilities            Menus, screenshots, wallpapers
-  Window Management    Focus, resize, workspace navigation
-  Scrolling            Column-based tiling bindings
-  Clipboard            Copy/paste shortcuts
+  Execute              Application launchers and commands
+  Window               Window management and focus
+  Workspace            Workspace navigation and management
+  Other                Miscellaneous bindings
 
 EXAMPLES:
   tarion-keybindings-show           # Interactive menu
