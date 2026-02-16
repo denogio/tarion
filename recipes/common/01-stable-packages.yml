@@ -19,7 +19,6 @@ modules:
           - lionheartp/Hyprland
           - scottames/ghostty
           - avengemedia/dms
-          - sdegler/hyprland
           - washkinazy/wayland-wm-extras
           - erikreider/SwayNotificationCenter
           # Fra developer-tools.yml
@@ -116,7 +115,6 @@ modules:
         - ghostty
         - hyprland
         - dms
-        - hyprland-plugin-hyprscrolling
         - xdg-desktop-portal-hyprland
         - hyprpaper
         - hyprpolkitagent
@@ -137,7 +135,6 @@ modules:
         - devpod
         - code
         - neovim
-        - antigravity
         
         # Fra extra-packages.yml - første dnf modul
         - wiremix
