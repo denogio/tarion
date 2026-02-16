@@ -63,6 +63,8 @@ modules:
         - xdg-desktop-portal-hyprland
         - hyprland-guiutils
         - nerd-fonts-jetbrainsmono
+        - nerd-fonts-firacode
+        - nerd-fonts-cascadiacode
         - uwsm
         - xdg-terminal-exec
         # Fra hyprland-modules.yml - tredje dnf modul
@@ -132,13 +134,7 @@ modules:
         - seahorse
         
         # Fra extra-packages.yml - femte dnf modul
-        - nerd-fonts-jetbrainsmono
-        - nerd-fonts-ubuntu
-        - nerd-fonts-ubuntumono
-        - nerd-fonts-dejavusansmono
-        - nerd-fonts-firacode
-        - nerd-fonts-hack
-        - nerd-fonts-sourcecodepro
+        # Nerd fonts moved to module 2 (washkinazy/wayland-wm-extras copr)
         
         # Fra extra-packages.yml - sjette dnf modul
         - gnome-icon-theme
