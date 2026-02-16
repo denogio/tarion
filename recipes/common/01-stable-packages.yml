@@ -69,6 +69,9 @@ modules:
         - xdg-terminal-exec
         # Fra hyprland-modules.yml - tredje dnf modul
         - gtk4-layer-shell
+        
+        # Fra hyprland-modules.yml - andet dnf modul
+        - hyprsysteminfo
 
   # Module 3: Developer tools
   - type: files
@@ -121,6 +124,17 @@ modules:
         # Fra extra-packages.yml - andet dnf modul (Vicinae)
         - vicinae
         - iwd
+        
+        # Fra extra-packages.yml - første dnf modul
+        - wiremix
+        - fcitx5
+        - fcitx5-gtk
+        - fcitx5-qt
+        
+        # Fra developer-tools.yml
+        - devpod
+        - code
+        - neovim
         
         # Fra extra-packages.yml - tredje dnf modul
         # hypridle and hyprlock removed - DMS has built-in idle and lock functionality
