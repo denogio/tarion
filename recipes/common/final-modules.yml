@@ -1,9 +1,4 @@
 modules:
-    - type: systemd
-      user:
-        enabled:
-          - vicinae.service
-    
     - type: script
       scripts:
         - removeunusedrepos.sh

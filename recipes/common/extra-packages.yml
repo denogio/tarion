@@ -12,7 +12,10 @@ modules:
         - source: etc/NetworkManager/conf.d/50-iwd.conf
           destination: /etc/NetworkManager/conf.d/50-iwd.conf
 
-
+    - type: systemd
+      user:
+        enabled:
+          - vicinae.service
 
     - type: systemd
       system:
