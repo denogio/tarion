@@ -11,6 +11,8 @@ modules:
           destination: /usr/lib/environment.d/10-home-env.conf
         - source: etc/NetworkManager/conf.d/50-iwd.conf
           destination: /etc/NetworkManager/conf.d/50-iwd.conf
+        - source: usr/lib/systemd/user/vicinae.service
+          destination: /usr/lib/systemd/user/vicinae.service
 
     - type: systemd
       user:
