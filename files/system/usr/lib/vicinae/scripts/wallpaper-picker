@@ -13,13 +13,8 @@ if [ ! -d "${WALLPAPER_DIR}" ]; then
     exit 0
 fi
 
-# Use waypaper if available, otherwise use hyprpaper
-if command -v waypaper &> /dev/null; then
-    find "${WALLPAPER_DIR}" -type f | vicinae dmenu --placeholder "Select wallpaper..." | xargs waypaper --set
-elif command -v hyprpaper &> /dev/null; then
-    wallpaper=$(find "${WALLPAPER_DIR}" -type f | vicinae dmenu --placeholder "Select wallpaper...")
-    if [ -n "${wallpaper}" ]; then
-        hyprctl hyprpaper preload "${wallpaper}"
-        hyprctl hyprpaper wallpaper "eDP-1,${wallpaper}"
-    fi
+# Use DMS wallpaper management
+wallpaper=$(find "${WALLPAPER_DIR}" -type f | vicinae dmenu --placeholder "Select wallpaper...")
+if [ -n "${wallpaper}" ]; then
+    dms ipc call wallpaper set "${wallpaper}"
 fi

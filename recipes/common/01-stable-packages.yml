@@ -61,15 +61,12 @@ modules:
         - dms
         - hyprland-plugin-hyprscrolling
         - xdg-desktop-portal-hyprland
-        - hyprpaper
         - hyprpolkitagent
         - hyprland-guiutils
-        - hyprshot
         - nerd-fonts-jetbrainsmono
         - uwsm
         - xdg-terminal-exec
         # Fra hyprland-modules.yml - tredje dnf modul
-        - waypaper
         - gtk4-layer-shell
 
   # Module 3: Developer tools
@@ -156,10 +153,8 @@ modules:
         - hyprland
         - dms
         - xdg-desktop-portal-hyprland
-        - hyprpaper
         - hyprpolkitagent
         - hyprland-guiutils
-        - hyprshot
         - nerd-fonts-jetbrainsmono
         - uwsm
         - xdg-terminal-exec
@@ -168,7 +163,6 @@ modules:
         - hyprsysteminfo
         
         # Fra hyprland-modules.yml - tredje dnf modul
-        - waypaper
         - gtk4-layer-shell
         
         # Fra developer-tools.yml

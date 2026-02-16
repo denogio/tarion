@@ -25,7 +25,6 @@ See: https://docs.vicinae.com/scripts/getting-started
 
 ### Key Files
 - `hyprland.conf` - Main configuration
-- `hyprpaper.conf` - Wallpaper manager (if using)
 
 ### Reloading
 ```bash

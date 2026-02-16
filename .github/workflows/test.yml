@@ -48,7 +48,6 @@ jobs:
         run: |
           test -f files/system/usr/share/tarion/logo.txt || (echo "logo.txt missing" && exit 1)
           test -f files/system/etc/vicinae/settings.json || (echo "Vicinae config missing" && exit 1)
-          test -f files/system/etc/hyprshot.conf || (echo "Hyprshot config missing" && exit 1)
           test -f files/system/etc/greetd/config.toml || (echo "Greetd config missing" && exit 1)
           echo "✓ All required files present"
 
