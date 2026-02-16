@@ -148,37 +148,7 @@ modules:
         - breeze-icon-theme
         - papirus-icon-theme
         
-        # Fra hyprland-modules.yml - første dnf modul
-        - ghostty
-        - hyprland
-        - dms
-        - xdg-desktop-portal-hyprland
-        - hyprpolkitagent
-        - hyprland-guiutils
-        - nerd-fonts-jetbrainsmono
-        - uwsm
-        - xdg-terminal-exec
-        
-        # Fra hyprland-modules.yml - andet dnf modul
-        - hyprsysteminfo
-        
-        # Fra hyprland-modules.yml - tredje dnf modul
-        - gtk4-layer-shell
-        
-        # Fra developer-tools.yml
-        - devpod
-        - code
-        - neovim
-        
-        # Fra extra-packages.yml - første dnf modul
-        - wiremix
-        - fcitx5
-        - fcitx5-gtk
-        - fcitx5-qt
-        - iwd
-        
-        # Fra extra-packages.yml - andet dnf modul (Vicinae)
-        - vicinae
+
     replace:
       - from-repo: fedora
         packages:
