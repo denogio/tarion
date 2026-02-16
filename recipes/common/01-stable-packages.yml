@@ -125,11 +125,6 @@ modules:
         - vicinae
         - iwd
         
-        # Fra developer-tools.yml
-        - devpod
-        - code
-        - neovim
-        
         # Fra extra-packages.yml - tredje dnf modul
         # hypridle and hyprlock removed - DMS has built-in idle and lock functionality
         # - hypridle
