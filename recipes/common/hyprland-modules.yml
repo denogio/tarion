@@ -42,7 +42,6 @@ modules:
     install:
       install-weak-deps: false
       packages:
-      - swayosd
       - waypaper
       - gtk4-layer-shell
 
