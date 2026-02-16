@@ -5,7 +5,7 @@ modules:
     scripts:
       - ensureautoupdates.sh
   
-  # Proprietary modules - handled in 03-apps.yml with RPM Fusion
+  # Proprietary modules - handled in 03-apps.yml with negativo17 fedora-multimedia
   # Note: DNF modules from proprietary-modules.yml are handled separately
   
   # Copy all system files

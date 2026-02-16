@@ -36,16 +36,11 @@ modules:
           - old: OpenCL-ICD-Loader
             new: ocl-icd
   
-  # Install RPM Fusion repositories first
-  - type: dnf
-    install:
-      install-weak-deps: false
-      packages:
-        # RPM Fusion repositories
-        - https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-%OS_VERSION%.noarch.rpm
-        - https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-%OS_VERSION%.noarch.rpm
+  # Multimedia codecs from negativo17 fedora-multimedia repository
+  - type: script
+    scripts:
+      - ensurenegativopresence.sh
   
-  # Multimedia codecs from RPM Fusion
   - type: dnf
     install:
       install-weak-deps: false
@@ -69,6 +64,39 @@ modules:
         - libpostproc
         - libswresample
         - libswscale
+    replace:
+      - from-repo: fedora-multimedia
+        packages:
+          - libheif
+          - libva
+          - mesa-dri-drivers
+          - gstreamer1-plugin-libav
+          - mesa-libGL
+          - libva-intel-media-driver
+          - intel-gmmlib
+          - intel-mediasdk
+          - old: ffmpeg-free
+            new: ffmpeg
+          - old: fdk-aac-free
+            new: libfdk-aac
+          - old: gstreamer1-plugins-ugly-free
+            new: gstreamer1-plugins-ugly
+          - old: libavcodec-free
+            new: libavcodec
+          - old: libavdevice-free
+            new: libavdevice
+          - old: libavfilter-free
+            new: libavfilter
+          - old: libavformat-free
+            new: libavformat
+          - old: libavutil-free
+            new: libavutil
+          - old: libpostproc-free
+            new: libpostproc
+          - old: libswresample-free
+            new: libswresample
+          - old: libswscale-free
+            new: libswscale
   
   # Flatpak setup
   - type: default-flatpaks
