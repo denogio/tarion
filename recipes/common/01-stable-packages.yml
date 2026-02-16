@@ -125,12 +125,6 @@ modules:
         - vicinae
         - iwd
         
-        # Fra extra-packages.yml - første dnf modul
-        - wiremix
-        - fcitx5
-        - fcitx5-gtk
-        - fcitx5-qt
-        
         # Fra developer-tools.yml
         - devpod
         - code
