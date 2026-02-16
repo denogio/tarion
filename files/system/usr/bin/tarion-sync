@@ -161,6 +161,15 @@ if command -v tarion-keybindings-generate &>/dev/null; then
     tarion-keybindings-generate > /dev/null
 fi
 
+# Greeter theme sync (informational)
+echo ""
+echo "=== Greeter Theme Sync ==="
+echo "Note: To sync DMS themes with greeter login screen:"
+echo "  1. Ensure you're in 'greeter' group: sudo usermod -aG greeter \$USER"
+echo "  2. Run: greeter-sync --sync"
+echo "  3. Logout/login for group changes to take effect"
+echo "Or check status: greeter-sync --status"
+
 # Update state
 mkdir -p "${STATE_DIR}"
 echo "${IMAGE_ID}" > "${STATE_FILE}"

@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Tarion Hyprland wrapper for smooth boot experience
+# Sets critical environment variables BEFORE Hyprland starts
+# to avoid CLI/visual switching during boot
+
+# Set critical Wayland environment variables
+export WAYLAND_DISPLAY=${WAYLAND_DISPLAY:-wayland-1}
+export XDG_CURRENT_DESKTOP=Hyprland
+export HYPRLAND_LOG_WLR=0
+export HYPRLAND_NO_RT=1
+export NO_AT_BRIDGE=1
+
+# Generate instance signature if not set
+if [ -z "${HYPRLAND_INSTANCE_SIGNATURE:-}" ]; then
+    HYPRLAND_INSTANCE_SIGNATURE="tarion-$(date +%s)"
+    export HYPRLAND_INSTANCE_SIGNATURE
+fi
+
+# Update dbus activation environment for systemd user session
+dbus-update-activation-environment --systemd \
+    WAYLAND_DISPLAY \
+    XDG_CURRENT_DESKTOP \
+    HYPRLAND_INSTANCE_SIGNATURE \
+    NO_AT_BRIDGE
+
+# Import environment into systemd user session
+if command -v systemctl &>/dev/null; then
+    systemctl --user import-environment \
+        WAYLAND_DISPLAY \
+        XDG_CURRENT_DESKTOP \
+        HYPRLAND_INSTANCE_SIGNATURE \
+        NO_AT_BRIDGE || true
+fi
+
+# Start Hyprland with all arguments passed through
+exec Hyprland "$@"

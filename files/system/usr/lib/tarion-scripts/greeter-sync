@@ -1,0 +1,262 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Tarion greeter theme synchronization
+# Syncs DMS themes from user config to greeter cache
+
+show_help() {
+    cat << EOF
+Usage: greeter-sync [OPTION]
+
+Sync DMS themes from your user configuration to the greeter login screen.
+
+Options:
+  --check      Check if sync is needed (default)
+  --sync       Perform sync (requires appropriate permissions)
+  --force      Force sync even if already synced
+  --status     Show current sync status
+  --help       Show this help message
+
+Examples:
+  greeter-sync --check      # Check if sync is needed
+  greeter-sync --sync       # Sync themes to greeter
+  greeter-sync --status     # Show sync status
+
+Note: You may need to be in the 'greeter' group for sync to work.
+      Add yourself: sudo usermod -aG greeter \$USER
+      Then logout and login again.
+EOF
+}
+
+# Source XDG path helper if available
+if [ -f "/usr/lib/tarion/xdg-paths.sh" ]; then
+    source /usr/lib/tarion/xdg-paths.sh
+fi
+
+# Paths
+USER_DMS_CONFIG="${HOME}/.config/DankMaterialShell"
+USER_DMS_CACHE="${HOME}/.cache/DankMaterialShell"
+GREETER_CACHE="/var/cache/dms-greeter"
+
+check_sync_needed() {
+    echo "=== Greeter Theme Sync Check ==="
+    
+    # Check if user has DMS configured
+    if [ ! -d "${USER_DMS_CONFIG}" ]; then
+        echo "✗ DMS not configured: ${USER_DMS_CONFIG} not found"
+        echo "   Run DMS setup first: dms setup"
+        return 1
+    fi
+    
+    echo "✓ DMS configured: ${USER_DMS_CONFIG}"
+    
+    # Check greeter cache
+    if [ ! -d "${GREETER_CACHE}" ]; then
+        echo "✗ Greeter cache missing: ${GREETER_CACHE}"
+        echo "   Run: sudo greeter-cleanup --reset"
+        return 1
+    fi
+    
+    echo "✓ Greeter cache exists: ${GREETER_CACHE}"
+    
+    # Check each file
+    local needs_sync=0
+    
+    # settings.json
+    if [ -f "${USER_DMS_CONFIG}/settings.json" ]; then
+        if [ -L "${GREETER_CACHE}/settings.json" ]; then
+            local target
+            target=$(readlink -f "${GREETER_CACHE}/settings.json" 2>/dev/null || echo "")
+            if [ "${target}" = "${USER_DMS_CONFIG}/settings.json" ]; then
+                echo "✓ settings.json: Already synced"
+            else
+                echo "⚠️  settings.json: Symlink points elsewhere"
+                needs_sync=1
+            fi
+        else
+            echo "⚠️  settings.json: Not a symlink (using defaults)"
+            needs_sync=1
+        fi
+    else
+        echo "✗ settings.json: Missing in user config"
+    fi
+    
+    # colors.json
+    if [ -f "${USER_DMS_CACHE}/dms-colors.json" ]; then
+        if [ -L "${GREETER_CACHE}/colors.json" ]; then
+            local target
+            target=$(readlink -f "${GREETER_CACHE}/colors.json" 2>/dev/null || echo "")
+            if [ "${target}" = "${USER_DMS_CACHE}/dms-colors.json" ]; then
+                echo "✓ colors.json: Already synced"
+            else
+                echo "⚠️  colors.json: Symlink points elsewhere"
+                needs_sync=1
+            fi
+        else
+            echo "⚠️  colors.json: Not a symlink (using defaults)"
+            needs_sync=1
+        fi
+    else
+        echo "⚠️  colors.json: Missing in user cache (may generate on first DMS run)"
+    fi
+    
+    # Check group membership
+    if ! groups | grep -q "\bgreeter\b"; then
+        echo "⚠️  You are not in 'greeter' group"
+        echo "   Add: sudo usermod -aG greeter \$USER"
+        echo "   Then logout and login"
+    else
+        echo "✓ You are in 'greeter' group"
+    fi
+    
+    if [ ${needs_sync} -eq 0 ]; then
+        echo ""
+        echo "✅ Sync not needed - themes are already synchronized"
+        return 0
+    else
+        echo ""
+        echo "🔄 Sync needed - run: greeter-sync --sync"
+        return 1
+    fi
+}
+
+perform_sync() {
+    echo "=== Syncing DMS Themes to Greeter ==="
+    
+    # Check prerequisites
+    if [ ! -d "${USER_DMS_CONFIG}" ]; then
+        echo "Error: DMS not configured. Run 'dms setup' first."
+        return 1
+    fi
+    
+    if [ ! -d "${GREETER_CACHE}" ]; then
+        echo "Error: Greeter cache missing. Run 'sudo greeter-cleanup --reset' first."
+        return 1
+    fi
+    
+    # Check permissions
+    if ! groups | grep -q "\bgreeter\b"; then
+        echo "Warning: You are not in 'greeter' group."
+        echo "  Sync may fail due to permission issues."
+        echo "  Add yourself: sudo usermod -aG greeter \$USER"
+        echo "  Then logout and login again."
+        echo ""
+        echo "Continuing with sudo for symlink creation..."
+        USE_SUDO=1
+    else
+        USE_SUDO=0
+    fi
+    
+    # Create symlinks
+    echo "Creating symlinks..."
+    
+    # settings.json
+    if [ -f "${USER_DMS_CONFIG}/settings.json" ]; then
+        if [ ${USE_SUDO} -eq 1 ]; then
+            sudo ln -sf "${USER_DMS_CONFIG}/settings.json" "${GREETER_CACHE}/settings.json"
+        else
+            ln -sf "${USER_DMS_CONFIG}/settings.json" "${GREETER_CACHE}/settings.json"
+        fi
+        echo "✓ Linked settings.json"
+    else
+        echo "⚠️  settings.json not found in user config"
+    fi
+    
+    # colors.json
+    if [ -f "${USER_DMS_CACHE}/dms-colors.json" ]; then
+        if [ ${USE_SUDO} -eq 1 ]; then
+            sudo ln -sf "${USER_DMS_CACHE}/dms-colors.json" "${GREETER_CACHE}/colors.json"
+        else
+            ln -sf "${USER_DMS_CACHE}/dms-colors.json" "${GREETER_CACHE}/colors.json"
+        fi
+        echo "✓ Linked colors.json"
+    else
+        echo "⚠️  dms-colors.json not found (may generate on first DMS run)"
+        # Create empty file if missing
+        if [ ! -f "${GREETER_CACHE}/colors.json" ]; then
+            echo '{}' | sudo tee "${GREETER_CACHE}/colors.json" > /dev/null
+            sudo chown greeter:greeter "${GREETER_CACHE}/colors.json"
+            sudo chmod 640 "${GREETER_CACHE}/colors.json"
+            echo "✓ Created empty colors.json"
+        fi
+    fi
+    
+    echo ""
+    echo "✅ Theme sync complete!"
+    echo "   Greeter will now use your DMS theme settings."
+    echo "   Changes take effect on next login."
+}
+
+show_status() {
+    echo "=== Greeter Sync Status ==="
+    
+    # Group membership
+    if groups | grep -q "\bgreeter\b"; then
+        echo "✓ In 'greeter' group"
+    else
+        echo "✗ Not in 'greeter' group"
+    fi
+    
+    # Cache directory
+    if [ -d "${GREETER_CACHE}" ]; then
+        echo "✓ Greeter cache exists"
+        echo "  Permissions: $(stat -c "%U:%G %a" "${GREETER_CACHE}" 2>/dev/null || echo "unknown")"
+    else
+        echo "✗ Greeter cache missing"
+    fi
+    
+    # DMS config
+    if [ -d "${USER_DMS_CONFIG}" ]; then
+        echo "✓ DMS configured"
+    else
+        echo "✗ DMS not configured"
+    fi
+    
+    # Symlink status
+    echo ""
+    echo "Symlink Status:"
+    
+    for file in settings.json colors.json; do
+        greeter_file="${GREETER_CACHE}/${file}"
+        if [ -L "${greeter_file}" ]; then
+            target=$(readlink -f "${greeter_file}" 2>/dev/null || echo "broken")
+            echo "  ${file}: Symlink → ${target}"
+        elif [ -f "${greeter_file}" ]; then
+            echo "  ${file}: Regular file (not synced)"
+        else
+            echo "  ${file}: Missing"
+        fi
+    done
+    
+    echo ""
+    echo "Commands:"
+    echo "  greeter-sync --check    # Check if sync needed"
+    echo "  greeter-sync --sync     # Perform sync"
+    echo "  greeter-cleanup --reset # Reset greeter cache"
+}
+
+# Parse arguments
+case "${1:-}" in
+    "--check"|"")
+        check_sync_needed
+        ;;
+    "--sync")
+        perform_sync
+        ;;
+    "--force")
+        # Force sync even if already synced
+        perform_sync
+        ;;
+    "--status")
+        show_status
+        ;;
+    "--help"|"-h")
+        show_help
+        ;;
+    *)
+        echo "Error: Unknown option '$1'"
+        echo ""
+        show_help
+        exit 1
+        ;;
+esac

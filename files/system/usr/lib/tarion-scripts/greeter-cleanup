@@ -1,0 +1,184 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Tarion greeter cache cleanup utility
+# Resets dms-greeter cache to fix scaling or other issues
+
+show_help() {
+    cat << EOF
+Usage: greeter-cleanup [OPTION]
+
+Options:
+  --reset          Reset dms-greeter cache (requires sudo)
+  --status         Show current greeter cache status
+  --sync-themes    Sync DMS themes to greeter (run after theme changes)
+  --help           Show this help message
+
+Examples:
+  sudo greeter-cleanup --reset       # Reset greeter cache
+  greeter-cleanup --status           # Show cache status
+  greeter-cleanup --sync-themes      # Sync themes after changes
+EOF
+}
+
+check_status() {
+    echo "=== dms-greeter Cache Status ==="
+    
+    if [ -d "/var/cache/dms-greeter" ]; then
+        echo "✓ Cache directory exists: /var/cache/dms-greeter"
+        
+        # Check all cache files
+        for file in session.json settings.json colors.json; do
+            if [ -f "/var/cache/dms-greeter/${file}" ]; then
+                echo "✓ ${file} exists"
+                if [ "${file}" = "session.json" ]; then
+                    echo "  Content: $(cat "/var/cache/dms-greeter/${file}" 2>/dev/null || echo "empty/corrupted")"
+                fi
+                
+                # Check if it's a symlink
+                if [ -L "/var/cache/dms-greeter/${file}" ]; then
+                    echo "  Type: Symlink → $(readlink -f "/var/cache/dms-greeter/${file}")"
+                else
+                    echo "  Type: Regular file"
+                fi
+            else
+                echo "✗ ${file} missing"
+            fi
+        done
+        
+        echo "  Permissions: $(stat -c "%U:%G %a" /var/cache/dms-greeter 2>/dev/null || echo "unknown")"
+    else
+        echo "✗ Cache directory missing"
+    fi
+    
+    echo ""
+    echo "To reset cache: sudo greeter-cleanup --reset"
+    echo "To sync themes: greeter-cleanup --sync-themes"
+}
+
+reset_cache() {
+    if [ "$(id -u)" -ne 0 ]; then
+        echo "Error: --reset requires root privileges. Use sudo."
+        exit 1
+    fi
+    
+    echo "Resetting dms-greeter cache..."
+    
+    # Remove cache directory
+    if [ -d "/var/cache/dms-greeter" ]; then
+        rm -rf "/var/cache/dms-greeter"
+        echo "✓ Removed existing cache"
+    fi
+    
+    # Recreate with correct permissions (750 per dms-greeter docs)
+    mkdir -p "/var/cache/dms-greeter"
+    chown greeter:greeter "/var/cache/dms-greeter"
+    chmod 750 "/var/cache/dms-greeter"
+    
+    # Create default session file
+    echo '{"scale": 1.0, "last_user": null}' > "/var/cache/dms-greeter/session.json"
+    chown greeter:greeter "/var/cache/dms-greeter/session.json"
+    chmod 640 "/var/cache/dms-greeter/session.json"
+    
+    # Create default settings.json
+    echo '{"theme": "system", "wallpaper": null}' > "/var/cache/dms-greeter/settings.json"
+    chown greeter:greeter "/var/cache/dms-greeter/settings.json"
+    chmod 640 "/var/cache/dms-greeter/settings.json"
+    
+    # Create empty colors.json
+    echo '{}' > "/var/cache/dms-greeter/colors.json"
+    chown greeter:greeter "/var/cache/dms-greeter/colors.json"
+    chmod 640 "/var/cache/dms-greeter/colors.json"
+    
+    echo "✓ Created new cache with default scaling (1.0) and theme defaults"
+    echo ""
+    echo "Note: Changes will take effect on next login."
+    echo "      Run 'greeter-cleanup --sync-themes' to sync your DMS themes."
+    echo "      You may need to restart greetd: sudo systemctl restart greetd"
+}
+
+sync_themes() {
+    echo "Syncing DMS themes to greeter..."
+    
+    # Check if user is in greeter group
+    if ! groups | grep -q "\bgreeter\b"; then
+        echo "⚠️  You are not in the 'greeter' group."
+        echo "   To add yourself: sudo usermod -aG greeter ${USER}"
+        echo "   Then logout and login again."
+        echo ""
+        echo "Continuing with symlink creation (may fail due to permissions)..."
+    fi
+    
+    # User's DMS directories
+    USER_DMS_CONFIG="${HOME}/.config/DankMaterialShell"
+    USER_DMS_STATE="${HOME}/.local/state/DankMaterialShell"
+    USER_DMS_CACHE="${HOME}/.cache/DankMaterialShell"
+    GREETER_CACHE="/var/cache/dms-greeter"
+    
+    # Check if DMS is installed and configured
+    if [ ! -d "${USER_DMS_CONFIG}" ]; then
+        echo "⚠️  DMS config directory not found: ${USER_DMS_CONFIG}"
+        echo "   Make sure DMS is installed and configured first."
+        return 1
+    fi
+    
+    echo "✓ DMS config found: ${USER_DMS_CONFIG}"
+    
+    # Create symlinks (requires appropriate permissions)
+    echo "Creating symlinks from greeter cache to user DMS configs..."
+    
+    # settings.json
+    if [ -f "${USER_DMS_CONFIG}/settings.json" ]; then
+        sudo ln -sf "${USER_DMS_CONFIG}/settings.json" "${GREETER_CACHE}/settings.json"
+        echo "✓ Linked settings.json"
+    else
+        echo "⚠️  settings.json not found in user config"
+    fi
+    
+    # session.json (we keep our own for scaling, but link if user has one)
+    if [ -f "${USER_DMS_STATE}/session.json" ]; then
+        # Note: We don't replace our session.json as it contains scaling
+        echo "ℹ️  User session.json found (keeping greeter's for scaling control)"
+    fi
+    
+    # colors.json
+    if [ -f "${USER_DMS_CACHE}/dms-colors.json" ]; then
+        sudo ln -sf "${USER_DMS_CACHE}/dms-colors.json" "${GREETER_CACHE}/colors.json"
+        echo "✓ Linked colors.json"
+    else
+        echo "⚠️  dms-colors.json not found in user cache"
+    fi
+    
+    echo ""
+    echo "✅ Theme sync complete!"
+    echo "   Greeter will now use your DMS theme settings."
+    echo "   Changes take effect on next login."
+}
+
+# Parse arguments
+case "${1:-}" in
+    "--reset")
+        reset_cache
+        ;;
+    "--status")
+        check_status
+        ;;
+    "--sync-themes")
+        sync_themes
+        ;;
+    "--help"|"-h")
+        show_help
+        ;;
+    "")
+        echo "Error: No option specified"
+        echo ""
+        show_help
+        exit 1
+        ;;
+    *)
+        echo "Error: Unknown option '$1'"
+        echo ""
+        show_help
+        exit 1
+        ;;
+esac

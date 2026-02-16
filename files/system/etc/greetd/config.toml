@@ -2,5 +2,5 @@
 vt = 1
 
 [default_session]
-command = "dms-greeter --command Hyprland"
+command = "dms-greeter --command /usr/bin/tarion-hyprland-wrapper"
 user = "greeter"
