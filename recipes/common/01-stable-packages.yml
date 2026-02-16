@@ -41,7 +41,7 @@ modules:
         - blueman
         - blueberry
 
-  # Module 2: Hyprland core packages (lionheartp/Hyprland COPR)
+  # Module 2: Hyprland and Wayland packages
   - type: dnf
     repos:
       copr:
@@ -49,6 +49,9 @@ modules:
           - lionheartp/Hyprland
           - scottames/ghostty
           - avengemedia/dms
+          - washkinazy/wayland-wm-extras
+          # SwayNotificationCenter removed - DMS has built-in notifications
+          # - erikreider/SwayNotificationCenter
     install:
       install-weak-deps: false
       packages:
@@ -65,34 +68,11 @@ modules:
         - nerd-fonts-jetbrainsmono
         - uwsm
         - xdg-terminal-exec
-
-  # Module 3: Additional Hyprland packages (sdegler/hyprland COPR)
-  - type: dnf
-    repos:
-      copr:
-        enable:
-          - sdegler/hyprland
-    install:
-      install-weak-deps: false
-      packages:
-        # Fra hyprland-modules.yml - andet dnf modul
-        - hyprsysteminfo
-
-  # Module 4: Wayland WM extras
-  - type: dnf
-    repos:
-      copr:
-        enable:
-          - washkinazy/wayland-wm-extras
-          - erikreider/SwayNotificationCenter
-    install:
-      install-weak-deps: false
-      packages:
         # Fra hyprland-modules.yml - tredje dnf modul
         - waypaper
         - gtk4-layer-shell
 
-  # Module 5: Developer tools
+  # Module 3: Developer tools
   - type: files
     files:
       - source: dnf/antigravity.repo
@@ -118,7 +98,7 @@ modules:
         - neovim
         - antigravity
 
-  # Module 6: Extra packages (Vicinae, input methods, notifications)
+  # Module 4: Extra packages (Vicinae, input methods, notifications)
   - type: dnf
     repos:
       copr:
@@ -135,14 +115,16 @@ modules:
         - fcitx5-qt
         
         # Fra extra-packages.yml - andet dnf modul
-        - swayosd
-        - swaync
-        - swaync-client
+        # Sway packages removed - replaced by DMS OSD and notification system
+        # - swayosd
+        # - swaync  
+        # - swaync-client
         
         # Fra extra-packages.yml - tredje dnf modul
         - hypridle
         - hyprlock
-        - mako
+        # mako removed - DMS has built-in notifications
+        # - mako
         - elephant
         - walker
         
