@@ -1,15 +1,6 @@
 modules:
-    - type: dnf
-      repos:
-        copr:
-          enable:
-            - avengemedia/danklinux
-      install:
-        install-weak-deps: false
-        packages:
-          - greetd
-          - dms-greeter
-
+    # DNF-pakker er flyttet til 01-stable-packages.yml
+    
     - type: systemd
       system:
         enabled:

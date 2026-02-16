@@ -1,0 +1,152 @@
+modules:
+  # Alle DNF-pakker konsolideret i ét stabilt lag
+  # Dette minimerer antallet af lag der skal hentes ved updates
+  
+  - type: containerfile
+    snippets:
+      - COPY --from=ghcr.io/ublue-os/akmods:main-43 /rpms /tmp/rpms
+      - COPY --from=ghcr.io/ublue-os/akmods:main-43 /kernel-rpms /tmp/rpms/kernel
+      - RUN find /tmp/rpms
+      - RUN rpm -q ublue-os-akmods-addons || dnf install -y /tmp/rpms/ublue-os/ublue-os-akmods-addons*.rpm
+
+  - type: dnf
+    repos:
+      copr:
+        enable:
+          # Fra greetd-modules.yml
+          - avengemedia/danklinux
+          # Fra hyprland-modules.yml
+          - lionheartp/Hyprland
+          - scottames/ghostty
+          - avengemedia/dms
+          - sdegler/hyprland
+          - washkinazy/wayland-wm-extras
+          - erikreider/SwayNotificationCenter
+          # Fra developer-tools.yml
+          - chronoscrat/devpod
+          # Fra extra-packages.yml
+          - scottames/vicinae
+      files:
+        # Fra common-modules.yml
+        - https://copr.fedorainfracloud.org/coprs/ublue-os/packages/repo/fedora-%OS_VERSION%/ublue-os-packages-fedora-%OS_VERSION%.repo
+        # Fra developer-tools.yml
+        - https://packages.microsoft.com/yumrepos/vscode/config.repo
+      keys:
+        # Fra developer-tools.yml
+        - https://packages.microsoft.com/keys/microsoft.asc
+    install:
+      install-weak-deps: false
+      packages:
+        # Fra greetd-modules.yml
+        - greetd
+        - dms-greeter
+        
+        # Fra common-modules.yml - første dnf modul
+        - just
+        - powerstat
+        
+        # Fra common-modules.yml - andet dnf modul (ublue-os pakker)
+        - ublue-os-udev-rules
+        - ublue-os-update-services
+        - ublue-os-signing
+        - ublue-os-luks
+        - ublue-os-just
+        
+        # Fra common-modules.yml - tredje dnf modul (miljøpakker)
+        # environment
+        - fzf
+        - tuned-ppd
+        - xorg-x11-server-Xwayland
+        - headsetcontrol
+        - mediainfo
+        - fprintd-pam
+        - xdg-user-dirs
+        - dbus-tools
+        - dbus-daemon
+        - wl-clipboard
+        - pavucontrol
+        - playerctl
+        - qt5-qtwayland
+        - qt6-qtwayland
+        - google-noto-emoji-fonts
+        - gnome-disk-utility
+        - ddcutil
+        - openssl
+        - vim
+        - gum
+        - alsa-firmware
+        - p7zip
+        - distrobox
+        - steam-devices
+        
+        # sound
+        - wireplumber
+        - pipewire
+        - pamixer
+        - pulseaudio-utils
+        
+        # networking
+        - network-manager-applet
+        - NetworkManager-openconnect
+        - NetworkManager-openconnect-gnome
+        - bluez
+        - bluez-tools
+        - blueman
+        - firewall-config
+        
+        # screenshot
+        - slurp
+        - grim
+        
+        # display
+        - wlr-randr
+        - wlsunset
+        - brightnessctl
+        - kanshi
+        
+        # theme and GUI
+        - fontawesome-fonts-all
+        - gnome-themes-extra
+        - gnome-icon-theme
+        - paper-icon-theme
+        - breeze-icon-theme
+        - papirus-icon-theme
+        
+        # Fra hyprland-modules.yml - første dnf modul
+        - ghostty
+        - hyprland
+        - dms
+        - hyprland-plugin-hyprscrolling
+        - xdg-desktop-portal-hyprland
+        - hyprpaper
+        - hyprpolkitagent
+        - hyprland-guiutils
+        - hyprshot
+        - jetbrains-mono-fonts
+        - uwsm
+        - xdg-terminal-exec
+        
+        # Fra hyprland-modules.yml - andet dnf modul
+        - hyprsysteminfo
+        
+        # Fra hyprland-modules.yml - tredje dnf modul
+        - waypaper
+        - gtk4-layer-shell
+        
+        # Fra developer-tools.yml
+        - devpod
+        - code
+        - neovim
+        - antigravity
+        
+        # Fra extra-packages.yml - første dnf modul
+        - wiremix
+        - fcitx5
+        - fcitx5-gtk
+        - fcitx5-qt
+        - iwd
+        
+        # Fra extra-packages.yml - andet dnf modul (Vicinae)
+        - vicinae
+    replace:
+      - from-repo: fedora

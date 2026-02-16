@@ -1,25 +1,7 @@
 modules:
-
+    # DNF-pakker er flyttet til 01-stable-packages.yml
+    
     - type: files
       files:
         - source: dnf/antigravity.repo
           destination: /etc/yum.repos.d/antigravity.repo
-        
-    - type: dnf
-      repos:
-        copr:
-          enable:
-            - chronoscrat/devpod
-        files:
-          - https://packages.microsoft.com/yumrepos/vscode/config.repo
-        keys:
-          - https://packages.microsoft.com/keys/microsoft.asc
-      install:
-        install-weak-deps: false
-        packages:
-        - devpod
-        - code
-        - neovim
-        - antigravity
-
-  

@@ -1,28 +1,9 @@
 modules:
-    - type: dnf
-      install:
-        install-weak-deps: false
-        packages:
-        - wiremix
-        - fcitx5
-        - fcitx5-gtk
-        - fcitx5-qt
-        - iwd
+    # DNF-pakker er flyttet til 01-stable-packages.yml
 
     - type: brew
       nofile-limits: true # increase nofile limits
       brew-analytics: false # disable telemetry
-
-    # Vicinae Stuff
-    - type: dnf
-      repos:
-        copr:
-          enable:
-            - scottames/vicinae
-      install:
-        install-weak-deps: true
-        packages:
-        - vicinae
     
     - type: files
       files:
