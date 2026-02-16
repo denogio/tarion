@@ -1,4 +1,4 @@
-name: base-stage
+# yaml-language-server: $schema=https://schema.blue-build.org/module-stage-list-v1.json
 modules:
   # Containerfile snippets for akmods (kernel modules)
   - type: containerfile

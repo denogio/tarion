@@ -1,4 +1,4 @@
-name: cargo-stage
+# yaml-language-server: $schema=https://schema.blue-build.org/module-stage-list-v1.json
 modules:
   # Copy Rust binaries from cargo-builder stage
   - type: copy

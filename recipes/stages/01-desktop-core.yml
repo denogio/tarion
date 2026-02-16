@@ -1,4 +1,4 @@
-name: desktop-core-stage
+# yaml-language-server: $schema=https://schema.blue-build.org/module-stage-list-v1.json
 modules:
   # Hyprland and Wayland packages
   - type: dnf
