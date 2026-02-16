@@ -75,6 +75,58 @@ format_key() {
   echo "${formatted}"
 }
 
+# Fallback keybindings if DMS is not available or returns empty
+get_fallback_bindings() {
+  local category="$1"
+  
+  # Basic fallback keybindings from Hyprland config
+  case "${category}" in
+    Execute)
+      echo "SUPER, SPACE|Launch apps (Vicinae)
+SUPER, K|Show key bindings
+SUPER, L|Lock screen
+SUPER, W|Random wallpaper
+SUPER ALT, W|Next wallpaper
+SUPER CTRL, W|Previous wallpaper
+SUPER CTRL, I|Toggle idle inhibit
+, PRINT|Screenshot region with Satty
+SUPER, PRINT|Screenshot menu
+SUPER SHIFT, PRINT|Color picker"
+      ;;
+    Window)
+      echo "SUPER, Q|Close window
+SUPER, F|Toggle fullscreen
+SUPER, V|Toggle floating
+ALT, TAB|Switch windows
+SUPER, TAB|Switch workspaces"
+      ;;
+    Workspace)
+      echo "SUPER, 1|Workspace 1
+SUPER, 2|Workspace 2
+SUPER, 3|Workspace 3
+SUPER, 4|Workspace 4
+SUPER, 5|Workspace 5
+SUPER, left|Move focus left
+SUPER, right|Move focus right
+SUPER, up|Move focus up
+SUPER, down|Move focus down"
+      ;;
+    Other)
+      echo "XF86AudioRaiseVolume|Volume up
+XF86AudioLowerVolume|Volume down
+XF86AudioMute|Mute
+XF86MonBrightnessUp|Brightness up
+XF86MonBrightnessDown|Brightness down
+XF86AudioNext|Next track
+XF86AudioPlay|Play/Pause
+XF86AudioPrev|Previous track"
+      ;;
+    *)
+      echo ""
+      ;;
+  esac
+}
+
 check_dependencies() {
   local deps=("dms" "vicinae")
   local missing_deps=()
@@ -118,6 +170,11 @@ display_category() {
   local bindings
   bindings=$(dms keybinds show hyprland 2>/dev/null | jq -r --arg cat "${category}" '.binds[$cat]? // [] | .[] | "\(.key)|\(.desc)"' || echo "")
 
+  # Fallback if DMS returns empty or fails
+  if [[ -z "${bindings}" ]]; then
+    bindings=$(get_fallback_bindings "${category}")
+  fi
+
   if [[ -z "${bindings}" ]]; then
     echo "No bindings in this category" >&2
     return
@@ -132,12 +189,24 @@ display_category() {
     fi
   done <<< "${bindings}"
 
-  echo "${formatted_bindings}" | vicinae dmenu --prompt "Keybindings: ${category}"
+  echo "${formatted_bindings}" | vicinae dmenu -p "Keybindings: ${category}" --no-section --no-quick-look --no-metadata
 }
 
 display_all() {
   local all_bindings
   all_bindings=$(dms keybinds show hyprland 2>/dev/null | jq -r '.binds | to_entries[] | .key as $cat | .value[] | "\(.key)|\(.desc)|\($cat)"' || echo "")
+  
+  # Fallback if DMS returns empty or fails
+  if [[ -z "${all_bindings}" ]]; then
+    for category in "${CATEGORIES[@]}"; do
+      fallback=$(get_fallback_bindings "${category}")
+      while IFS='|' read -r key desc; do
+        if [[ -n "${key}" && -n "${desc}" ]]; then
+          all_bindings+="${key}|${desc}|${category}"$'\n'
+        fi
+      done <<< "${fallback}"
+    done
+  fi
   
   if [[ -z "${all_bindings}" ]]; then
     echo "No keybindings found" >&2
@@ -153,7 +222,7 @@ display_all() {
     fi
   done <<< "${all_bindings}"
 
-  echo "${formatted_bindings}" | vicinae dmenu --prompt "All Keybindings"
+  echo "${formatted_bindings}" | vicinae dmenu -p "All Keybindings" --no-section --no-quick-look --no-metadata
 }
 
 search_bindings() {
@@ -176,17 +245,17 @@ search_bindings() {
     fi
   done <<< "${matches}"
 
-  echo "${formatted_matches}" | vicinae dmenu --prompt "Search: ${query}"
+  echo "${formatted_matches}" | vicinae dmenu -p "Search: ${query}" --no-section --no-quick-look --no-metadata
 }
 
 main_menu() {
   local selection
-  selection=$(printf "%s\n" "${CATEGORIES[@]}" "Search..." "Show All" | vicinae dmenu --prompt "Keybindings Menu")
+  selection=$(printf "%s\n" "${CATEGORIES[@]}" "Search..." "Show All" | vicinae dmenu -p "Keybindings Menu" --no-section --no-quick-look --no-metadata)
   
   case "${selection}" in
     "Search...")
       local query
-      query=$(vicinae dmenu --prompt "Search keybindings:")
+       query=$(vicinae dmenu -p "Search keybindings:" --no-section --no-quick-look --no-metadata)
       search_bindings "${query}"
       ;;
     "Show All")

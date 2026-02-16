@@ -1,0 +1,36 @@
+name: desktop-core-stage
+modules:
+  # Hyprland and Wayland packages
+  - type: dnf
+    repos:
+      copr:
+        enable:
+          - lionheartp/Hyprland
+          - scottames/ghostty
+          - avengemedia/dms
+          - washkinazy/wayland-wm-extras
+    install:
+      install-weak-deps: false
+      packages:
+        # Terminal
+        - ghostty
+        
+        # Window manager and desktop shell
+        - hyprland
+        - dms
+        - hyprland-plugin-hyprscrolling
+        
+        # Wayland components
+        - xdg-desktop-portal-hyprland
+        - hyprland-guiutils
+        - gtk4-layer-shell
+        
+        # Nerd fonts (available from washkinazy/wayland-wm-extras)
+        - nerd-fonts-jetbrainsmono
+        - nerd-fonts-firacode
+        - nerd-fonts-cascadiacode
+        
+        # Utilities
+        - uwsm
+        - xdg-terminal-exec
+        - hyprsysteminfo

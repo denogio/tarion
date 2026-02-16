@@ -1,0 +1,32 @@
+name: tools-stage
+modules:
+  # Repository configuration for developer tools
+  - type: files
+    files:
+      - source: dnf/antigravity.repo
+        destination: /etc/yum.repos.d/antigravity.repo
+  
+  # Developer tools packages
+  - type: dnf
+    repos:
+      copr:
+        enable:
+          - chronoscrat/devpod
+      files:
+        - https://packages.microsoft.com/yumrepos/vscode/config.repo
+      keys:
+        - https://packages.microsoft.com/keys/microsoft.asc
+    install:
+      install-weak-deps: false
+      packages:
+        # Development tools
+        - devpod
+        - code
+        - neovim
+        - antigravity
+        
+        # Input methods
+        - wiremix
+        - fcitx5
+        - fcitx5-gtk
+        - fcitx5-qt

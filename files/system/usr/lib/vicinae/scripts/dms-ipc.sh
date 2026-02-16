@@ -116,7 +116,7 @@ dms_wallpaper_select_interactive() {
     fi
     
     local wallpaper
-    wallpaper=$(find "${WALLPAPER_DIR}" -type f | vicinae dmenu --placeholder "Select wallpaper...")
+    wallpaper=$(find "${WALLPAPER_DIR}" -type f | vicinae dmenu -p "Select wallpaper..." --no-section --no-quick-look --no-metadata)
     
     if [ -n "${wallpaper}" ]; then
         dms_wallpaper_set "${wallpaper}"

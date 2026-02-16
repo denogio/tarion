@@ -1,0 +1,54 @@
+name: services-stage
+modules:
+  # Greeter cache initialization
+  - type: script
+    snippets:
+      - |
+        # Initialize dms-greeter cache for correct scaling and theme defaults
+        mkdir -p /var/cache/dms-greeter
+        chown greeter:greeter /var/cache/dms-greeter
+        chmod 750 /var/cache/dms-greeter  # 750 per dms-greeter docs
+        
+        # Create default session file with correct scaling
+        if [ ! -f /var/cache/dms-greeter/session.json ]; then
+          echo '{"scale": 1.0, "last_user": null}' > /var/cache/dms-greeter/session.json
+          chown greeter:greeter /var/cache/dms-greeter/session.json
+          chmod 640 /var/cache/dms-greeter/session.json
+        fi
+        
+        # Create default settings.json if missing (will be replaced by user symlinks)
+        if [ ! -f /var/cache/dms-greeter/settings.json ]; then
+          echo '{"theme": "system", "wallpaper": null}' > /var/cache/dms-greeter/settings.json
+          chown greeter:greeter /var/cache/dms-greeter/settings.json
+          chmod 640 /var/cache/dms-greeter/settings.json
+        fi
+        
+        # Create empty colors.json if missing (will be symlinked from user cache)
+        if [ ! -f /var/cache/dms-greeter/colors.json ]; then
+          echo '{}' > /var/cache/dms-greeter/colors.json
+          chown greeter:greeter /var/cache/dms-greeter/colors.json
+          chmod 640 /var/cache/dms-greeter/colors.json
+        fi
+  
+  # Systemd services configuration
+  - type: systemd
+    system:
+      enabled:
+        - greetd.service
+        - iwd.service
+      disabled:
+        - sddm.service
+      masked:
+        - wpa_supplicant.service
+  
+  # User services
+  - type: systemd
+    user:
+      enabled:
+        - vicinae.service
+  
+  # Final cleanup scripts
+  - type: script
+    scripts:
+      - removeunusedrepos.sh
+      - regenerateinitramfs.sh

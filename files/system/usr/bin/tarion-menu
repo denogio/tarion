@@ -196,7 +196,7 @@ show_wallpaper_menu() {
         fi
         
         if command -v tarion-wallpaper-switcher &>/dev/null; then
-            wallpaper=$(find "${WALLPAPER_DIR}" -type f \( -name "*.jpg" -o -name "*.png" -o -name "*.jpeg" \) | vicinae dmenu --placeholder "Select wallpaper...")
+            wallpaper=$(find "${WALLPAPER_DIR}" -type f \( -name "*.jpg" -o -name "*.png" -o -name "*.jpeg" \) | vicinae dmenu -p "Select wallpaper..." --no-section --no-quick-look --no-metadata)
             if [ -n "${wallpaper}" ]; then
                 tarion-wallpaper-switcher set "${wallpaper}"
             fi

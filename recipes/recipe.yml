@@ -12,22 +12,16 @@ image-version: 43 # latest is also supported if you want new updates ASAP
 platforms:
   - linux/amd64
 
-# Definer stadiet her
+# Definer build stages her - til at bygge Rust binaries
 stages:
-  - from-file: stages/cargo-builder.yml
+  - from-file: stages/cargo-builder.yml  # Rust binaries build stage
 
+# Definer modulerne her - optimeret for layer caching
 modules:
-  # 01: Alle DNF-pakker konsolideret i ét stabilt lag
-  - from-file: common/01-stable-packages.yml
-  
-  # 02: Rust binaries fra cargo-stage
-  - from-file: common/cargo-binaries.yml
-  
-  # 03: Scripts og systemkonfigurationer
-  - from-file: common/greetd-modules.yml  # Kun systemd-delen
-  - from-file: common/common-modules.yml  # Kun scripts og files
-  - from-file: common/hyprland-modules.yml  # Kun files-delen
-  - from-file: common/developer-tools.yml  # Kun files-delen
-  - from-file: common/flatpak-modules.yml
-  - from-file: common/extra-packages.yml  # Kun brew, files og systemd
-  - from-file: common/final-modules.yml
+  - from-file: stages/00-base.yml        # Kernel and system packages
+  - from-file: stages/01-desktop-core.yml # Hyprland and DMS
+  - from-file: stages/02-tools.yml        # Developer tools
+  - from-file: stages/03-apps.yml         # User applications
+  - from-file: stages/04-cargo.yml        # Rust binaries copy
+  - from-file: stages/05-config.yml       # Files and configurations
+  - from-file: stages/06-services.yml     # Systemd services and final setup

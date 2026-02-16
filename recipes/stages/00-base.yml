@@ -1,0 +1,39 @@
+name: base-stage
+modules:
+  # Containerfile snippets for akmods (kernel modules)
+  - type: containerfile
+    snippets:
+      - COPY --from=ghcr.io/ublue-os/akmods:main-43 /rpms /tmp/rpms
+      - COPY --from=ghcr.io/ublue-os/akmods:main-43 /kernel-rpms /tmp/rpms/kernel
+      - RUN find /tmp/rpms
+      - RUN rpm -q ublue-os-akmods-addons || dnf install -y /tmp/rpms/ublue-os/ublue-os-akmods-addons*.rpm
+
+  # Base system packages (greetd, common, ublue-os)
+  - type: dnf
+    repos:
+      copr:
+        enable:
+          - avengemedia/danklinux  # For dms-greeter
+      files:
+        - https://copr.fedorainfracloud.org/coprs/ublue-os/packages/repo/fedora-%OS_VERSION%/ublue-os-packages-fedora-%OS_VERSION%.repo
+    install:
+      install-weak-deps: false
+      packages:
+        # Greeter packages
+        - greetd
+        - dms-greeter
+        
+        # Common system packages
+        - just
+        - powerstat
+        
+        # UBlue OS packages
+        - ublue-os-udev-rules
+        - ublue-os-update-services
+        
+        # Bluetooth stack
+        - bluez
+        - bluez-tools
+        - bluez-cups
+        - blueman
+        # blueberry removed - not available in Fedora 43, blueman is sufficient

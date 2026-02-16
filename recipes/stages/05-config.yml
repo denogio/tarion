@@ -1,0 +1,40 @@
+name: config-stage
+modules:
+  # Scripts for system setup
+  - type: script
+    scripts:
+      - ensureautoupdates.sh
+      - addimageinfo.sh
+  
+  # Proprietary modules - only include non-DNF parts
+  # Note: DNF modules from proprietary-modules.yml are handled separately
+  - type: script
+    scripts:
+      - ensurenegativopresence.sh
+  
+  # Copy all system files
+  - type: files
+    files:
+      - source: system/usr
+        destination: /usr
+      - source: system/etc
+        destination: /etc
+  
+  # Copy Hyprland configuration files
+  - type: files
+    files:
+      - source: system/hyprland
+        destination: /
+  
+  # Environment configuration
+  - type: files
+    files:
+      - source: usr/lib/environment.d/10-home-env.conf
+        destination: /usr/lib/environment.d/10-home-env.conf
+      - source: etc/NetworkManager/conf.d/50-iwd.conf
+        destination: /etc/NetworkManager/conf.d/50-iwd.conf
+  
+  # Brew setup (if still needed)
+  - type: brew
+    nofile-limits: true # increase nofile limits
+    brew-analytics: false # disable telemetry

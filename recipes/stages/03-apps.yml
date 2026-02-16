@@ -1,0 +1,89 @@
+name: apps-stage
+modules:
+  # User applications and GUI packages
+  - type: dnf
+    repos:
+      copr:
+        enable:
+          - scottames/vicinae
+    install:
+      install-weak-deps: false
+      packages:
+        # Launcher and wireless
+        - vicinae
+        - iwd
+        
+        # GNOME Keyring for password management
+        - gnome-keyring
+        - gnome-keyring-pam
+        - seahorse
+        
+        # Icon themes
+        - gnome-icon-theme
+        - paper-icon-theme
+        - breeze-icon-theme
+        - papirus-icon-theme
+        
+        # Proprietary codecs and multimedia
+        - libopenjph
+        - heif-pixbuf-loader
+        - ffmpegthumbnailer
+        - rar
+    
+    replace:
+      - from-repo: fedora
+        packages:
+          - old: OpenCL-ICD-Loader
+            new: ocl-icd
+  
+  # Multimedia codecs from fedora-multimedia repository
+  - type: dnf
+    repos:
+      files:
+        - https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-%OS_VERSION%.noarch.rpm
+        - https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-%OS_VERSION%.noarch.rpm
+    install:
+      install-weak-deps: false
+      packages:
+        - libheif
+        - libva
+        - mesa-dri-drivers
+        - gstreamer1-plugin-libav
+        - mesa-libGL
+        - libva-intel-media-driver
+        - intel-gmmlib
+        - intel-mediasdk
+        - ffmpeg
+        - libfdk-aac
+        - gstreamer1-plugins-ugly
+        - libavcodec
+        - libavdevice
+        - libavfilter
+        - libavformat
+        - libavutil
+        - libpostproc
+        - libswresample
+        - libswscale
+  
+  # Flatpak setup
+  - type: default-flatpaks
+    configurations:
+      # System scope - install for all users on first boot
+      - scope: system
+        repo:
+          title: Flathub (system)
+        install:
+          # Essential flatpaks - minimal set
+          - com.github.tchx84.Flatseal       # Flatpak permissions manager
+          - io.github.flattool.Warehouse       # Flatpak management GUI
+          # Default browser - Tarion's preferred browser
+          - org.chromium.Chromium            # Chromium web browser
+        notify: true
+
+      # User scope - optional user-preferred apps
+      # Users can add their own flatpaks here
+      - scope: user
+        repo:
+          title: Flathub
+        install: []
+        notify: false
