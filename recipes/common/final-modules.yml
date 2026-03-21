@@ -1,5 +1,0 @@
-modules:
-    - type: script
-      scripts:
-        - removeunusedrepos.sh
-        - regenerateinitramfs.sh

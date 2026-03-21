@@ -56,7 +56,7 @@ All notable changes to Tarion will be documented in this file.
 
 ---
 
-## [0.1.0] - 2024-01-XX (Previous: Bluearchy)
+## [0.1.0] - 2024-01-01 (Previous: Bluearchy)
 
 Initial Bluearchy release:
 - Universal Blue base with Fedora 43

@@ -1,3 +1,23 @@
+# Install developer tools (ripgrep, fd, bat, eza, starship, lazygit, zoxide)
+dev-tools:
+    ujust dev-tools
+
+# Configure developer tools (aliases, prompts)
+dev-setup:
+    ujust dev-setup
+
+# Show installed tool versions
+dev-info:
+    ujust dev-info
+
+# Update all developer tools
+dev-update:
+    ujust dev-update
+
+# Clean up old tool versions
+dev-clean:
+    ujust dev-clean
+
 # Build ISO for testing
 iso:
     ./scripts/build-iso.sh

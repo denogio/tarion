@@ -18,7 +18,9 @@ modules:
         # Window manager and desktop shell
         - hyprland
         - dms
-        - hyprland-plugin-hyprscrolling
+        # hyprland-plugin-hyprscrolling is temporarily removed: the COPR package
+        # requires hyprland = 0.53.3 but the COPR now ships a newer version.
+        # Re-add once the plugin is rebuilt against the current hyprland release.
         
         # Wayland components
         - xdg-desktop-portal-hyprland

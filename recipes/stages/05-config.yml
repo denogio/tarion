@@ -4,6 +4,7 @@ modules:
   - type: script
     scripts:
       - ensureautoupdates.sh
+      - setupvicinae.sh
   
   # Proprietary modules - handled in 03-apps.yml with negativo17 fedora-multimedia
   # Note: DNF modules from proprietary-modules.yml are handled separately
@@ -22,15 +23,7 @@ modules:
       - source: system/hyprland
         destination: /
   
-  # Environment configuration
-  - type: files
-    files:
-      - source: usr/lib/environment.d/10-home-env.conf
-        destination: /usr/lib/environment.d/10-home-env.conf
-      - source: etc/NetworkManager/conf.d/50-iwd.conf
-        destination: /etc/NetworkManager/conf.d/50-iwd.conf
-  
-  # Brew setup (if still needed)
+  # Brew setup to initialize Homebrew in the image
   - type: brew
     nofile-limits: true # increase nofile limits
     brew-analytics: false # disable telemetry

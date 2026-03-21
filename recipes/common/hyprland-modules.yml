@@ -1,7 +1,0 @@
-modules:
-  # Alle DNF-pakker er flyttet til 01-stable-packages.yml
-  
-  - type: files
-    files:
-      - source: system/hyprland
-        destination: /

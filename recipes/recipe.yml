@@ -12,11 +12,11 @@ image-version: 43 # latest is also supported if you want new updates ASAP
 platforms:
   - linux/amd64
 
-# Definer build stages her - til at bygge Rust binaries
+# Define build stages - for building Rust binaries
 stages:
   - from-file: stages/cargo-builder.yml  # Rust binaries build stage
 
-# Definer modulerne her - optimeret for layer caching
+# Define modules - optimized for layer caching
 modules:
   - from-file: stages/00-base.yml        # Kernel and system packages
   - from-file: stages/01-desktop-core.yml # Hyprland and DMS

@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Remove old rpm-ostree deployments to free disk space
+rpm-ostree cleanup -m

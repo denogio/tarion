@@ -18,10 +18,9 @@ jobs:
       - name: Check recipe syntax
         run: |
           python3 -c "import yaml; yaml.safe_load(open('recipes/recipe.yml'))"
-          python3 -c "import yaml; yaml.safe_load(open('recipes/common/common-modules.yml'))"
-          python3 -c "import yaml; yaml.safe_load(open('recipes/common/hyprland-modules.yml'))"
-          python3 -c "import yaml; yaml.safe_load(open('recipes/common/greetd-modules.yml'))"
-          python3 -c "import yaml; yaml.safe_load(open('recipes/common/extra-packages.yml'))"
+          for f in recipes/stages/*.yml; do
+            python3 -c "import yaml; yaml.safe_load(open('$f'))" && echo "✓ $f"
+          done
 
       - name: Check Vicinae config
         run: |
@@ -30,7 +29,7 @@ jobs:
 
       - name: Verify no tairon references
         run: |
-          if grep -r "tairon" --exclude-dir=.git --exlude-dir=.github --exclude-dir=node_modules . 2>/dev/null; then
+          if grep -r "tairon" --exclude-dir=.git --exclude-dir=.github --exclude-dir=node_modules . 2>/dev/null; then
             echo "ERROR: Found 'tairon' references that should be 'tarion'"
             exit 1
           fi

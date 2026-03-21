@@ -1,7 +1,0 @@
-modules:
-    # DNF-pakker er flyttet til 01-stable-packages.yml
-    
-    - type: files
-      files:
-        - source: dnf/antigravity.repo
-          destination: /etc/yum.repos.d/antigravity.repo

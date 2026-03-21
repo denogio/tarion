@@ -12,3 +12,4 @@ cosign.private
 *.iso
 *CHECKSUM
 *.qcow*
+.opencode/node_modules/
