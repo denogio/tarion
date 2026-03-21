@@ -1,14 +1,8 @@
 # yaml-language-server: $schema=https://schema.blue-build.org/module-stage-list-v1.json
 modules:
-  # Scripts for system setup
-  - type: script
-    scripts:
-      - ensureautoupdates.sh
-      - setupvicinae.sh
-  
   # Proprietary modules - handled in 03-apps.yml with negativo17 fedora-multimedia
   # Note: DNF modules from proprietary-modules.yml are handled separately
-  
+
   # Copy all system files
   - type: files
     files:
@@ -16,12 +10,18 @@ modules:
         destination: /usr
       - source: system/etc
         destination: /etc
-  
+
   # Copy Hyprland configuration files
   - type: files
     files:
       - source: system/hyprland
         destination: /
+
+  # Scripts for system setup (must run after files are copied)
+  - type: script
+    scripts:
+      - ensureautoupdates.sh
+      - setupvicinae.sh
   
   # Brew setup to initialize Homebrew in the image
   - type: brew
