@@ -15,6 +15,13 @@ modules:
       ID: "ublue"
       ID_LIKE: "tarion"
 
+  # DMS Greeter installation - creates greeter user, sets up PAM and configs
+  - type: script
+    snippets:
+      - |
+        dms greeter install
+        dms greeter sync
+
   # Greeter cache initialization
   - type: script
     snippets:
