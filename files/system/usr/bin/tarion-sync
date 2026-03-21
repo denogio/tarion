@@ -142,18 +142,6 @@ elif grep -q "\"imports\".*\"${DEFAULTS_DIR}/vicinae/settings.json\"" "${VICINAE
     cp "${VICINAE_SRC}" "${VICINAE_DEST}"
 fi
 
-# Default Theme Link
-# Ensures that ~/.config/tarion/current/theme points to a valid theme (default: catppuccin-mocha)
-# so that Hyprland can source it.
-THEME_LINK="${HOME}/.config/tarion/current/theme"
-TARGET_THEME="/usr/share/tarion/themes/catppuccin-mocha"
-
-if [ ! -e "${THEME_LINK}" ]; then
-    echo "Setting default theme to Catppuccin Mocha..."
-    mkdir -p "$(dirname "${THEME_LINK}")"
-    ln -sf "${TARGET_THEME}" "${THEME_LINK}"
-fi
-
 # Keybindings cache
 # Generate cache for keybinding viewer
 echo "Generating keybindings cache..."

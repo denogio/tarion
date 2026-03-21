@@ -1,6 +1,3 @@
-# Dynamic theme colors
-config-file = ?"/usr/share/tarion/themes/current/theme/ghostty.conf"
-
 # Font
 font-family = "JetBrainsMono Nerd Font"
 font-style = Regular
