@@ -319,7 +319,7 @@ done
   repos:
     copr:
       enable:
-        - lionheartp/Hyprland
+        - vijay/Hyprland
 ```
 
 **Systemd modules:**
