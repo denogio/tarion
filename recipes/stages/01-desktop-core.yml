@@ -5,7 +5,7 @@ modules:
     repos:
       copr:
         enable:
-          - vijay/Hyprland
+          - lionheartp/Hyprland
           - scottames/ghostty
           - avengemedia/dms
           - washkinazy/wayland-wm-extras
