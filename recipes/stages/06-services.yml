@@ -15,12 +15,14 @@ modules:
       ID: "ublue"
       ID_LIKE: "tarion"
 
-  # DMS Greeter installation - creates greeter user, sets up PAM and configs
+  # Create greeter system user (dms greeter install cannot run as root during build)
   - type: script
     snippets:
       - |
-        dms greeter install
-        dms greeter sync
+        # Create greeter system user if not already created by greetd RPM
+        if ! id greeter &>/dev/null; then
+          useradd -r -M -s /sbin/nologin -d /var/cache/dms-greeter greeter
+        fi
 
   # Greeter cache initialization
   - type: script
@@ -68,6 +70,7 @@ modules:
     user:
       enabled:
         - vicinae.service
+        - tarion-firstboot.service
   
   # Final cleanup scripts
   - type: script

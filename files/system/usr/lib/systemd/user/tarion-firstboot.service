@@ -1,0 +1,11 @@
+[Unit]
+Description=Tarion first-boot user setup
+After=dbus.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/tarion-firstboot
+RemainAfterExit=yes
+
+[Install]
+WantedBy=default.target
