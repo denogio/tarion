@@ -1,0 +1,78 @@
+#!/usr/bin/env bash
+# @vicinae.schemaVersion 1
+# @vicinae.title Tarion Actions
+# @vicinae.mode dmenu
+# @vicinae.description Quick access to all Tarion productivity actions
+
+set -euo pipefail
+
+OUTDIR="${HOME}/Pictures/screenshots"
+WALLPAPER_DIR="${HOME}/Pictures/Wallpapers"
+
+SELECTION="$(printf '%s\n' \
+    'Screenshot — Region' \
+    'Screenshot — Window' \
+    'Screenshot — Full screen' \
+    'Wallpaper — Random' \
+    'Wallpaper — Next' \
+    'Wallpaper — Previous' \
+    'Wallpaper — Pick' \
+    'Theme — Dark mode' \
+    'Theme — Light mode' \
+    'Theme — Browse' \
+    'Packages — Install' \
+    'Packages — Remove' \
+    'System — Update' \
+    'Config — Reload Hyprland' \
+    'Greeter — Sync theme' \
+    | vicinae dmenu --placeholder 'Tarion action...')"
+
+case "${SELECTION}" in
+    'Screenshot — Region')
+        if command -v satty &>/dev/null; then
+            dms screenshot --stdout | satty --filename -
+        else
+            mkdir -p "${OUTDIR}"
+            dms screenshot -d "${OUTDIR}"
+        fi
+        ;;
+    'Screenshot — Window')
+        if command -v satty &>/dev/null; then
+            dms screenshot window --stdout | satty --filename -
+        else
+            mkdir -p "${OUTDIR}"
+            dms screenshot window -d "${OUTDIR}"
+        fi
+        ;;
+    'Screenshot — Full screen')
+        if command -v satty &>/dev/null; then
+            dms screenshot full --stdout | satty --filename -
+        else
+            mkdir -p "${OUTDIR}"
+            dms screenshot full -d "${OUTDIR}"
+        fi
+        ;;
+    'Wallpaper — Random')   tarion-wallpaper-switcher random ;;
+    'Wallpaper — Next')     tarion-wallpaper-switcher next ;;
+    'Wallpaper — Previous') tarion-wallpaper-switcher prev ;;
+    'Wallpaper — Pick')
+        if [[ -d "${WALLPAPER_DIR}" ]]; then
+            PICKED="$(find "${WALLPAPER_DIR}" -maxdepth 1 -type f \
+                \( -name '*.jpg' -o -name '*.png' -o -name '*.jpeg' \) \
+                | sort | while IFS= read -r f; do basename "${f}"; done \
+                | vicinae dmenu --placeholder 'Pick wallpaper...')"
+            if [[ -n "${PICKED}" ]]; then
+                tarion-wallpaper-switcher set "${WALLPAPER_DIR}/${PICKED}"
+            fi
+        fi
+        ;;
+    'Theme — Dark mode')    vicinae vicinae://extensions/vicinae-dms/dms-theme-dark ;;
+    'Theme — Light mode')   vicinae vicinae://extensions/vicinae-dms/dms-theme-light ;;
+    'Theme — Browse')       dms settings openWith theme ;;
+    'Packages — Install')   tarion-launch-floating-terminal-with-presentation "tarion-pkg install" ;;
+    'Packages — Remove')    tarion-launch-floating-terminal-with-presentation "tarion-pkg remove" ;;
+    'System — Update')      tarion-launch-floating-terminal-with-presentation "tarion-update" ;;
+    'Config — Reload Hyprland') hyprctl reload ;;
+    'Greeter — Sync theme') dms greeter sync ;;
+    *) ;;
+esac

@@ -2,33 +2,41 @@
 # @vicinae.schemaVersion 1
 # @vicinae.title System Controls
 # @vicinae.mode dmenu
+# @vicinae.description Power, session, and display management
 
 set -euo pipefail
 
-# Check if gum is available
-if ! command -v gum &> /dev/null; then
-    echo "gum is required for interactive mode. Please install it first."
-    exit 1
-fi
+SELECTION="$(printf '%s\n' \
+    'Power off' \
+    'Reboot' \
+    'Lock screen' \
+    'Suspend' \
+    'Log out' \
+    'Toggle night mode' \
+    'Toggle notifications' \
+    'Keyboard layout' \
+    'Reload Hyprland' \
+    'Restart Vicinae' \
+    'Display settings' \
+    | vicinae dmenu --placeholder 'System control...')"
 
-# Show system controls menu using Vicinae dmenu mode
-cat << 'EOF' | vicinae dmenu --placeholder "Select system control..."
-⏻ Power Off
-🔄 Reboot
-🔒 Lock Screen
-💤 Suspend
-🖥️ Display Settings
-🌙 Night Mode
-📺 Refresh Rate
-📶 WiFi Toggle
-🔵 Bluetooth Toggle
-📊 System Info
-💾 Disk Usage
-🌡️ Temperature
-⚡ CPU Info
-📝 System Logs
-⚙️ System Settings
-🔧 System Config
-🎯 Reload Hyprland
-🔄 Restart Vicinae
-EOF
+case "${SELECTION}" in
+    'Power off')            systemctl poweroff ;;
+    'Reboot')               systemctl reboot ;;
+    'Lock screen')          vicinae vicinae://extensions/vicinae-dms/dms-lock ;;
+    'Suspend')              systemctl suspend ;;
+    'Log out')              loginctl terminate-user "$(id -un)" ;;
+    'Toggle night mode')    dms ipc call nightlight toggle ;;
+    'Toggle notifications') dms ipc call notifications toggle ;;
+    'Keyboard layout')
+        LAYOUT="$(localectl list-x11-keymap-layouts | vicinae dmenu --placeholder 'Select keyboard layout...')"
+        if [[ -n "${LAYOUT}" ]]; then
+            hyprctl keyword input:kb_layout "${LAYOUT}"
+            hyprctl reload
+        fi
+        ;;
+    'Reload Hyprland')      hyprctl reload ;;
+    'Restart Vicinae')      vicinae server --replace ;;
+    'Display settings')     setsid wdisplays >/dev/null 2>&1 & ;;
+    *) ;;
+esac
