@@ -50,11 +50,7 @@ validate_config() {
         --setenv XDG_RUNTIME_DIR "/tmp" \
         Hyprland --verify-config -c "$config_path" 2>&1) || true
 
-    # Filter out "scroller:" related errors which are expected since the plugin isn't loaded during linting
-    local filtered_output
-    filtered_output=$(echo "$output" | grep -vE "Invalid dispatcher, requested \"scroller:.*\" does not exist" | grep -vE "Invalid dispatcher: scroller:.*" || true)
-
-    if [[ -z "$(echo "$filtered_output" | grep -E "ERR |Config error" || true)" ]]; then
+    if [[ -z "$(echo "$output" | grep -E "ERR |Config error" || true)" ]]; then
         echo "✅ PASSED"
         VALID_COUNT=$((VALID_COUNT + 1))
     else

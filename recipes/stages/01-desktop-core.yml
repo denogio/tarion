@@ -18,7 +18,6 @@ modules:
         # Window manager and desktop shell
         - hyprland
         - dms
-        - hyprland-plugin-hyprscrolling
         
         # Wayland components
         - xdg-desktop-portal-hyprland
