@@ -496,3 +496,9 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
 - **Discussions**: https://github.com/denogio/tarion/discussions
 - **Universal Blue**: https://universal-blue.org/
 - **Blue Build**: https://blue-build.org/
+
+## Active Technologies
+- Bash (script snippets), YAML (Blue Build recipes) + Blue Build `default-flatpaks` module, GNOME Nightly Flatpak remote (001-valent-phone-connect)
+
+## Recent Changes
+- 001-valent-phone-connect: Added Bash (script snippets), YAML (Blue Build recipes) + Blue Build `default-flatpaks` module, GNOME Nightly Flatpak remote
