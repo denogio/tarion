@@ -111,6 +111,7 @@ modules:
           - io.github.flattool.Warehouse       # Flatpak management GUI
           # Default browser - Tarion's preferred browser
           - org.chromium.Chromium            # Chromium web browser
+          - org.kde.kdeconnect.plasmoid      # Phone integration (KDE Connect)
         notify: true
 
       # User scope - optional user-preferred apps
@@ -120,12 +121,3 @@ modules:
           title: Flathub
         install: []
         notify: false
-
-      # GNOME Nightly - apps not yet on stable Flathub
-      - scope: system
-        repo:
-          title: GNOME Nightly
-          url: https://nightly.gnome.org/gnome-nightly.flatpakrepo
-        install:
-          - ca.andyholmes.Valent   # Phone integration backend for DMS Phone Connect
-        notify: true
