@@ -13,11 +13,6 @@ modules:
         - vicinae
         - iwd
 
-        # Phone integration (Valent - GVfs-based SFTP, no Dolphin required)
-        - valent
-        - gvfs
-        - gvfs-mtp
-        
         # GNOME Keyring for password management
         - gnome-keyring
         - gnome-keyring-pam
@@ -116,6 +111,15 @@ modules:
           - io.github.flattool.Warehouse       # Flatpak management GUI
           # Default browser - Tarion's preferred browser
           - org.chromium.Chromium            # Chromium web browser
+        notify: true
+
+      # Valent - phone integration from official repo
+      - scope: system
+        repo:
+          title: Valent
+          url: https://valent.andyholmes.ca/repo
+        install:
+          - ca.andyholmes.Valent
         notify: true
 
       # User scope - optional user-preferred apps
