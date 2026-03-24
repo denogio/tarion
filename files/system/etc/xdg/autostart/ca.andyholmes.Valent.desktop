@@ -1,8 +1,0 @@
-[Desktop Entry]
-Type=Application
-Name=Valent
-Comment=Phone integration for DMS Phone Connect
-Exec=flatpak run ca.andyholmes.Valent
-Icon=ca.andyholmes.Valent
-X-GNOME-Autostart-enabled=true
-NoDisplay=true

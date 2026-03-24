@@ -1,0 +1,10 @@
+[Unit]
+Description=Generate Hyprland pop window rules
+After=graphical-session.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/hypr-pop-windows-gen
+
+[Install]
+WantedBy=graphical-session.target

@@ -498,7 +498,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
 - **Blue Build**: https://blue-build.org/
 
 ## Active Technologies
-- Bash (script snippets), YAML (Blue Build recipes) + Blue Build `default-flatpaks` module, GNOME Nightly Flatpak remote (001-valent-phone-connect)
+- YAML (Blue Build recipes) + Blue Build `default-flatpaks` module, Flathub Flatpak remote (001-valent-phone-connect)
 
 ## Recent Changes
-- 001-valent-phone-connect: Added Bash (script snippets), YAML (Blue Build recipes) + Blue Build `default-flatpaks` module, GNOME Nightly Flatpak remote
+- 001-valent-phone-connect: Replace Valent with KDE Connect (`org.kde.kdeconnect.plasmoid`) from stable Flathub; removed GNOME Nightly remote

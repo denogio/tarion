@@ -1,0 +1,14 @@
+# Tarion pop window defaults
+# These windows open as floating, pinned, sized, and centered overlays.
+# Users can override entries (by name) in ~/.config/hypr/pop-windows.yaml.
+
+- name: bitwarden
+  class: chrome-.*-Default
+  title: Bitwarden
+  size: 450 700
+  position: center
+
+- name: calculator
+  class: org.gnome.Calculator
+  size: 400 600
+  position: center
