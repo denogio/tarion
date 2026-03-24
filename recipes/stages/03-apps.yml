@@ -13,10 +13,11 @@ modules:
         - vicinae
         - iwd
 
-        # GNOME Keyring for password management
+        # GNOME Keyring + GCR for password management and SSH agent
         - gnome-keyring
         - gnome-keyring-pam
         - seahorse
+        - gcr
         
         # Icon themes
         - gnome-icon-theme
