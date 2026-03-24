@@ -1,10 +1,11 @@
 [Unit]
 Description=Generate Hyprland pop window rules
-After=graphical-session.target
+After=tarion-firstboot.service
 
 [Service]
 Type=oneshot
 ExecStart=/usr/bin/hypr-pop-windows-gen
+RemainAfterExit=yes
 
 [Install]
-WantedBy=graphical-session.target
+WantedBy=graphical-session-pre.target
