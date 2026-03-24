@@ -40,3 +40,10 @@ if [[ "$(_state_get greeter_sync)" != "true" ]]; then
         if dms greeter sync; then _state_set greeter_sync; fi
     fi
 fi
+
+# Task: install DankKDEConnect plugin
+if [[ "$(_state_get dms_plugin_kdeconnect)" != "true" ]]; then
+    if command -v dms &>/dev/null; then
+        if dms plugins install dankKDEConnect; then _state_set dms_plugin_kdeconnect; fi
+    fi
+fi

@@ -12,6 +12,11 @@ modules:
         # Launcher and wireless
         - vicinae
         - iwd
+
+        # Phone integration (Valent - GVfs-based SFTP, no Dolphin required)
+        - valent
+        - gvfs
+        - gvfs-mtp
         
         # GNOME Keyring for password management
         - gnome-keyring
@@ -111,7 +116,6 @@ modules:
           - io.github.flattool.Warehouse       # Flatpak management GUI
           # Default browser - Tarion's preferred browser
           - org.chromium.Chromium            # Chromium web browser
-          - org.kde.kdeconnect.plasmoid      # Phone integration (KDE Connect)
         notify: true
 
       # User scope - optional user-preferred apps
