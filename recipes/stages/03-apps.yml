@@ -120,3 +120,12 @@ modules:
           title: Flathub
         install: []
         notify: false
+
+      # GNOME Nightly - apps not yet on stable Flathub
+      - scope: system
+        repo:
+          title: GNOME Nightly
+          url: https://nightly.gnome.org/gnome-nightly.flatpakrepo
+        install:
+          - ca.andyholmes.Valent   # Phone integration backend for DMS Phone Connect
+        notify: true
