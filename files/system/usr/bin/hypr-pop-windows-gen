@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/home/linuxbrew/.linuxbrew/bin/python3
 """Generate ~/.config/hypr/pop-windows.conf from YAML sources.
 
 Reads /usr/share/tarion/hypr/pop-windows.yaml (distro defaults) and
@@ -26,7 +26,7 @@ def load_yaml(path):
     try:
         import yaml
     except ImportError:
-        print("Error: python3-pyyaml is required", file=sys.stderr)
+        print("Error: pyyaml is required — run: /home/linuxbrew/.linuxbrew/bin/pip3 install pyyaml", file=sys.stderr)
         sys.exit(1)
 
     if not os.path.exists(path):

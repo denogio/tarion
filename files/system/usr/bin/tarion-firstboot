@@ -41,6 +41,11 @@ if [[ "$(_state_get greeter_sync)" != "true" ]]; then
     fi
 fi
 
+# Task: install pyyaml for brew python (required by hypr-pop-windows-gen)
+if [[ "$(_state_get pip_pyyaml)" != "true" ]]; then
+    if /home/linuxbrew/.linuxbrew/bin/pip3 install --quiet pyyaml; then _state_set pip_pyyaml; fi
+fi
+
 # Task: install DankKDEConnect plugin
 if [[ "$(_state_get dms_plugin_kdeconnect)" != "true" ]]; then
     if command -v dms &>/dev/null; then
