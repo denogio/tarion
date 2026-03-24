@@ -33,3 +33,4 @@ modules:
         - uwsm
         - xdg-terminal-exec
         - hyprsysteminfo
+        - python3-pyyaml

@@ -1,0 +1,9 @@
+[Unit]
+Description=Watch for pop-windows.yaml changes
+After=graphical-session.target
+
+[Path]
+PathModified=%h/.config/hypr/pop-windows.yaml
+
+[Install]
+WantedBy=graphical-session.target

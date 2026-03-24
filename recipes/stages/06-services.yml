@@ -71,6 +71,8 @@ modules:
       enabled:
         - vicinae.service
         - tarion-firstboot.service
+        - hypr-pop-windows.service
+        - hypr-pop-windows.path
   
   # Final cleanup scripts
   - type: script
