@@ -5,11 +5,6 @@
 # builds actually ran successfully without any errors!
 set -euo pipefail
 
-# Ensure pop-windows.conf exists before Hyprland reads its config.
-# The generator always writes the file even if both YAML sources are empty,
-# so the `source = ~/.config/hypr/pop-windows.conf` directive never fails.
-hypr-pop-windows-gen
-
 hyprland_conf="${HOME}/.config/hypr/hyprland.conf"
 default_conf="/usr/share/tarion/defaults/hyprland.conf"
 

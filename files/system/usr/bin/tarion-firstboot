@@ -3,7 +3,16 @@
 # Part of the Tarion desktop distribution.
 set -euo pipefail
 
-STATE_FILE="${HOME}/.config/tarion/setup-state.json"
+source /usr/lib/tarion/xdg-paths.sh
+
+STATE_FILE="$(get_tarion_file "state" "setup-state.json")"
+OLD_STATE_FILE="${HOME}/.config/tarion/setup-state.json"
+
+# Migrate state file from old config location to XDG state dir
+if [[ -f "${OLD_STATE_FILE}" && ! -f "${STATE_FILE}" ]]; then
+    mkdir -p "$(dirname "${STATE_FILE}")"
+    mv "${OLD_STATE_FILE}" "${STATE_FILE}"
+fi
 
 _state_get() {
     local key="${1}"
@@ -23,16 +32,9 @@ _state_set() {
     else
         jq -n --arg k "${key}" '{($k): true}' > "${tmp}"
     fi
-    mkdir -p "${HOME}/.config/tarion"
+    mkdir -p "$(dirname "${STATE_FILE}")"
     mv "${tmp}" "${STATE_FILE}"
 }
-
-# Task: greeter install
-if [[ "$(_state_get greeter_install)" != "true" ]]; then
-    if command -v dms &>/dev/null; then
-        if dms greeter install; then _state_set greeter_install; fi
-    fi
-fi
 
 # Task: greeter sync
 if [[ "$(_state_get greeter_sync)" != "true" ]]; then
@@ -41,14 +43,10 @@ if [[ "$(_state_get greeter_sync)" != "true" ]]; then
     fi
 fi
 
-# Task: install pyyaml for brew python (required by hypr-pop-windows-gen)
-if [[ "$(_state_get pip_pyyaml)" != "true" ]]; then
-    if /home/linuxbrew/.linuxbrew/bin/pip3 install --quiet pyyaml; then _state_set pip_pyyaml; fi
-fi
-
 # Task: install DankKDEConnect plugin
 if [[ "$(_state_get dms_plugin_kdeconnect)" != "true" ]]; then
     if command -v dms &>/dev/null; then
-        if dms plugins install dankKDEConnect; then _state_set dms_plugin_kdeconnect; fi
+        dms plugins install dankKDEConnect 2>/dev/null || true
+        _state_set dms_plugin_kdeconnect
     fi
 fi

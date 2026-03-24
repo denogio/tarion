@@ -71,8 +71,6 @@ modules:
       enabled:
         - vicinae.service
         - tarion-firstboot.service
-        - hypr-pop-windows.service
-        - hypr-pop-windows.path
         - gcr-ssh-agent.socket
   
   # Final cleanup scripts

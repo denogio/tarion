@@ -90,6 +90,20 @@ source = ?~/.config/tarion/current/theme/hyprland.conf
 EOF
 fi
 
+# Hyprland user windowrules — create stub if missing
+HYPR_WINDOWRULES="${USER_CONFIG_DIR}/hypr/windowrules.conf"
+if [ ! -f "${HYPR_WINDOWRULES}" ]; then
+    echo "Creating user windowrules stub..."
+    cat > "${HYPR_WINDOWRULES}" <<'EOF'
+# User window rules
+# See https://wiki.hyprland.org/Configuring/Window-Rules/
+#
+# Examples:
+# windowrule = float on, match:class myapp
+# windowrule = tag +floating-window, match:class myapp
+EOF
+fi
+
 # Ghostty
 sync_app "Ghostty" "${DEFAULTS_DIR}/ghostty/config" "${USER_CONFIG_DIR}/ghostty/config" "config-file ="
 
@@ -98,18 +112,26 @@ HYPR_INPUT_DEST="${USER_CONFIG_DIR}/hypr/input.conf"
 mkdir -p "$(dirname "${HYPR_INPUT_DEST}")"
 
 # Detect keyboard layout from system locale
-LOCALE_LANG="${LANG%%.*}"  # e.g., "da_DK" -> "da_DK"
-KB_LAYOUT="us"  # Default fallback
+# Match on country code (e.g. en_DK → dk) so non-native locales work correctly
+LOCALE_LANG="${LANG%%.*}"        # e.g. "en_DK.UTF-8" -> "en_DK"
+COUNTRY="${LOCALE_LANG##*_}"     # e.g. "en_DK" -> "DK"
+COUNTRY="${COUNTRY^^}"           # normalise to uppercase
+KB_LAYOUT="us"                   # Default fallback
 
-case "${LOCALE_LANG}" in
-    da_*|dk_*|*_dk) KB_LAYOUT="dk" ;;
-    de_*) KB_LAYOUT="de" ;;
-    fr_*) KB_LAYOUT="fr" ;;
-    es_*) KB_LAYOUT="es" ;;
-    it_*) KB_LAYOUT="it" ;;
-    sv_*) KB_LAYOUT="se" ;;
-    no_*|nb_*|nn_*) KB_LAYOUT="no" ;;
-    fi_*) KB_LAYOUT="fi" ;;
+case "${COUNTRY}" in
+    DK) KB_LAYOUT="dk" ;;
+    DE|AT) KB_LAYOUT="de" ;;
+    FR) KB_LAYOUT="fr" ;;
+    ES) KB_LAYOUT="es" ;;
+    IT) KB_LAYOUT="it" ;;
+    SE) KB_LAYOUT="se" ;;
+    NO) KB_LAYOUT="no" ;;
+    FI) KB_LAYOUT="fi" ;;
+    NL|BE) KB_LAYOUT="nl" ;;
+    PL) KB_LAYOUT="pl" ;;
+    PT|BR) KB_LAYOUT="pt" ;;
+    RU) KB_LAYOUT="ru" ;;
+    US|GB|AU|CA|NZ) KB_LAYOUT="us" ;;
     *) KB_LAYOUT="us" ;;
 esac
 
@@ -148,15 +170,6 @@ echo "Generating keybindings cache..."
 if command -v tarion-keybindings-generate &>/dev/null; then
     tarion-keybindings-generate > /dev/null
 fi
-
-# Greeter theme sync (informational)
-echo ""
-echo "=== Greeter Theme Sync ==="
-echo "Note: To sync DMS themes with greeter login screen:"
-echo "  1. Ensure you're in 'greeter' group: sudo usermod -aG greeter \$USER"
-echo "  2. Run: greeter-sync --sync"
-echo "  3. Logout/login for group changes to take effect"
-echo "Or check status: greeter-sync --status"
 
 # Update state
 mkdir -p "${STATE_DIR}"
