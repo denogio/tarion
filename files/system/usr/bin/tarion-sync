@@ -79,10 +79,10 @@ ${SYNC_HEADER}
 source = ${DEFAULTS_DIR}/hyprland.conf
 
 # 2. Source user-specific input config (keyboard layout, etc.)
-source = ?~/.config/hypr/input.conf
+source = ~/.config/hypr/input.conf
 
-# 3. Source current theme
-source = ?~/.config/tarion/current/theme/hyprland.conf
+# 3. Source user window rules
+source = ~/.config/hypr/windowrules.conf
 
 # 4. Add your custom overrides below this line
 # Example:
