@@ -73,35 +73,58 @@ ensure_tarion_include() {
     local basename
     basename=$(basename "${skel_file}")
     local user_conf="${USER_DIR}/${app}/${basename}"
-    local local_skel="${LOCAL_DIR}/${app}/${basename}"
     local rel_path="${app}/${basename}"
-    local include_line="include \"${LOCAL_DIR}/${rel_path}\""
 
     mkdir -p "$(dirname "${user_conf}")"
 
     if [ ! -f "${user_conf}" ]; then
         # First run: create with tarion include
-        cat > "${user_conf}" <<EOF
-# === TARION MANAGED - DO NOT EDIT ABOVE THIS LINE ===
-# Edits below this line are your personal overrides
-# System defaults are in: ${local_skel}
+        cat > "${user_conf}" <<'EOF'
+//
+//                                     ▄▄▄ ▄▄ ▄▄
+//     ██              ▀▀               █  █ ▀ █
+//    ▀██▀▀ ▀▀█▄ ████▄ ██  ▄███▄ ████▄
+//     ██  ▄█▀██ ██ ▀▀ ██  ██ ██ ██ ██
+//     ██  ▀█▄██ ██    ██▄ ▀███▀ ██ ██
+//
+//  System defaults: keybinds, layout, animations, window rules.
+//  Updated when you rebuild Tarion.
+//
+//  Inspect: bat ~/.local/share/tarion/niri/config.kdl
+//
 
-${include_line}
+include "~/.local/share/tarion/niri/config.kdl"
 
+// ═══════════════════════════════════════════════════════════════
+//   NO EDITS ABOVE THIS LINE - keep the include intact
+// ═══════════════════════════════════════════════════════════════
+
+// user config can be placed here
 EOF
         log_info "Created ${rel_path} with tarion include"
     elif ! grep -q "TARION MANAGED" "${user_conf}"; then
-        # User config exists but no tarion marker - add it
-        local existing_content
-        existing_content=$(cat "${user_conf}")
-        cat > "${user_conf}" <<EOF
-# === TARION MANAGED - DO NOT EDIT ABOVE THIS LINE ===
-# Edits below this line are your personal overrides
-# System defaults are in: ${local_skel}
+        # User config exists but no tarion marker - add it (replace with template)
+        cat > "${user_conf}" <<'EOF'
+//
+//                                     ▄▄▄ ▄▄ ▄▄
+//     ██              ▀▀               █  █ ▀ █
+//    ▀██▀▀ ▀▀█▄ ████▄ ██  ▄███▄ ████▄
+//     ██  ▄█▀██ ██ ▀▀ ██  ██ ██ ██ ██
+//     ██  ▀█▄██ ██    ██▄ ▀███▀ ██ ██
+//
+//  System defaults: keybinds, layout, animations, window rules.
+//  Updated when you rebuild Tarion.
+//
+//  Inspect: bat ~/.local/share/tarion/niri/config.kdl
+//
 
-${include_line}
+include "~/.local/share/tarion/niri/config.kdl"
 
-${existing_content}
+// ═══════════════════════════════════════════════════════════════
+//   NO EDITS ABOVE THIS LINE - keep the include intact
+// ═══════════════════════════════════════════════════════════════
+
+// user config can be placed here
 EOF
         log_info "Added tarion include to existing ${rel_path}"
     fi

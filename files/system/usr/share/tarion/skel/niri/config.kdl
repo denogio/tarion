@@ -7,9 +7,9 @@
 // Find the full list of options on the wiki:
 // https://niri-wm.github.io/niri/Configuration:-Input
 
-include "~/.config/niri/bindings.kdl"
+include "~/.local/share/tarion/niri/bindings.kdl"
 
-include "~/.config/niri/autostart.kdl"
+include "~/.local/share/tarion/niri/autostart.kdl"
 
 debug {
 	honor-xdg-activation-with-invalid-serial
