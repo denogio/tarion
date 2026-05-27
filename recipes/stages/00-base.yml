@@ -46,7 +46,6 @@ modules:
     system:
       enabled:
         - greetd.service
-        - iwd.service
       disabled:
         - sddm.service
       masked:
