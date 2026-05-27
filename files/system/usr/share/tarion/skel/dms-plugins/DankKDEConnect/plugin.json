@@ -1,0 +1,17 @@
+{
+    "id": "dankKDEConnect",
+    "name": "Phone Connect",
+    "description": "Control connected devices via KDE Connect or Valent - view battery, send files, find phone, and more",
+    "version": "2.0.3",
+    "license": "MIT",
+    "author": "Avenge Media",
+    "icon": "devices",
+    "firstParty": true,
+    "component": "./DankKDEConnect.qml",
+    "settings": "./DankKDEConnectSettings.qml",
+    "requires_dms": ">=1.4.2",
+    "permissions": [
+        "settings_read",
+        "settings_write"
+    ]
+}

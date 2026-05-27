@@ -1,0 +1,35 @@
+# yaml-language-server: $schema=https://schema.blue-build.org/module-stage-list-v1.json
+modules:
+  # Docker CE from official Docker repo
+  - type: dnf
+    repos:
+      files:
+        - https://download.docker.com/linux/fedora/docker-ce.repo
+    install:
+      install-weak-deps: false
+      packages:
+        - docker-ce
+        - docker-ce-cli
+        - containerd.io
+        - docker-buildx-plugin
+        - docker-compose-plugin
+
+  # Netbird from official repo
+  - type: dnf
+    repos:
+      files:
+        - https://pkgs.netbird.io/yum/netbird.repo
+    install:
+      install-weak-deps: false
+      packages:
+        - netbird
+        - netbird-ui
+
+  # Virtualization and mobile emulation
+  - type: dnf
+    install:
+      install-weak-deps: false
+      packages:
+        - qemu
+        - qemu-user-static
+        - waydroid

@@ -17,10 +17,12 @@ modules:
         
         # Window manager and desktop shell
         - hyprland
+        - niri
         - dms
-        
+
         # Wayland components
         - xdg-desktop-portal-hyprland
+        - xdg-desktop-portal-gnome
         - hyprland-guiutils
         - gtk4-layer-shell
         

@@ -22,7 +22,7 @@ modules:
     scripts:
       - ensureautoupdates.sh
       - setupvicinae.sh
-  
+
   # Brew setup to initialize Homebrew in the image
   - type: brew
     nofile-limits: true # increase nofile limits

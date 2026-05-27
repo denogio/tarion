@@ -1,0 +1,8 @@
+// Niri keybindings
+bind = "SUPER", "Q", "close"
+bind = "SUPER", "M", "kill"
+bind = "SUPER", "F", "fullscreen"
+bind = "SUPER", "SPACE", "float"
+bind = "SUPER", "R", "resize"
+bind = "SUPER", "E", "snap-east"
+bind = "SUPER", "W", "snap-west"

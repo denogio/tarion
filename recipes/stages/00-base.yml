@@ -19,21 +19,49 @@ modules:
     install:
       install-weak-deps: false
       packages:
-        # Greeter packages
         - greetd
         - dms-greeter
-        
-        # Common system packages
+        - gum
         - just
         - powerstat
-        
-        # UBlue OS packages
         - ublue-os-udev-rules
         - ublue-os-update-services
-        
-        # Bluetooth stack
         - bluez
         - bluez-tools
         - bluez-cups
         - blueman
-        # blueberry removed - not available in Fedora 43, blueman is sufficient
+
+  # Power & desktop utilities
+  - type: dnf
+    install:
+      install-weak-deps: false
+      packages:
+        - power-profiles-daemon
+        - adw-gtk3-theme
+        - sshfs
+        - swappy
+
+  # Systemd services configuration
+  - type: systemd
+    system:
+      enabled:
+        - greetd.service
+        - iwd.service
+      disabled:
+        - sddm.service
+      masked:
+        - wpa_supplicant.service
+
+  # User services
+  - type: systemd
+    user:
+      enabled:
+        - vicinae.service
+        - tarion-firstboot.service
+        - gcr-ssh-agent.socket
+
+  # Final cleanup scripts
+  - type: script
+    scripts:
+      - removeunusedrepos.sh
+      - regenerateinitramfs.sh

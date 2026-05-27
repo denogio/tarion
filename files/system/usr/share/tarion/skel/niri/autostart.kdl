@@ -1,0 +1,2 @@
+// Niri autostart applications
+exec = "tarion-sync"

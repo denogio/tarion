@@ -1,0 +1,34 @@
+// Niri configuration
+// Workspace layout
+workspaces {
+    on_created = "append"
+}
+
+// Cursor
+cursor {
+    x = 0
+    y = 0
+}
+
+// Focus
+focus {
+    follows_mouse = true
+    double_click_threshold_ms = 300
+}
+
+// Resize
+resize {
+    border_color = "cba6f7"
+    border_width = 2
+}
+
+// Tiling
+tiling {
+    gap = 8
+}
+
+// Float
+float {
+    border_color = "89b4fa"
+    border_width = 2
+}
