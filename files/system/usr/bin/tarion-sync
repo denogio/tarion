@@ -1,29 +1,26 @@
 #!/usr/bin/env bash
 # Tarion configuration synchronization utility
-# Copy-on-first-run model: copies skeleton files to ~/.config/ on first login
-# Prompts user on updates when skeleton changes
+# Maintains skeleton configs in ~/.local/share/tarion/ with user overrides in ~/.config/
 set -euo pipefail
 
-# Source XDG path helper
 source /usr/lib/tarion/xdg-paths.sh
 
 SKEL_DIR="/usr/share/tarion/skel"
+LOCAL_DIR="${HOME}/.local/share/tarion"
 USER_DIR="${HOME}/.config"
 STATE_DIR=$(get_tarion_cache_dir)
-VERSION_FILE="${STATE_DIR}/skel-version"
 MANIFEST="${STATE_DIR}/skel-manifest"
-BACKUP_SUFFIX=".tarion-bak-$(date +%s)"
 
 # Colors
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 CYAN='\033[0;36m'
-NC='\033[0m' # No Color
+NC='\033[0m'
 
-# === Parse arguments ===
 FORCE=false
 SHOW_DIFF_FILE=""
+LIST_CHANGES=false
 
 while [[ $# -gt 0 ]]; do
     case $1 in
@@ -35,38 +32,27 @@ while [[ $# -gt 0 ]]; do
             SHOW_DIFF_FILE="$2"
             shift 2
             ;;
+        --list)
+            LIST_CHANGES=true
+            shift
+            ;;
         *)
-            echo "Unknown option: $1"
-            echo "Usage: tarion-sync [--force] [--diff <file>]"
+            echo "Usage: tarion-sync [--force] [--diff <file>] [--list]"
             exit 1
             ;;
     esac
 done
 
-# === Helper functions ===
-log_info() {
-    echo -e "${GREEN}✓${NC} $*"
-}
-
-log_warn() {
-    echo -e "${YELLOW}⚠${NC} $*"
-}
-
-log_error() {
-    echo -e "${RED}✗${NC} $*" >&2
-}
+log_info() { echo -e "${GREEN}✓${NC} $*"; }
+log_warn() { echo -e "${YELLOW}⚠${NC} $*"; }
+log_error() { echo -e "${RED}✗${NC} $*" >&2; }
 
 # Get file SHA256
 sha256_file() {
     sha256sum "${1}" 2>/dev/null | awk '{print $1}'
 }
 
-# Get skeleton mtime as version indicator
-get_skel_version() {
-    stat -c %Y "${SKEL_DIR}" 2>/dev/null || echo "0"
-}
-
-# Read manifest (list of copied files with their checksums)
+# Read manifest
 read_manifest() {
     if [ -f "${MANIFEST}" ]; then
         cat "${MANIFEST}"
@@ -80,201 +66,175 @@ write_manifest() {
     echo "${content}" > "${MANIFEST}"
 }
 
-# Check if user has modified a file
-user_modified() {
-    local user_file="${1}"
+# Ensure user config has tarion include header
+ensure_tarion_include() {
+    local app="${1}"
     local skel_file="${2}"
-    local expected_checksum="${3}"
+    local basename
+    basename=$(basename "${skel_file}")
+    local user_conf="${USER_DIR}/${app}/${basename}"
+    local local_skel="${LOCAL_DIR}/${app}/${basename}"
+    local rel_path="${app}/${basename}"
+    local include_line="include \"${LOCAL_DIR}/${rel_path}\""
+
+    mkdir -p "$(dirname "${user_conf}")"
+
+    if [ ! -f "${user_conf}" ]; then
+        # First run: create with tarion include
+        cat > "${user_conf}" <<EOF
+# === TARION MANAGED - DO NOT EDIT ABOVE THIS LINE ===
+# Edits below this line are your personal overrides
+# System defaults are in: ${local_skel}
+
+${include_line}
+
+EOF
+        log_info "Created ${rel_path} with tarion include"
+    elif ! grep -q "TARION MANAGED" "${user_conf}"; then
+        # User config exists but no tarion marker - add it
+        local existing_content
+        existing_content=$(cat "${user_conf}")
+        cat > "${user_conf}" <<EOF
+# === TARION MANAGED - DO NOT EDIT ABOVE THIS LINE ===
+# Edits below this line are your personal overrides
+# System defaults are in: ${local_skel}
+
+${include_line}
+
+${existing_content}
+EOF
+        log_info "Added tarion include to existing ${rel_path}"
+    fi
+}
+
+# Copy skeleton to local
+copy_skel_to_local() {
+    local skel_file="${1}"
+    local rel_path="${skel_file#"${SKEL_DIR}"/}"
+    local local_file="${LOCAL_DIR}/${rel_path}"
+
+    mkdir -p "$(dirname "${local_file}")"
+    cp "${skel_file}" "${local_file}"
+}
+
+# Sync all apps
+sync_apps() {
+    local changed_count=0
+    local manifest_content=""
+
+    # Walk through skeleton
+    while IFS= read -r -d '' skel_file; do
+        local rel_path="${skel_file#"${SKEL_DIR}"/}"
+        local local_file="${LOCAL_DIR}/${rel_path}"
+
+        # Get app name (first directory)
+        local app="${rel_path%%/*}"
+
+        # Skip backup files
+        [[ "${rel_path}" == *".save"* ]] && continue
+
+        # Calculate checksums
+        local skel_checksum
+        skel_checksum=$(sha256_file "${skel_file}")
+
+        local local_checksum=""
+        local_checksum=$(sha256_file "${local_file}" 2>/dev/null || echo "")
+
+        local needs_update=false
+
+        if [ ! -f "${local_file}" ]; then
+            # New file in skeleton
+            needs_update=true
+        elif [ "${local_checksum}" != "${skel_checksum}" ]; then
+            # Skeleton changed
+            needs_update=true
+        fi
+
+        if [ "${needs_update}" = true ]; then
+            if [ "${LIST_CHANGES}" = true ]; then
+                echo -e "${CYAN}${rel_path}${NC}"
+            else
+                copy_skel_to_local "${skel_file}"
+                # Ensure user config has tarion include if this is a config file
+                if [[ "${rel_path}" == *".kdl" || "${rel_path}" == *".conf" ]]; then
+                    ensure_tarion_include "${app}" "${rel_path}"
+                fi
+            fi
+            changed_count=$((changed_count + 1))
+        fi
+
+        manifest_content+="${rel_path}|${skel_checksum}"$'\n'
+    done < <(find "${SKEL_DIR}" -type f -print0)
+
+    if [ "${LIST_CHANGES}" = true ]; then
+        if [ "${changed_count}" -eq 0 ]; then
+            echo "No changes in skeleton"
+        else
+            echo "${changed_count} file(s) changed"
+        fi
+    else
+        write_manifest "${manifest_content}"
+        log_info "Synced ${changed_count} file(s) from skeleton to ${LOCAL_DIR}"
+    fi
+}
+
+# Show diff between local and user config
+show_diff() {
+    local file="${1#"${HOME}/.config/"}"
+    local local_file="${LOCAL_DIR}/${file}"
+    local user_file="${HOME}/.config/${file}"
+
+    if [ ! -f "${local_file}" ]; then
+        log_error "No local skeleton found for ${file}"
+        exit 1
+    fi
 
     if [ ! -f "${user_file}" ]; then
-        return 1  # File doesn't exist, not modified
+        log_error "No user config found for ${file}"
+        exit 1
     fi
 
-    local actual_checksum
-    actual_checksum=$(sha256_file "${user_file}")
-    if [ "${actual_checksum}" != "${expected_checksum}" ]; then
-        return 0  # Modified
-    fi
-    return 1  # Not modified
+    echo "=== Diff for ${file} ==="
+    echo "--- Local (skeleton): ${local_file} ---"
+    cat "${local_file}"
+    echo ""
+    echo "--- User config: ${user_file} ---"
+    cat "${user_file}"
 }
 
-# Copy skeleton file to user location
-copy_skel_file() {
-    local src="${1}"
-    local dst="${2}"
-
-    mkdir -p "$(dirname "${dst}")"
-    cp "${src}" "${dst}"
-}
-
-# Backup user file
-backup_file() {
-    local file="${1}"
-    local backup="${file}${BACKUP_SUFFIX}"
-    cp "${file}" "${backup}"
-    log_info "Backed up to: ${backup}"
-}
-
-# === Main sync logic ===
+# Main
 main() {
-    # Check if skeleton directory exists
     if [ ! -d "${SKEL_DIR}" ]; then
         log_error "Skeleton directory not found: ${SKEL_DIR}"
         exit 1
     fi
 
-    # Create state directory
-    mkdir -p "${STATE_DIR}"
-
-    # Bootstrap check: ensure brew tools are installed on first use
-    local BOOTSTRAP_DONE_FILE
-    BOOTSTRAP_DONE_FILE=$(get_tarion_file "state" "bootstrap-done")
-    if [ ! -f "${BOOTSTRAP_DONE_FILE}" ]; then
-        tarion-launch-floating-terminal-with-presentation tarion-bootstrap
-    fi
-
-    # Handle --diff option
     if [ -n "${SHOW_DIFF_FILE}" ]; then
-        local skel_file="${SKEL_DIR}/${SHOW_DIFF_FILE#"${HOME}"/.config/}"
-        if [ ! -f "${skel_file}" ]; then
-            log_error "Skeleton file not found: ${skel_file}"
-            exit 1
-        fi
-        if [ ! -f "${HOME}/.config/${SHOW_DIFF_FILE}" ]; then
-            log_error "User file not found: ${HOME}/.config/${SHOW_DIFF_FILE}"
-            exit 1
-        fi
-        echo "=== Diff for ${SHOW_DIFF_FILE} ==="
-        diff -u "${HOME}/.config/${SHOW_DIFF_FILE}" "${skel_file}" || true
+        show_diff "${SHOW_DIFF_FILE}"
         exit 0
     fi
 
-    # Check if image has changed
-    local current_version
-    current_version=$(get_skel_version)
-    local last_version
-    last_version=$(cat "${VERSION_FILE}" 2>/dev/null || echo "")
-
-    local needs_attention=()
-    local manifest_content=""
-
-    # Walk through skeleton directory
-    while IFS= read -r -d '' skel_file; do
-        # Get relative path from skeleton
-        local rel_path="${skel_file#"${SKEL_DIR}"/}"
-        local user_file="${USER_DIR}/${rel_path}"
-
-        # Skip non-config files and backups
-        [[ "${rel_path}" == *"autostart.conf.save"* ]] && continue
-
-        # Get expected checksum from current manifest (if exists)
-        local expected_checksum=""
-        if [ -f "${MANIFEST}" ]; then
-            expected_checksum=$(grep "^${rel_path}|" "${MANIFEST}" 2>/dev/null | cut -d'|' -f2 || echo "")
-        fi
-
-        # Calculate current skeleton file checksum
-        local skel_checksum
-        skel_checksum=$(sha256_file "${skel_file}")
-
-        if [ ! -f "${user_file}" ]; then
-            # First run: copy skeleton to user directory
-            log_info "First run: copying ${rel_path}"
-            copy_skel_file "${skel_file}" "${user_file}"
-            manifest_content+="${rel_path}|${skel_checksum}"$'\n'
-        elif [ "${last_version}" != "${current_version}" ] || [ -z "${expected_checksum}" ]; then
-            # Image updated or no manifest entry
-            if user_modified "${user_file}" "${skel_file}" "${expected_checksum}"; then
-                # User has modified - needs attention
-                needs_attention+=("${rel_path}")
-                manifest_content+="${rel_path}|$(sha256_file "${user_file}")"$'\n'
-            else
-                # User hasn't modified - update silently
-                copy_skel_file "${skel_file}" "${user_file}"
-                manifest_content+="${rel_path}|${skel_checksum}"$'\n'
-            fi
-        else
-            # No version change, keep manifest as is
-            manifest_content+="${rel_path}|${expected_checksum}"$'\n'
-        fi
-    done < <(find "${SKEL_DIR}" -type f -print0)
-
-    # Handle files that need user attention
-    if [ "${#needs_attention[@]}" -gt 0 ] && [ "${FORCE}" = false ]; then
-        echo ""
-        log_warn "Some configuration files have changed in the new image:"
-        echo ""
-
-        for file in "${needs_attention[@]}"; do
-            echo -e "  ${CYAN}${file}${NC}"
-        done
-
-        echo ""
-        echo "What would you like to do?"
-
-        local user_choice=""
-        for file in "${needs_attention[@]}"; do
-            echo ""
-            echo "=== ${file} ==="
-            if command -v gum &>/dev/null; then
-                echo "Options: [d]iff  [o]verwrite  [s]kip  [b]ackup+overwrite"
-                read -r -p "Choice: " user_choice
-            else
-                echo "Options: diff / overwrite / skip / backup+overwrite"
-                read -r user_choice
-            fi
-
-            case "${user_choice}" in
-                d|diff)
-                    echo "--- User version (current) ---"
-                    cat "${USER_DIR}/${file}" || echo "(file not found)"
-                    echo "--- New version (skeleton) ---"
-                    cat "${SKEL_DIR}/${file}" || echo "(file not found)"
-                    echo ""
-                    # Re-prompt after diff
-                    echo "After viewing diff, choose: [o]verwrite  [s]kip  [b]ackup+overwrite"
-                    read -r user_choice
-                    ;;
-                o|overwrite)
-                    copy_skel_file "${SKEL_DIR}/${file}" "${USER_DIR}/${file}"
-                    log_info "Updated: ${file}"
-                    ;;
-                s|skip)
-                    log_info "Skipped: ${file}"
-                    ;;
-                b|backup+overwrite)
-                    backup_file "${USER_DIR}/${file}"
-                    copy_skel_file "${SKEL_DIR}/${file}" "${USER_DIR}/${file}"
-                    log_info "Updated (with backup): ${file}"
-                    ;;
-                *)
-                    log_warn "Invalid choice, skipping: ${file}"
-                    ;;
-            esac
-        done
-    elif [ "${FORCE}" = true ]; then
-        # Force mode: overwrite all skeleton files
-        while IFS= read -r -d '' skel_file; do
-            local rel_path="${skel_file#"${SKEL_DIR}"/}"
-            local user_file="${USER_DIR}/${rel_path}"
-
-            if [ -f "${user_file}" ]; then
-                copy_skel_file "${skel_file}" "${user_file}"
-            fi
-        done < <(find "${SKEL_DIR}" -type f -print0)
-        log_info "Force sync complete - all skeleton files copied"
+    if [ "${LIST_CHANGES}" = true ]; then
+        echo "=== Skeleton changes ==="
+        sync_apps
+        exit 0
     fi
 
-    # Update version and manifest
-    echo "${current_version}" > "${VERSION_FILE}"
-    write_manifest "${manifest_content}"
+    if [ "${FORCE}" = true ]; then
+        log_info "Force sync - copying all skeleton files"
+    fi
+
+    sync_apps
 
     # Generate keybindings cache
     if command -v tarion-keybindings-generate &>/dev/null; then
         tarion-keybindings-generate > /dev/null
     fi
 
-    log_info "Tarion configuration sync complete!"
+    log_info "Tarion sync complete!"
+    echo ""
+    echo "Your configs are in ${USER_DIR}"
+    echo "Skeleton is stored in ${LOCAL_DIR}"
 }
 
 main "$@"
