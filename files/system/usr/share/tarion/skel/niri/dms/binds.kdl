@@ -1,0 +1,7 @@
+binds {
+    Super+K hotkey-overlay-title="Keybinds Cheatsheet: Toggle" { spawn "dms" "ipc" "call" "keybinds" "toggle" "niri"; }
+    Super+L hotkey-overlay-title="Lock Screen" { spawn "dms" "ipc" "call" "lock" "lock"; }
+    Super+Shift+L { focus-column-left; }
+    Super+T { toggle-window-floating; }
+    Super+Ctrl+K { show-hotkey-overlay; }
+}

@@ -3,7 +3,7 @@
 # image will be published to ghcr.io/<user>/<name>
 name: tarion
 # description will be included in the image's metadata
-description: tarion - the opinionated ublue hyprland distro
+description: tarion - the opinionated ublue distro with Niri
 
 # the base image to build on top of (FROM) and the version tag to use
 base-image: ghcr.io/ublue-os/base-main

@@ -1,8 +1,10 @@
-// Niri keybindings
-bind = "SUPER", "Q", "close"
-bind = "SUPER", "M", "kill"
-bind = "SUPER", "F", "fullscreen"
-bind = "SUPER", "SPACE", "float"
-bind = "SUPER", "R", "resize"
-bind = "SUPER", "E", "snap-east"
-bind = "SUPER", "W", "snap-west"
+binds {
+
+    Mod+Return { spawn "ghostty"; }
+    Mod+Space { spawn "vicinae" "toggle"; }
+    Ctrl+Alt+Space { spawn "vicinae" "vicinae://extensions/vicinae/wm/switch-windows"; }
+    Super+Shift+v { spawn "vicinae" "vicinae://extensions/vicinae/clipboard/history"; }
+    Mod+w { spawn-sh "~/.local/bin/work-tracker prompt"; }
+    Mod+Shift+w { spawn-sh "~/.local/bin/work-tracker log"; }
+
+}
