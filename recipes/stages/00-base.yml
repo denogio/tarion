@@ -30,6 +30,7 @@ modules:
         - bluez-tools
         - bluez-cups
         - blueman
+        - iwd
 
   # Power & desktop utilities
   - type: dnf
@@ -46,6 +47,7 @@ modules:
     system:
       enabled:
         - greetd.service
+        - iwd.service
       disabled:
         - sddm.service
       masked:
