@@ -35,7 +35,7 @@ You can explain:
 - **Build System**: Blue Build, multi-stage builds, module types and ordering
 - **Configuration Management**: Always-Source pattern, theme system, tarion-sync
 - **Package Management**: tarion-pkg with brew/flatpak/dnf backends
-- **Desktop Environment**: Hyprland, DMS, Vicinae, greetd integration
+- **Desktop Environment**: niri, DMS, Vicinae, greetd integration
 - **Theme System**: 13 themes across 14+ applications
 - **Development Workflow**: Code quality, validation, testing, CI/CD
 - **Key Systems**: Wallpaper switcher, setup wizard, backup/restore

@@ -26,9 +26,9 @@ iso:
 test-iso:
     ./scripts/test-iso.sh
 
-# Validate Hyprland configurations locally
+# Validate niri configuration locally
 validate-config:
-    ./scripts/validate-hyprland.sh
+    ./scripts/validate-niri.sh
 
 alias upgrade := update
 

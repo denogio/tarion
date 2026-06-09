@@ -23,20 +23,13 @@ When the image updates, `tarion-sync` detects changed skeleton files and prompts
 
 ```
 skel/
-├── hypr/              # Hyprland window manager configs
-│   ├── bindings/      # Keybinding modules
-│   └── apps/          # Per-application window rules
+├── niri/              # niri window manager configs (config.kdl, bindings.kdl, autostart.kdl)
 ├── ghostty/           # Ghostty terminal config
-├── niri/              # Niri window manager configs (config.kdl, bindings.kdl, autostart.kdl)
 ├── vicinae/           # Vicinae launcher settings
 └── dms-plugins/       # DMS plugins
 ```
 
 ## Configuration Files
-
-### Hyprland
-Skeleton: `skel/hyprland.conf` + `skel/hypr/*.conf`
-User copy: `~/.config/hypr/hyprland.conf` + `~/.config/hypr/*.conf`
 
 ### Niri
 Skeleton: `skel/niri/config.kdl`, `skel/niri/bindings.kdl`, `skel/niri/autostart.kdl`
@@ -53,10 +46,10 @@ User copy: `~/.config/ghostty/config`
 tarion-sync --force
 
 # Show diff for a specific file
-tarion-sync --diff ~/.config/hypr/hyprland.conf
+tarion-sync --diff ~/.config/niri/config.kdl
 
 # Reset a specific app to skeleton
-rm -rf ~/.config/hypr
+rm -rf ~/.config/niri
 tarion-sync  # Will recopy on next login
 ```
 

@@ -23,7 +23,6 @@ SELECTION="$(printf '%s\n' \
     'Packages — Install' \
     'Packages — Remove' \
     'System — Update' \
-    'Config — Reload Hyprland' \
     'Greeter — Sync theme' \
     | vicinae dmenu --placeholder 'Tarion action...')"
 
@@ -72,7 +71,6 @@ case "${SELECTION}" in
     'Packages — Install')   tarion-launch-floating-terminal-with-presentation "tarion-pkg install" ;;
     'Packages — Remove')    tarion-launch-floating-terminal-with-presentation "tarion-pkg remove" ;;
     'System — Update')      tarion-launch-floating-terminal-with-presentation "tarion-update" ;;
-    'Config — Reload Hyprland') hyprctl reload ;;
     'Greeter — Sync theme') dms greeter sync ;;
     *) ;;
 esac

@@ -11,12 +11,6 @@ modules:
       - source: system/etc
         destination: /etc
 
-  # Copy Hyprland configuration files
-  - type: files
-    files:
-      - source: system/hyprland
-        destination: /
-
   # Scripts for system setup (must run after files are copied)
   - type: script
     scripts:

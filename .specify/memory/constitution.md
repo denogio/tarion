@@ -46,7 +46,7 @@ machines.
 ### II. Zero-Tolerance Quality
 
 Every shell script MUST pass ShellCheck with **zero warnings and zero errors**.
-Every Hyprland configuration MUST pass `--verify-config` validation. Every YAML
+Every niri configuration MUST pass `niri validate`. Every YAML
 recipe MUST parse cleanly with the Python `yaml` module. No exceptions.
 
 Mandatory script boilerplate:
@@ -55,7 +55,7 @@ Mandatory script boilerplate:
 set -euo pipefail
 ```
 
-Pre-commit hooks (`lint-shell.sh`, `validate-hyprland.sh`) MUST not be skipped
+Pre-commit hooks (`lint-shell.sh`, `validate-niri.sh`) MUST not be skipped
 (`--no-verify` is forbidden unless the user explicitly requests it).
 
 **Rationale**: A single ShellCheck warning allowed becomes ten; ten become
@@ -88,7 +88,7 @@ accumulates; YAGNI keeps it navigable and auditable.
 ### V. Validation-First Development
 
 No change MUST be committed without passing all applicable validators:
-`just validate-config` (Hyprland), `./scripts/lint-shell.sh` (ShellCheck),
+`just validate-config` (niri), `./scripts/lint-shell.sh` (ShellCheck),
 and YAML syntax checks. CI gates in GitHub Actions MUST enforce these checks
 on every push and pull request. A failing gate MUST block the merge.
 
@@ -99,7 +99,7 @@ container build.
 ## Technology Stack & Constraints
 
 - **Base**: Universal Blue / Fedora Atomic 43 — rpm-ostree, immutable.
-- **Window Manager**: Hyprland (COPR build, `--verify-config` required).
+- **Window Manager**: niri (scrollable-tiling Wayland compositor, `niri validate` required).
 - **Desktop Shell**: DankMaterialShell (DMS) — theming via DMS native registry
   and matugen pipeline; no custom theme files in this repo.
 - **Build System**: Blue Build v1 YAML recipes, multi-stage (cargo-builder →
@@ -115,7 +115,7 @@ container build.
 ## Development Workflow & Quality Gates
 
 1. **Make changes** — configs, scripts, or recipes.
-2. **Validate locally** — run ShellCheck, Hyprland verify, and YAML lint.
+2. **Validate locally** — run ShellCheck, niri validate, and YAML lint.
 3. **Commit** — use Conventional Commits (`feat:`, `fix:`, `docs:`, `refactor:`
    etc.). Pre-commit hooks MUST pass.
 4. **Push** — GitHub Actions runs ShellCheck, config validation, YAML checks,
@@ -126,7 +126,7 @@ container build.
 
 **Review checklist** (apply to every PR):
 - [ ] All shell scripts pass ShellCheck (zero warnings).
-- [ ] All Hyprland configs pass `--verify-config`.
+- [ ] All niri configs pass `niri validate`.
 - [ ] All YAML recipes parse cleanly.
 - [ ] No new complexity without justification (Principle IV).
 - [ ] User-space configs source system defaults (Principle III).

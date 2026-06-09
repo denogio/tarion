@@ -22,7 +22,7 @@ A clear and concise description of what you expected to happen.
 ## System Information
 - Tarion version:
 - Fedora version:
-- Desktop Environment: Hyprland
+- Desktop Environment: niri
 
 ## Screenshots
 If applicable, add screenshots to help explain your problem.

@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-**Tarion** is a developer-focused, immutable Fedora Atomic desktop distribution built with Universal Blue. It combines Hyprland (Wayland tiling WM), Vicinae launcher, and powerful developer tools to create a minimal, dark, productive desktop experience.
+**Tarion** is a developer-focused, immutable Fedora Atomic desktop distribution built with Universal Blue. It combines niri (scrollable-tiling Wayland compositor), Vicinae launcher, and powerful developer tools to create a minimal, dark, productive desktop experience.
 
 **Key Characteristics:**
 - Immutable base (rpm-ostree) with seamless updates
@@ -15,7 +15,7 @@
 
 ### Core Technologies
 - **Base**: Universal Blue / Fedora Atomic 43 (rpm-ostree)
-- **Window Manager**: Hyprland with hyprscrolling layout plugin
+- **Window Manager**: niri (scrollable-tiling Wayland compositor, PaperWM-style)
 - **Desktop Shell**: DankMaterialShell (DMS)
 - **Launcher**: Vicinae (keyboard-driven, extensible)
 - **Login Manager**: greetd + DMS-Greeter
@@ -26,7 +26,7 @@
 - **Languages**: Bash/shell scripts, YAML, Python (build scripts), Lua (Neovim)
 - **Package Management**: Homebrew (CLI), Flatpak (desktop apps), DNF (system)
 - **CLI Tools**: gum (styling), fzf (fuzzy selection), jq (JSON), ripgrep, fd, bat, eza, starship, lazygit, zoxide
-- **Validation**: ShellCheck, Hyprland --verify-config, YAML syntax check
+- **Validation**: ShellCheck, niri validate, YAML syntax check
 - **Testing**: QEMU VM for ISO testing, bwrap for sandboxed validation
 
 ## Code Quality Requirements
@@ -42,7 +42,7 @@ set -euo pipefail            # Strict error handling
 
 **Pre-commit hooks** run automatically:
 - `./scripts/lint-shell.sh` - Validates all .sh files
-- `./scripts/validate-hyprland.sh` - Validates Hyprland configs
+- `./scripts/validate-niri.sh` - Validates niri config
 
 **ShellCheck configuration** (.shellcheckrc):
 ```bash
@@ -58,7 +58,7 @@ enable=add-default-case,deprecate-which,require-variable-braces
 ### Testing Before Committing
 ```bash
 # Run all validations
-just validate-config          # Validates Hyprland configs
+just validate-config          # Validates niri config
 ./scripts/lint-shell.sh       # ShellCheck all scripts
 
 # Check YAML syntax
@@ -72,14 +72,14 @@ python3 -c "import yaml; yaml.safe_load(open('recipes/recipe.yml'))"
 just                          # Show all commands
 just iso                      # Build ISO for testing
 just test-iso                 # Test ISO in QEMU VM
-just validate-config          # Validate Hyprland configs
+just validate-config          # Validate niri config
 just update                   # Update system and Homebrew
 just upgrade                  # Alias for update
 ```
 
 ### Typical Development Cycle
 1. **Make changes** to configs, scripts, or recipes
-2. **Run validations** (ShellCheck, Hyprland validation)
+2. **Run validations** (ShellCheck, niri validation)
 3. **Test locally**: Build and test ISO (optional)
 4. **Commit** with conventional commits (feat:, fix:, docs:, etc.)
 5. **Push** - GitHub Actions will:
@@ -106,7 +106,6 @@ bluearchy/
 │   └── common/                # Runtime modules
 │       ├── greetd-modules.yml
 │       ├── common-modules.yml
-│       ├── hyprland-modules.yml
 │       ├── developer-tools.yml
 │       ├── cargo-binaries.yml
 │       ├── extra-packages.yml
@@ -126,7 +125,7 @@ bluearchy/
 │   ├── build-iso.sh
 │   ├── lint-shell.sh
 │   ├── test-iso.sh
-│   └── validate-hyprland.sh
+│   └── validate-niri.sh
 ├── docs/                      # Documentation
 │   ├── DEVELOPMENT.md
 │   ├── CONFIGURATION.md
@@ -140,7 +139,7 @@ bluearchy/
 User configs source system defaults, allowing seamless updates:
 
 ```
-~/.config/hypr/hyprland.conf    →  sources  →  /usr/share/tarion/defaults/hypr/hyprland.conf
+~/.config/niri/config.kdl        →  sources  →  /usr/share/tarion/defaults/niri/config.kdl
 ~/.config/dms/                   →  sources  →  /usr/share/tarion/defaults/dms/
 ```
 
@@ -243,13 +242,13 @@ blue-build build recipes/recipe.yml
 
 **Module order matters** (applied in sequence):
 ```
-greetd → common → hyprland → developer-tools → cargo-binaries → extra → final
+greetd → common → desktop-core → developer-tools → cargo-binaries → extra → final
 ```
 
 ### 6. Testing and Validation
 **Automated validations:**
 - **ShellCheck**: All shell scripts (zero tolerance)
-- **Hyprland validation**: All configs tested with `--verify-config` in bwrap sandbox
+- **niri validation**: skel config validated with `niri validate` (include chain assembled in a temp HOME)
 - **YAML syntax**: All recipes validated with Python yaml module
 - **Pre-commit hooks**: Ensures quality before commits
 
@@ -257,12 +256,12 @@ greetd → common → hyprland → developer-tools → cargo-binaries → extra 
 ```bash
 just iso                 # Build ISO
 just test-iso            # Test in QEMU VM
-just validate-config     # Validate Hyprland configs
+just validate-config     # Validate niri config
 ./scripts/lint-shell.sh  # Run ShellCheck
 ```
 
 **Validation scripts:**
-- `scripts/validate-hyprland.sh`: Validates 13 theme configs + 4 main configs
+- `scripts/validate-niri.sh`: Validates the skel niri config (full include chain)
 - `scripts/lint-shell.sh`: Lints 30+ shell scripts
 - YAML validation in GitHub Actions
 
@@ -314,12 +313,12 @@ done
 - type: dnf
   install:
     packages:
-      - hyprland
-      - waybar
+      - niri
+      - dms
   repos:
     copr:
       enable:
-        - vijay/Hyprland
+        - errornointernet/quickshell
 ```
 
 **Systemd modules:**
@@ -376,7 +375,7 @@ done
 set -euo pipefail
 
 # === Managed: Sourced from system defaults ===
-source /usr/share/tarion/defaults/hypr/hyprland.conf
+source /usr/share/tarion/defaults/niri/config.kdl
 
 # === User customizations ===
 # Add your custom configurations here
@@ -405,7 +404,7 @@ systemctl --user restart vicinae
 dms reload
 ```
 
-### Reset Hyprland config
+### Reset niri config
 ```bash
 tarion-sync --force  # Restore from system defaults
 ```
@@ -413,7 +412,7 @@ tarion-sync --force  # Restore from system defaults
 ### Build errors
 1. Check ShellCheck: `./scripts/lint-shell.sh`
 2. Check YAML: `python3 -c "import yaml; yaml.safe_load(open('recipes/recipe.yml'))"`
-3. Check Hyprland configs: `just validate-config`
+3. Check niri config: `just validate-config`
 
 ### Package installation issues
 ```bash
@@ -460,7 +459,7 @@ tarion-pkg install           # Re-run interactive install
 ## File Locations
 
 ### Key Configuration Files
-- **Hyprland**: `~/.config/hypr/hyprland.conf` → sources `/usr/share/tarion/defaults/hypr/hyprland.conf`
+- **niri**: `~/.config/niri/config.kdl` → includes `~/.local/share/tarion/niri/config.kdl`
 - **DMS**: `~/.config/dms/` → sources `/usr/share/tarion/defaults/dms/`
 - **Vicinae**: `~/.config/vicinae/`
 - **Ghostty**: `~/.config/ghostty/config`

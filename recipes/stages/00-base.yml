@@ -41,6 +41,7 @@ modules:
         - adw-gtk3-theme
         - sshfs
         - swappy
+        - gvfs-smb
 
   # Systemd services configuration
   - type: systemd

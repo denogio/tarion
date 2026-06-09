@@ -19,7 +19,7 @@ stages:
 # Define modules - optimized for layer caching
 modules:
   - from-file: stages/00-base.yml        # Kernel and system packages
-  - from-file: stages/01-desktop-core.yml # Hyprland, Niri and DMS
+  - from-file: stages/01-desktop-core.yml # Niri and DMS
   - from-file: stages/02-tools.yml        # Developer tools
   - from-file: stages/02b-virt-net.yml   # Virtualization and networking (Docker, Netbird)
   - from-file: stages/03-apps.yml         # User applications
