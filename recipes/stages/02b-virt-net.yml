@@ -21,19 +21,18 @@ modules:
       - source: dnf/netbird.repo
         destination: /etc/yum.repos.d/netbird.repo
 
-  # Netbird from official repo. Installed via script with
-  # --setopt=tsflags=noscripts because the netbird RPM's unguarded %post runs
-  # "netbird service install/start" which fails inside the build container
-  # (no running systemd). We manually create the systemd unit that the %post
-  # script would have generated, so the service is ready on first boot.
+  # Netbird from official repo. Installed with --setopt=tsflags=noscripts
+  # to skip the RPM %post scriptlet, which runs "netbird service start"
+  # and fails inside the build container (no running systemd). The systemd
+  # unit that %post would have created is generated manually below.
   - type: script
     snippets:
       - |
         rpm --import https://pkgs.netbird.io/yum/repodata/repomd.xml.key
         dnf install -y --setopt=tsflags=noscripts netbird netbird-ui
 
-        # Create the systemd service unit that "netbird service install" would
-        # have generated. Without this the unit does not exist on the image.
+        # Create the systemd service unit that "netbird service install"
+        # in the RPM %post would have generated.
         mkdir -p /etc/systemd/system
         cat > /etc/systemd/system/netbird.service <<'EOF'
         [Unit]
@@ -52,7 +51,11 @@ modules:
         WantedBy=multi-user.target
         EOF
 
-        systemctl enable netbird.service
+        # Enable the service by creating the wants symlink manually
+        # (systemctl enable fails in build containers without running systemd).
+        mkdir -p /etc/systemd/system/multi-user.target.wants
+        ln -sf /etc/systemd/system/netbird.service \
+          /etc/systemd/system/multi-user.target.wants/netbird.service
 
   # Virtualization and mobile emulation
   - type: dnf
