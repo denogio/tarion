@@ -64,7 +64,6 @@ modules:
         - docker.service
         - containerd.service
         - waydroid-container.service
-        - netbird.service
       masked:
         - wpa_supplicant.service
   

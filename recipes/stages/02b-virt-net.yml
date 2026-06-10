@@ -24,13 +24,35 @@ modules:
   # Netbird from official repo. Installed via script with
   # --setopt=tsflags=noscripts because the netbird RPM's unguarded %post runs
   # "netbird service install/start" which fails inside the build container
-  # (no running systemd). The service is enabled declaratively in
-  # 06-services.yml so it starts on first boot.
+  # (no running systemd). We manually create the systemd unit that the %post
+  # script would have generated, so the service is ready on first boot.
   - type: script
     snippets:
       - |
         rpm --import https://pkgs.netbird.io/yum/repodata/repomd.xml.key
         dnf install -y --setopt=tsflags=noscripts netbird netbird-ui
+
+        # Create the systemd service unit that "netbird service install" would
+        # have generated. Without this the unit does not exist on the image.
+        mkdir -p /etc/systemd/system
+        cat > /etc/systemd/system/netbird.service <<'EOF'
+        [Unit]
+        Description=NetBird mesh network client
+        ConditionFileIsExecutable=/usr/bin/netbird
+        After=network.target syslog.target
+
+        [Service]
+        StartLimitInterval=5
+        StartLimitBurst=10
+        ExecStart=/usr/bin/netbird service run --log-level info --daemon-addr unix:///var/run/netbird.sock --log-file /var/log/netbird/client.log
+        Restart=always
+        RestartSec=5
+
+        [Install]
+        WantedBy=multi-user.target
+        EOF
+
+        systemctl enable netbird.service
 
   # Virtualization and mobile emulation
   - type: dnf
