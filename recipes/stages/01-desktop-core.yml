@@ -30,5 +30,17 @@ modules:
         - nerd-fonts-cascadiacode
 
         # Utilities
-        - uwsm
         - xdg-terminal-exec
+
+  # uwsm (Universal Wayland Session Manager) is not packaged in Fedora; pull it
+  # from the solopasha/hyprland COPR. Kept in its own module so the COPR is only
+  # in scope for this single package and cannot shadow the Fedora niri/dms above.
+  - type: dnf
+    repos:
+      copr:
+        enable:
+          - solopasha/hyprland
+    install:
+      install-weak-deps: false
+      packages:
+        - uwsm
