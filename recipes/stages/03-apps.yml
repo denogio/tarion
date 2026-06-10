@@ -29,7 +29,8 @@ modules:
         - libopenjph
         - heif-pixbuf-loader
         - ffmpegthumbnailer
-        - rar
+        # Note: `rar` (proprietary archiver) was removed — not available in Fedora repos.
+        # Users who need RAR support can install `unrar` (free extractor) from RPM Fusion.
     
     replace:
       - from-repo: fedora
@@ -112,15 +113,6 @@ modules:
           - io.github.flattool.Warehouse       # Flatpak management GUI
           # Default browser - Tarion's preferred browser
           - org.chromium.Chromium            # Chromium web browser
-        notify: true
-
-      # Valent - phone integration from official repo
-      - scope: system
-        repo:
-          title: Valent
-          url: https://valent.andyholmes.ca/repo
-        install:
-          - ca.andyholmes.Valent
         notify: true
 
       # User scope - optional user-preferred apps
