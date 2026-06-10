@@ -43,22 +43,9 @@ modules:
         - swappy
         - gvfs-smb
 
-  # Systemd services configuration
-  - type: systemd
-    system:
-      enabled:
-        - greetd.service
-        - iwd.service
-      disabled:
-        - sddm.service
-      masked:
-        - wpa_supplicant.service
-
-  # User services
-  - type: systemd
-    user:
-      enabled:
-        - gcr-ssh-agent.socket
+  # NOTE: systemd unit enablement lives in 06-services.yml, which runs after
+  # 03-apps.yml installs the packages (gcr, etc.). Enabling here failed because
+  # those units don't exist yet at this stage.
 
   # Final cleanup scripts
   - type: script
