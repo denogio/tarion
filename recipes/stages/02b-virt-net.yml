@@ -14,20 +14,23 @@ modules:
         - docker-buildx-plugin
         - docker-compose-plugin
 
-  # Netbird from official repo. The upstream netbird.repo convenience URL now
-  # 404s, so ship a local repo file (files/dnf/netbird.repo) and import the
-  # signing key for the gpgcheck/repo_gpgcheck=1 repo.
-  - type: dnf
-    repos:
-      files:
-        - netbird.repo
-      keys:
-        - https://pkgs.netbird.io/yum/repodata/repomd.xml.key
-    install:
-      install-weak-deps: false
-      packages:
-        - netbird
-        - netbird-ui
+  # Netbird repo configuration (shipped locally; upstream .repo URL 404s).
+  # Placed before the dnf module so the repo is available during build.
+  - type: files
+    files:
+      - source: dnf/netbird.repo
+        destination: /etc/yum.repos.d/netbird.repo
+
+  # Netbird from official repo. Installed via script with
+  # --setopt=tsflags=noscripts because the netbird RPM's unguarded %post runs
+  # "netbird service install/start" which fails inside the build container
+  # (no running systemd). The service is enabled declaratively in
+  # 06-services.yml so it starts on first boot.
+  - type: script
+    snippets:
+      - |
+        rpm --import https://pkgs.netbird.io/yum/repodata/repomd.xml.key
+        dnf install -y --setopt=tsflags=noscripts netbird netbird-ui
 
   # Virtualization and mobile emulation
   - type: dnf
