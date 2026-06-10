@@ -20,7 +20,9 @@ modules:
 
         # Wayland components
         - xdg-desktop-portal-gnome
+        - xdg-desktop-portal-gtk
         - gtk4-layer-shell
+        - xwayland-satellite
 
         # Nerd fonts (available from washkinazy/wayland-wm-extras)
         - nerd-fonts-jetbrainsmono
