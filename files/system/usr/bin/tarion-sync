@@ -137,6 +137,29 @@ copy_skel_to_local() {
     cp "${skel_file}" "${local_file}"
 }
 
+# Seed DMS-managed niri configs into ~/.config/niri/dms/.
+# DMS writes these files itself at runtime, and config.kdl includes them by
+# absolute path, so we only seed defaults when a target is missing — existing
+# DMS/user files are never overwritten (not even on --force).
+seed_dms_config() {
+    local dms_skel="${SKEL_DIR}/niri/dms"
+    [ -d "${dms_skel}" ] || return 0
+
+    local seeded=0 skel_file rel_path dest
+    while IFS= read -r -d '' skel_file; do
+        rel_path="${skel_file#"${dms_skel}"/}"
+        dest="${USER_DIR}/niri/dms/${rel_path}"
+        if [ ! -e "${dest}" ]; then
+            mkdir -p "$(dirname "${dest}")"
+            cp "${skel_file}" "${dest}"
+            seeded=$((seeded + 1))
+        fi
+    done < <(find "${dms_skel}" -type f -print0)
+
+    [ "${seeded}" -gt 0 ] && log_info "Seeded ${seeded} DMS config(s) into ${USER_DIR}/niri/dms"
+    return 0
+}
+
 # Sync all apps
 sync_apps() {
     local changed_count=0
@@ -149,6 +172,11 @@ sync_apps() {
 
         # Skip backup files
         [[ "${rel_path}" == *".save"* ]] && continue
+
+        # DMS-managed configs are seeded into ~/.config/niri/dms/ by
+        # seed_dms_config() (DMS owns them at runtime); never route them
+        # through the local-dir include chain.
+        [[ "${rel_path}" == niri/dms/* ]] && continue
 
         # Calculate checksums
         local skel_checksum
@@ -243,6 +271,7 @@ main() {
     fi
 
     sync_apps
+    seed_dms_config
 
     # Generate keybindings cache
     if command -v tarion-keybindings-generate &>/dev/null; then

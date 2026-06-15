@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 # Validate the niri configuration shipped in the skeleton.
 # Mirrors tarion-sync: the skel config.kdl includes
-# ~/.local/share/tarion/niri/{bindings,autostart}.kdl and relative dms/*.kdl,
-# so we assemble a temporary HOME and validate the full include chain.
+# ~/.local/share/tarion/niri/{bindings,autostart}.kdl and the DMS-managed
+# configs by absolute path under ~/.config/niri/dms/ (seeded on first run),
+# so we assemble a temporary HOME with both locations and validate the full
+# include chain.
 # Requires: niri
 
 set -euo pipefail
@@ -27,6 +29,13 @@ trap 'rm -rf "${tmp_home}"' EXIT
 
 mkdir -p "${tmp_home}/.local/share/tarion"
 cp -r "${SKEL_NIRI}" "${tmp_home}/.local/share/tarion/niri"
+
+# DMS-managed configs are included by absolute path (~/.config/niri/dms/);
+# seed them there as tarion-sync would on first run.
+if [ -d "${SKEL_NIRI}/dms" ]; then
+    mkdir -p "${tmp_home}/.config/niri"
+    cp -r "${SKEL_NIRI}/dms" "${tmp_home}/.config/niri/dms"
+fi
 
 config="${tmp_home}/.local/share/tarion/niri/config.kdl"
 

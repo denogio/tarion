@@ -1,1 +1,3 @@
-/home/dehoej/.config/niri/dms/profiles/profile_1778535738699_qn75op.kdl
+// Placeholder seeded by tarion-sync. DMS manages monitor output configuration
+// here at runtime (typically as a symlink to a generated profile under
+// ~/.config/niri/dms/profiles/). Empty by default → niri uses autodetected modes.

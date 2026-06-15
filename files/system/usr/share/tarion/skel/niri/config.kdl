@@ -643,10 +643,13 @@ environment {
 }
 
 
-include "dms/cursor.kdl"
-include "dms/windowrules.kdl"
-include "dms/outputs.kdl"
-include "dms/alttab.kdl"
-include "dms/binds.kdl"
-include "dms/layout.kdl"
-include "dms/colors.kdl"
+// DMS-managed configs live in ~/.config/niri/dms/ (written by DMS at runtime).
+// Absolute paths so they resolve to the live DMS dir regardless of where this
+// file is included from. Seeded on first run by tarion-sync; DMS overwrites them.
+include "~/.config/niri/dms/cursor.kdl"
+include "~/.config/niri/dms/windowrules.kdl"
+include "~/.config/niri/dms/outputs.kdl"
+include "~/.config/niri/dms/alttab.kdl"
+include "~/.config/niri/dms/binds.kdl"
+include "~/.config/niri/dms/layout.kdl"
+include "~/.config/niri/dms/colors.kdl"
