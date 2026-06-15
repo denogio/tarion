@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Close all open windows on niri, then focus the first workspace.
+niri msg --json windows \
+  | jq -r '.[].id' \
+  | while IFS= read -r id; do
+      [[ -n "${id}" ]] && niri msg action close-window --id "${id}"
+    done
+
+niri msg action focus-workspace 1

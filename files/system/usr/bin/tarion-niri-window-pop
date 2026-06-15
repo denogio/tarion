@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+set -euo pipefail
+# Tarion Window Pop Toggle (niri)
+# Toggle the focused window between tiled and a centered floating "pop-out".
+
+# Arguments:
+#   width   Optional. Width of the floating window in px. Default: 1300
+#   height  Optional. Height of the floating window in px. Default: 900
+
+width="${1:-1300}"
+height="${2:-900}"
+
+is_floating="$(niri msg --json focused-window | jq -r '.is_floating // false')"
+
+niri msg action toggle-window-floating
+
+# When popping out to floating, size and center it.
+if [[ "${is_floating}" != "true" ]]; then
+  niri msg action set-window-width "${width}"
+  niri msg action set-window-height "${height}"
+  niri msg action center-window
+fi

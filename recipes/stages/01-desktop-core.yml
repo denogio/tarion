@@ -1,11 +1,10 @@
 # yaml-language-server: $schema=https://schema.blue-build.org/module-stage-list-v1.json
 modules:
-  # Hyprland and Wayland packages
+  # Wayland packages (niri + DMS)
   - type: dnf
     repos:
       copr:
         enable:
-          - lionheartp/Hyprland
           - scottames/ghostty
           - avengemedia/dms
           - washkinazy/wayland-wm-extras
@@ -14,22 +13,34 @@ modules:
       packages:
         # Terminal
         - ghostty
-        
+
         # Window manager and desktop shell
-        - hyprland
+        - niri
         - dms
-        
+
         # Wayland components
-        - xdg-desktop-portal-hyprland
-        - hyprland-guiutils
+        - xdg-desktop-portal-gnome
+        - xdg-desktop-portal-gtk
         - gtk4-layer-shell
-        
+        - xwayland-satellite
+
         # Nerd fonts (available from washkinazy/wayland-wm-extras)
         - nerd-fonts-jetbrainsmono
         - nerd-fonts-firacode
         - nerd-fonts-cascadiacode
-        
+
         # Utilities
-        - uwsm
         - xdg-terminal-exec
-        - hyprsysteminfo
+
+  # uwsm (Universal Wayland Session Manager) is not packaged in Fedora; pull it
+  # from the nett00n/hyprland COPR. Kept in its own module so the COPR is only
+  # in scope for this single package and cannot shadow the Fedora niri/dms above.
+  - type: dnf
+    repos:
+      copr:
+        enable:
+          - nett00n/hyprland
+    install:
+      install-weak-deps: false
+      packages:
+        - uwsm

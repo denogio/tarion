@@ -12,17 +12,16 @@
 [![bluebuild build badge](https://github.com/denogio/tarion/actions/workflows/build.yml/badge.svg)](https://github.com/denogio/tarion/actions/workflows/build.yml)
 
 **Tarion** is a developer-focused, immutable Fedora Atomic distro built with Universal Blue.
-It combines Hyprland, Vicinae launcher, and powerful developer tools to create a minimal,
+It combines niri, Vicinae launcher, and powerful developer tools to create a minimal,
 dark, and unapologetically productive desktop experience.
 
 Minimal. Dark. Developer-First. Atomic.
 
 ## Features
 
-- **Hyprland** - Fast, dynamic tiling Wayland compositor
+- **niri** - Scrollable-tiling Wayland compositor (PaperWM-style, native)
 - **DankMaterialShell (DMS)** - Modern desktop shell providing widgets, top bar, and notification management
 - **Greetd + DMS-Greeter** - Secure, integrated login manager and lock screen
-- **Hyprscrolling** - Native scrolling layout plugin for Hyprland (PaperWM-style)
 - **Vicinae** - Keyboard-driven launcher with plugins and dmenu support
 - **Ghostty** - Modern terminal emulator
 - **Developer Tools** - Homebrew-based installation of ripgrep, fd, bat, eza, starship, lazygit, zoxide
@@ -120,7 +119,7 @@ Tarion uses Vicinae as the primary launcher with extensive customizations:
 
 ## Keybindings
 
-### Hyprland:
+### niri:
 - **SUPER+Enter** - Open terminal (Ghostty)
 - **SUPER+E** - File manager (Thunar)
 - **SUPER+Space** - Vicinae launcher
@@ -283,7 +282,7 @@ cosign verify --key cosign.pub ghcr.io/denogio/tarion
 ## Configuration Files
 
 Key configuration locations:
-- **Hyprland:** `~/.config/hypr/hyprland.conf`
+- **niri:** `~/.config/niri/config.kdl`
 - **DMS:** `~/.config/dms/`
 - **Vicinae:** `~/.config/vicinae/`
 - **Ghostty:** `~/.config/ghostty/config`
@@ -302,7 +301,7 @@ systemctl --user restart vicinae
 dms reload
 ```
 
-### Reset Hyprland config
+### Reset niri config
 If you have messed up your configuration, you can force a sync from the system defaults:
 ```bash
 tarion-sync --force
@@ -388,15 +387,14 @@ See [LICENSE](LICENSE) for details.
 Built with ❤️ using:
 - [Universal Blue](https://universal-blue.org/)
 - [Fedora Atomic](https://fedoraproject.org/atomic-desktops/)
-- [Hyprland](https://hyprland.org/)
+- [niri](https://github.com/YaLTeR/niri) - Scrollable-tiling Wayland compositor
 - [DankMaterialShell](https://github.com/avengemedia/dms) - Premium desktop shell
-- [Hyprscrolling](https://github.com/hyprwm/contrib) - PaperWM-style window management
 - [greetd](https://git.sr.ht/~kennylevinsen/greetd) - Login manager daemon
 - [Vicinae](https://vicinae.com/)
 - [Blue Build](https://blue-build.org/)
 - [Wayblue](https://github.com/wayblueorg)
 
 ### Inspiration
-Tarion is inspired by and partly based on [Omarchy](https://github.com/omarchy/omarchy). Many of the configuration patterns and architectural decisions are derived from their work in building a cohesive Hyprland experience on Fedora Atomic.
+Tarion is inspired by and partly based on [Omarchy](https://github.com/omarchy/omarchy). Many of the configuration patterns and architectural decisions are derived from their work in building a cohesive tiling-Wayland experience on Fedora Atomic.
 
 Made with 🖤 by [denogio](https://github.com/denogio)

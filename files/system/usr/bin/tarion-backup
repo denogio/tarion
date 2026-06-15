@@ -22,7 +22,7 @@ gum style \
 
 # Show what will be backed up
 gum style --foreground 226 "Backing up:"
-gum style --foreground 244 "  - Hyprland config (~/.config/hypr)"
+gum style --foreground 244 "  - niri config (~/.config/niri)"
 gum style --foreground 244 "  - Waybar config (~/.config/waybar)"
 gum style --foreground 244 "  - Vicinae config (~/.config/vicinae)"
 gum style --foreground 244 "  - Neovim config (~/.config/nvim)"
@@ -34,7 +34,7 @@ echo ""
 
 # Create backup
 gum spin --spinner dot --title "Creating backup..." -- tar -czf "${BACKUP_FILE}" \
-    "${HOME}/.config/hypr" \
+    "${HOME}/.config/niri" \
     "${HOME}/.config/waybar" \
     "${HOME}/.config/vicinae" \
     "${HOME}/.config/nvim" \

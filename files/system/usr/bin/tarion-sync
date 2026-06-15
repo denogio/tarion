@@ -1,178 +1,287 @@
 #!/usr/bin/env bash
 # Tarion configuration synchronization utility
-# Ensures ~/.config links to /usr/share/tarion/defaults/ for system defaults
+# Maintains skeleton configs in ~/.local/share/tarion/ with user overrides in ~/.config/
 set -euo pipefail
 
-# Source XDG path helper
 source /usr/lib/tarion/xdg-paths.sh
 
-SYNC_HEADER="# -- TARION MANAGED --"
-DEFAULTS_DIR="/usr/share/tarion/defaults"
-USER_CONFIG_DIR="${HOME}/.config"
-STATE_DIR=$(get_tarion_cache_dir)  # Cache, not state (tracks last sync time)
-STATE_FILE="${STATE_DIR}/last-sync"
+SKEL_DIR="/usr/share/tarion/skel"
+LOCAL_DIR="${HOME}/.local/share/tarion"
+USER_DIR="${HOME}/.config"
+STATE_DIR=$(get_tarion_cache_dir)
+MANIFEST="${STATE_DIR}/skel-manifest"
 
-# Smart Check: Only run if the image has changed
-# On atomic systems, /usr is updated as a whole, changing mtime of this dir
-IMAGE_ID=$(stat -c %Y "${DEFAULTS_DIR}" 2>/dev/null || echo "0")
-LAST_ID=$(cat "${STATE_FILE}" 2>/dev/null || echo "-1")
+# Colors
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+CYAN='\033[0;36m'
+NC='\033[0m'
 
-if [ "${IMAGE_ID}" == "${LAST_ID}" ]; then
-    # Image is the same, no need to sync unless explicitly forced
-    if [[ "${1:-}" != "--force" ]]; then
-        exit 0
+FORCE=false
+SHOW_DIFF_FILE=""
+LIST_CHANGES=false
+
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --force)
+            FORCE=true
+            shift
+            ;;
+        --diff)
+            SHOW_DIFF_FILE="$2"
+            shift 2
+            ;;
+        --list)
+            LIST_CHANGES=true
+            shift
+            ;;
+        *)
+            echo "Usage: tarion-sync [--force] [--diff <file>] [--list]"
+            exit 1
+            ;;
+    esac
+done
+
+log_info() { echo -e "${GREEN}✓${NC} $*"; }
+log_warn() { echo -e "${YELLOW}⚠${NC} $*"; }
+log_error() { echo -e "${RED}✗${NC} $*" >&2; }
+
+# Get file SHA256
+sha256_file() {
+    sha256sum "${1}" 2>/dev/null | awk '{print $1}'
+}
+
+# Read manifest
+read_manifest() {
+    if [ -f "${MANIFEST}" ]; then
+        cat "${MANIFEST}"
     fi
-fi
+}
 
-# Bootstrap Check: Ensure brew tools are installed on first use
-BOOTSTRAP_DONE_FILE=$(get_tarion_file "state" "bootstrap-done")
-if [ ! -f "${BOOTSTRAP_DONE_FILE}" ]; then
-    # Run bootstrap in a unified presentation window
-    tarion-launch-floating-terminal-with-presentation tarion-bootstrap
-fi
+# Write manifest
+write_manifest() {
+    local content="${1}"
+    mkdir -p "$(dirname "${MANIFEST}")"
+    echo "${content}" > "${MANIFEST}"
+}
 
-sync_app() {
-    local app=$1
-    local src_file=$2
-    local dest_file=$3
-    local source_cmd=$4
+# Entry-point configs that get a user-side include stub in ~/.config.
+# Everything else in the skeleton is pulled in transitively from
+# ~/.local/share/tarion/ by these entry points and must NOT be stubbed
+# (e.g. niri/config.kdl includes bindings.kdl, autostart.kdl, dms/*.kdl).
+is_entry_point() {
+    case "${1}" in
+        niri/config.kdl) return 0 ;;
+        *) return 1 ;;
+    esac
+}
 
-    mkdir -p "$(dirname "${dest_file}")"
+# Write the managed user-side stub that includes the system default for rel_path.
+write_tarion_stub() {
+    local rel_path="${1}"
+    local user_conf="${USER_DIR}/${rel_path}"
+    cat > "${user_conf}" <<EOF
+//
+//                                     ▄▄▄ ▄▄ ▄▄
+//     ██              ▀▀               █  █ ▀ █
+//    ▀██▀▀ ▀▀█▄ ████▄ ██  ▄███▄ ████▄
+//     ██  ▄█▀██ ██ ▀▀ ██  ██ ██ ██ ██
+//     ██  ▀█▄██ ██    ██▄ ▀███▀ ██ ██
+//
+//  System defaults: keybinds, layout, animations, window rules.
+//  Updated when you rebuild Tarion.
+//
+//  Inspect: bat ~/.local/share/tarion/${rel_path}
+//
 
-    # If file doesn't exist, create it with sourcing
-    if [ ! -f "${dest_file}" ]; then
-        echo "Creating default config for ${app}..."
-        echo "${SYNC_HEADER}" > "${dest_file}"
-        echo "${source_cmd} ${src_file}" >> "${dest_file}"
-        return
+include "~/.local/share/tarion/${rel_path}"
+
+// ═══════════════════════════════════════════════════════════════
+//   NO EDITS ABOVE THIS LINE - keep the include intact
+// ═══════════════════════════════════════════════════════════════
+
+// user config can be placed here
+EOF
+}
+
+# Ensure the user's entry-point config carries the tarion include.
+# Existing files that already include the default are left untouched so
+# user customizations below the include line are preserved.
+ensure_tarion_include() {
+    local rel_path="${1}"
+    local user_conf="${USER_DIR}/${rel_path}"
+    local include_line="include \"~/.local/share/tarion/${rel_path}\""
+
+    mkdir -p "$(dirname "${user_conf}")"
+
+    if [ ! -f "${user_conf}" ]; then
+        write_tarion_stub "${rel_path}"
+        log_info "Created ${rel_path} with tarion include"
+    elif ! grep -qF "${include_line}" "${user_conf}"; then
+        # Existing file without our include: back it up before replacing
+        # so we never silently destroy user content.
+        cp "${user_conf}" "${user_conf}.bak.$(date +%Y%m%d%H%M%S)"
+        write_tarion_stub "${rel_path}"
+        log_warn "Replaced ${rel_path} with tarion include (backup saved)"
     fi
+}
 
-    # If it exists, check if it's managed
-    if grep -q "${SYNC_HEADER}" "${dest_file}"; then
-        # Update sourcing line if needed
-        if ! grep -q "${src_file}" "${dest_file}"; then
-            echo "Updating ${app} sourcing path..."
-            sed -i "s|${source_cmd} .*|${source_cmd} ${src_file}|" "${dest_file}"
+# Copy skeleton to local
+copy_skel_to_local() {
+    local skel_file="${1}"
+    local rel_path="${skel_file#"${SKEL_DIR}"/}"
+    local local_file="${LOCAL_DIR}/${rel_path}"
+
+    mkdir -p "$(dirname "${local_file}")"
+    cp "${skel_file}" "${local_file}"
+}
+
+# Seed DMS-managed niri configs into ~/.config/niri/dms/.
+# DMS writes these files itself at runtime, and config.kdl includes them by
+# absolute path, so we only seed defaults when a target is missing — existing
+# DMS/user files are never overwritten (not even on --force).
+seed_dms_config() {
+    local dms_skel="${SKEL_DIR}/niri/dms"
+    [ -d "${dms_skel}" ] || return 0
+
+    local seeded=0 skel_file rel_path dest
+    while IFS= read -r -d '' skel_file; do
+        rel_path="${skel_file#"${dms_skel}"/}"
+        dest="${USER_DIR}/niri/dms/${rel_path}"
+        if [ ! -e "${dest}" ]; then
+            mkdir -p "$(dirname "${dest}")"
+            cp "${skel_file}" "${dest}"
+            seeded=$((seeded + 1))
+        fi
+    done < <(find "${dms_skel}" -type f -print0)
+
+    [ "${seeded}" -gt 0 ] && log_info "Seeded ${seeded} DMS config(s) into ${USER_DIR}/niri/dms"
+    return 0
+}
+
+# Sync all apps
+sync_apps() {
+    local changed_count=0
+    local manifest_content=""
+
+    # Walk through skeleton
+    while IFS= read -r -d '' skel_file; do
+        local rel_path="${skel_file#"${SKEL_DIR}"/}"
+        local local_file="${LOCAL_DIR}/${rel_path}"
+
+        # Skip backup files
+        [[ "${rel_path}" == *".save"* ]] && continue
+
+        # DMS-managed configs are seeded into ~/.config/niri/dms/ by
+        # seed_dms_config() (DMS owns them at runtime); never route them
+        # through the local-dir include chain.
+        [[ "${rel_path}" == niri/dms/* ]] && continue
+
+        # Calculate checksums
+        local skel_checksum
+        skel_checksum=$(sha256_file "${skel_file}")
+
+        local local_checksum=""
+        local_checksum=$(sha256_file "${local_file}" 2>/dev/null || echo "")
+
+        local needs_update=false
+
+        if [ ! -f "${local_file}" ]; then
+            # New file in skeleton
+            needs_update=true
+        elif [ "${local_checksum}" != "${skel_checksum}" ]; then
+            # Skeleton changed
+            needs_update=true
+        fi
+
+        if [ "${needs_update}" = true ]; then
+            if [ "${LIST_CHANGES}" = true ]; then
+                echo -e "${CYAN}${rel_path}${NC}"
+            else
+                copy_skel_to_local "${skel_file}"
+                # Only entry-point configs get a user-side include stub;
+                # transitively-included files live solely in ${LOCAL_DIR}.
+                if is_entry_point "${rel_path}"; then
+                    ensure_tarion_include "${rel_path}"
+                fi
+            fi
+            changed_count=$((changed_count + 1))
+        fi
+
+        manifest_content+="${rel_path}|${skel_checksum}"$'\n'
+    done < <(find "${SKEL_DIR}" -type f -print0)
+
+    if [ "${LIST_CHANGES}" = true ]; then
+        if [ "${changed_count}" -eq 0 ]; then
+            echo "No changes in skeleton"
+        else
+            echo "${changed_count} file(s) changed"
         fi
     else
-        # Not managed, check if we should add sourcing
-        if ! grep -q "${src_file}" "${dest_file}"; then
-            echo "Heads up: ${dest_file} is custom but missing tarion defaults."
-            # Optionally add it to the top? 
-            # We'll be conservative for now and just suggest it or let the user do it.
-        fi
+        write_manifest "${manifest_content}"
+        log_info "Synced ${changed_count} file(s) from skeleton to ${LOCAL_DIR}"
     fi
 }
 
-# Hyprland - Create user config that sources system defaults + user overrides
-HYPR_USER_CONF="${USER_CONFIG_DIR}/hypr/hyprland.conf"
-mkdir -p "$(dirname "${HYPR_USER_CONF}")"
+# Show diff between local and user config
+show_diff() {
+    local file="${1#"${HOME}/.config/"}"
+    local local_file="${LOCAL_DIR}/${file}"
+    local user_file="${HOME}/.config/${file}"
 
-if [ ! -f "${HYPR_USER_CONF}" ] || grep -q "${SYNC_HEADER}" "${HYPR_USER_CONF}"; then
-    echo "Creating Hyprland user config..."
-    cat > "${HYPR_USER_CONF}" <<EOF
-${SYNC_HEADER}
-# Tarion Hyprland Configuration
-# This file sources system defaults and then applies user-specific overrides
+    if [ ! -f "${local_file}" ]; then
+        log_error "No local skeleton found for ${file}"
+        exit 1
+    fi
 
-# 1. Source system defaults (keybindings, look & feel, etc.)
-source = ${DEFAULTS_DIR}/hyprland.conf
+    if [ ! -f "${user_file}" ]; then
+        log_error "No user config found for ${file}"
+        exit 1
+    fi
 
-# 2. Source user-specific input config (keyboard layout, etc.)
-source = ~/.config/hypr/input.conf
-
-# 3. Source user window rules
-source = ~/.config/hypr/windowrules.conf
-
-# 4. Add your custom overrides below this line
-# Example:
-# bind = SUPER, T, exec, custom-script
-EOF
-fi
-
-# Hyprland user windowrules — create stub if missing
-HYPR_WINDOWRULES="${USER_CONFIG_DIR}/hypr/windowrules.conf"
-if [ ! -f "${HYPR_WINDOWRULES}" ]; then
-    echo "Creating user windowrules stub..."
-    cat > "${HYPR_WINDOWRULES}" <<'EOF'
-# User window rules
-# See https://wiki.hyprland.org/Configuring/Window-Rules/
-#
-# Examples:
-# windowrule = float on, match:class myapp
-# windowrule = tag +floating-window, match:class myapp
-EOF
-fi
-
-# Ghostty
-sync_app "Ghostty" "${DEFAULTS_DIR}/ghostty/config" "${USER_CONFIG_DIR}/ghostty/config" "config-file ="
-
-# Hyprland Input - Dynamic keyboard layout based on locale
-HYPR_INPUT_DEST="${USER_CONFIG_DIR}/hypr/input.conf"
-mkdir -p "$(dirname "${HYPR_INPUT_DEST}")"
-
-# Detect keyboard layout from system locale
-# Match on country code (e.g. en_DK → dk) so non-native locales work correctly
-LOCALE_LANG="${LANG%%.*}"        # e.g. "en_DK.UTF-8" -> "en_DK"
-COUNTRY="${LOCALE_LANG##*_}"     # e.g. "en_DK" -> "DK"
-COUNTRY="${COUNTRY^^}"           # normalise to uppercase
-KB_LAYOUT="us"                   # Default fallback
-
-case "${COUNTRY}" in
-    DK) KB_LAYOUT="dk" ;;
-    DE|AT) KB_LAYOUT="de" ;;
-    FR) KB_LAYOUT="fr" ;;
-    ES) KB_LAYOUT="es" ;;
-    IT) KB_LAYOUT="it" ;;
-    SE) KB_LAYOUT="se" ;;
-    NO) KB_LAYOUT="no" ;;
-    FI) KB_LAYOUT="fi" ;;
-    NL|BE) KB_LAYOUT="nl" ;;
-    PL) KB_LAYOUT="pl" ;;
-    PT|BR) KB_LAYOUT="pt" ;;
-    RU) KB_LAYOUT="ru" ;;
-    US|GB|AU|CA|NZ) KB_LAYOUT="us" ;;
-    *) KB_LAYOUT="us" ;;
-esac
-
-# Create user input.conf with detected layout
-cat > "${HYPR_INPUT_DEST}" <<EOF
-# Auto-generated by tarion-sync
-# Source system defaults
-source = ${DEFAULTS_DIR}/hypr/input.conf
-
-# Override keyboard layout based on system locale (${LOCALE_LANG})
-input {
-    kb_layout = ${KB_LAYOUT}
+    echo "=== Diff for ${file} ==="
+    echo "--- Local (skeleton): ${local_file} ---"
+    cat "${local_file}"
+    echo ""
+    echo "--- User config: ${user_file} ---"
+    cat "${user_file}"
 }
-EOF
 
-echo "Set keyboard layout to: ${KB_LAYOUT} (from locale: ${LOCALE_LANG})"
+# Main
+main() {
+    if [ ! -d "${SKEL_DIR}" ]; then
+        log_error "Skeleton directory not found: ${SKEL_DIR}"
+        exit 1
+    fi
 
-# Vicinae settings sync
-VICINAE_DEST="${USER_CONFIG_DIR}/vicinae/settings.json"
-VICINAE_SRC="${DEFAULTS_DIR}/vicinae/settings.json"
+    if [ -n "${SHOW_DIFF_FILE}" ]; then
+        show_diff "${SHOW_DIFF_FILE}"
+        exit 0
+    fi
 
-# Check if user has custom config or just default import
-if [ ! -f "${VICINAE_DEST}" ]; then
-    echo "Creating default Vicinae settings..."
-    mkdir -p "$(dirname "${VICINAE_DEST}")"
-    cp "${VICINAE_SRC}" "${VICINAE_DEST}"
-elif grep -q "\"imports\".*\"${DEFAULTS_DIR}/vicinae/settings.json\"" "${VICINAE_DEST}" 2>/dev/null; then
-    # User only has the import statement (default config), overwrite with latest defaults
-    echo "Updating Vicinae settings to latest defaults..."
-    cp "${VICINAE_SRC}" "${VICINAE_DEST}"
-fi
+    if [ "${LIST_CHANGES}" = true ]; then
+        echo "=== Skeleton changes ==="
+        sync_apps
+        exit 0
+    fi
 
-# Keybindings cache
-# Generate cache for keybinding viewer
-echo "Generating keybindings cache..."
-if command -v tarion-keybindings-generate &>/dev/null; then
-    tarion-keybindings-generate > /dev/null
-fi
+    if [ "${FORCE}" = true ]; then
+        log_info "Force sync - copying all skeleton files"
+    fi
 
-# Update state
-mkdir -p "${STATE_DIR}"
-echo "${IMAGE_ID}" > "${STATE_FILE}"
+    sync_apps
+    seed_dms_config
 
-echo "✓ Tarion configuration sync complete!"
+    # Generate keybindings cache
+    if command -v tarion-keybindings-generate &>/dev/null; then
+        tarion-keybindings-generate > /dev/null
+    fi
+
+    log_info "Tarion sync complete!"
+    echo ""
+    echo "Your configs are in ${USER_DIR}"
+    echo "Skeleton is stored in ${LOCAL_DIR}"
+}
+
+main "$@"

@@ -1,0 +1,7 @@
+#!/bin/sh
+# Tarion session wrapper for greetd
+# Runs before the Wayland compositor (niri)
+# Sets up user config from skeleton
+
+tarion-sync
+exec niri

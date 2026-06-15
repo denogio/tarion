@@ -1,0 +1,24 @@
+// Greeter compositor config for greetd + dms-greeter.
+// niri runs ONLY the DMS greeter here — no user keybinds are defined on
+// purpose, so the login screen cannot spawn a terminal or other clients.
+
+hotkey-overlay {
+    skip-at-startup
+}
+
+environment {
+    DMS_RUN_GREETER "1"
+}
+
+// Borderless: the greeter is the only surface, no client-side decorations.
+prefer-no-csd
+
+gestures {
+  hot-corners {
+    off
+  }
+}
+
+layout {
+  background-color "#000000"
+}

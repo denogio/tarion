@@ -91,10 +91,10 @@ show_apps_menu() {
 }
 
 show_learn_menu() {
-  case $(menu "Learn" "  Keybindings\n  Tarion Docs\n  Hyprland Wiki\n󰣇  Fedora Docs\n󱆃  Neovim Docs\n  Bash Cheatsheet") in
-    *Keybindings*) open_in_editor ~/.config/tarion/hyprland.conf ;; # TODO: Show keybinding viewer
+  case $(menu "Learn" "  Keybindings\n  Tarion Docs\n  niri Wiki\n󰣇  Fedora Docs\n󱆃  Neovim Docs\n  Bash Cheatsheet") in
+    *Keybindings*) tarion-keybindings-show ;;
     *Tarion*) launch_web "https://github.com/denogio/tarion" ;;
-    *Hyprland*) launch_web "https://wiki.hypr.land/" ;;
+    *niri*) launch_web "https://yalter.github.io/niri/" ;;
     *Fedora*) launch_web "https://docs.fedoraproject.org/en-US/fedora/" ;;
     *Neovim*) launch_web "https://neovim.io/doc/" ;;
     *Bash*) launch_web "https://devhints.io/bash" ;;
@@ -113,7 +113,7 @@ show_trigger_menu() {
 }
 
 show_style_menu() {
-  case $(menu "Style" "�希  Theme Selector\n  Wallpaper (Quick)\n   📋 Wallpaper (Menu)...\n  Hyprland Config\n  About Tarion") in
+  case $(menu "Style" "�希  Theme Selector\n  Wallpaper (Quick)\n   📋 Wallpaper (Menu)...\n  niri Config\n  About Tarion") in
     *Theme*) 
         # TODO: Interactive theme selector
         notify-send "Coming soon" "Interactive theme selector"
@@ -149,7 +149,7 @@ show_style_menu() {
     *Wallpaper*Menu*)
         show_wallpaper_menu "$@"
         ;;
-    *Hyprland*) open_in_editor ~/.config/hypr/hyprland.conf ;;
+    *niri*) open_in_editor ~/.config/niri/config.kdl ;;
     *About*) open_in_editor /usr/share/tarion/defaults/README.md ;;
     *) show_main_menu "$@" ;;
   esac
@@ -281,7 +281,7 @@ show_pkg_menu() {
 show_update_menu() {
   case $(menu "Update" "󰀻  System Update\n  Config Reload\n󰀲  Firmware") in
     *System*) tarion-launch-floating-terminal-with-presentation "ujust update" ;;
-    *Config*) hyprctl reload && notify-send "Config reloaded" ;;
+    *Config*) notify-send "niri reloads config automatically" ;;
     *Firmware*) tarion-launch-floating-terminal-with-presentation "fwupdmgr refresh && fwupdmgr update" ;;
     *) show_main_menu "$@" ;;
   esac

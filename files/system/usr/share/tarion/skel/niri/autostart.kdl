@@ -1,0 +1,2 @@
+spawn-sh-at-startup "bash -lc 'exec vicinae server'"
+

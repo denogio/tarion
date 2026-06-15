@@ -15,7 +15,6 @@ SELECTION="$(printf '%s\n' \
     'Toggle night mode' \
     'Toggle notifications' \
     'Keyboard layout' \
-    'Reload Hyprland' \
     'Restart Vicinae' \
     'Display settings' \
     | vicinae dmenu --placeholder 'System control...')"
@@ -28,14 +27,7 @@ case "${SELECTION}" in
     'Log out')              loginctl terminate-user "$(id -un)" ;;
     'Toggle night mode')    dms ipc call nightlight toggle ;;
     'Toggle notifications') dms ipc call notifications toggle ;;
-    'Keyboard layout')
-        LAYOUT="$(localectl list-x11-keymap-layouts | vicinae dmenu --placeholder 'Select keyboard layout...')"
-        if [[ -n "${LAYOUT}" ]]; then
-            hyprctl keyword input:kb_layout "${LAYOUT}"
-            hyprctl reload
-        fi
-        ;;
-    'Reload Hyprland')      hyprctl reload ;;
+    'Keyboard layout')      niri msg action switch-layout next ;;
     'Restart Vicinae')      vicinae server --replace ;;
     'Display settings')     setsid wdisplays >/dev/null 2>&1 & ;;
     *) ;;

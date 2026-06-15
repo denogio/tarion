@@ -60,8 +60,10 @@ modules:
       enabled:
         - greetd.service
         - iwd.service
-      disabled:
-        - sddm.service
+        - power-profiles-daemon.service
+        - docker.service
+        - containerd.service
+        - waydroid-container.service
       masked:
         - wpa_supplicant.service
   

@@ -33,7 +33,7 @@ recipes/
 └── common/
     ├── greetd-modules.yml        # Login manager (greetd + dms)
     ├── common-modules.yml        # Core packages
-    ├── hyprland-modules.yml      # Window manager & plugins
+    ├── 01-desktop-core.yml       # Compositor & shell (niri + DMS)
     ├── developer-tools.yml       # Dev tools (code, neovim)
     ├── cargo-binaries.yml        # Rust apps
     ├── extra-packages.yml        # Additional packages

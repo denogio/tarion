@@ -17,19 +17,19 @@ Location: `~/.local/share/vicinae/scripts`
 
 See: https://docs.vicinae.com/scripts/getting-started
 
-## Hyprland
+## niri
 
 ### Location
-- Default: `/usr/share/hyprland/hyprland.conf`
-- User: `~/.config/hypr/hyprland.conf`
+- System defaults: `~/.local/share/tarion/niri/config.kdl` (synced from the image)
+- User: `~/.config/niri/config.kdl` (includes the system defaults, add overrides below)
 
 ### Key Files
-- `hyprland.conf` - Main configuration
+- `config.kdl` - Main configuration
+- `bindings.kdl` - Keybindings
+- `autostart.kdl` - Startup applications
 
 ### Reloading
-```bash
-hyprctl reload
-```
+niri reloads its configuration automatically whenever the file changes.
 
 ## DankMaterialShell (DMS)
 DMS provides the top bar, widgets, and notification management.
@@ -42,16 +42,11 @@ DMS provides the top bar, widgets, and notification management.
 dms reload
 ```
 
-## Hyprscrolling (Layout)
-Tarion uses a scrolling layout similar to PaperWM.
+## Scrollable Tiling (Layout)
+niri provides a native scrollable-tiling layout similar to PaperWM — no plugin required.
 
 ### Configuration
-Located in `/usr/share/tarion/defaults/hypr/looknfeel.conf`.
-
-### Common Dispatchers
-- `scroller:movefocus`: Navigate columns
-- `scroller:movewindow`: Move columns/windows
-- `scroller:cyclesize`: Change column width
+Configured in the `layout { ... }` block of `~/.config/niri/config.kdl`.
 
 ## Ghostty
 
@@ -113,7 +108,7 @@ tarion-backup
 ```
 
 Backs up:
-- Hyprland config
+- niri config
 - DMS config
 - Vicinae config
 - Neovim config

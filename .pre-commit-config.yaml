@@ -9,10 +9,10 @@ repos:
         pass_filenames: false
         always_run: true
 
-      - id: hyprland-validation
-        name: Hyprland Configuration Validation
-        entry: ./scripts/validate-hyprland.sh
+      - id: niri-validation
+        name: niri Configuration Validation
+        entry: ./scripts/validate-niri.sh
         language: script
-        files: hyprland\.conf$
+        files: \.kdl$
         pass_filenames: false
         always_run: true

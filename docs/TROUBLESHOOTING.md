@@ -35,13 +35,13 @@ journalctl -b -1 -xe
 
 ## Desktop Issues
 
-### Hyprland Won't Start
+### niri Won't Start
 ```bash
-# Check config
-hyprctl check ~/.config/hypr/hyprland.conf
+# Validate config
+niri validate -c ~/.config/niri/config.kdl
 
 # Check logs
-cat ~/.local/share/hyprland/hyprland.log
+journalctl --user -xe -t niri
 ```
 
 ### Waybar Missing
@@ -157,7 +157,7 @@ ps aux --sort=-%mem | head -10
 top
 
 # Check Wayland compositor
-systemctl --user status hyprland
+pgrep -a niri
 ```
 
 ### Slow Boot
@@ -203,11 +203,8 @@ journalctl -xe
 # User session logs
 journalctl --user -xe
 
-# Hyprland logs
-cat ~/.local/share/hyprland/hyprland.log
-
-# Waybar logs
-journalctl --user -xe -u waybar
+# niri logs
+journalctl --user -xe -t niri
 ```
 
 ### Get System Info

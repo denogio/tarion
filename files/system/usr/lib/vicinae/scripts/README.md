@@ -68,7 +68,6 @@ System controls menu for power management, display settings, network controls, a
 - 📝 System Logs
 - ⚙️ System Settings
 - 🔧 System Config
-- 🎯 Reload Hyprland
 - 🔄 Restart Vicinae
 
 **Usage:**
@@ -190,7 +189,7 @@ set -x  # Enable bash debug output
 - Style → Wallpaper (Quick) - Quick wallpaper actions
 - Style → Wallpaper (Menu) - Full wallpaper menu
 
-### Keybindings (Hyprland)
+### Keybindings (niri)
 - `SUPER+W` - Random wallpaper (via tarion-wallpaper-switcher)
 - `SUPER+SHIFT+W` - Next wallpaper (via tarion-wallpaper-switcher)
 - `SUPER+ALT+W` - Previous wallpaper (via tarion-wallpaper-switcher)

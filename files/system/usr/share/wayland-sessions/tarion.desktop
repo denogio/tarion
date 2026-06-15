@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=Tarion
+Comment=Tarion desktop (niri + DMS)
+Exec=/usr/bin/tarion-session
+Type=Application
+DesktopNames=tarion

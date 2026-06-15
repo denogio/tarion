@@ -19,21 +19,36 @@ modules:
     install:
       install-weak-deps: false
       packages:
-        # Greeter packages
         - greetd
         - dms-greeter
-        
-        # Common system packages
+        - gum
         - just
         - powerstat
-        
-        # UBlue OS packages
         - ublue-os-udev-rules
         - ublue-os-update-services
-        
-        # Bluetooth stack
         - bluez
         - bluez-tools
         - bluez-cups
         - blueman
-        # blueberry removed - not available in Fedora 43, blueman is sufficient
+        - iwd
+
+  # Power & desktop utilities
+  - type: dnf
+    install:
+      install-weak-deps: false
+      packages:
+        - power-profiles-daemon
+        - adw-gtk3-theme
+        - sshfs
+        - swappy
+        - gvfs-smb
+
+  # NOTE: systemd unit enablement lives in 06-services.yml, which runs after
+  # 03-apps.yml installs the packages (gcr, etc.). Enabling here failed because
+  # those units don't exist yet at this stage.
+
+  # Final cleanup scripts
+  - type: script
+    scripts:
+      - removeunusedrepos.sh
+      - regenerateinitramfs.sh

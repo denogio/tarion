@@ -4,6 +4,15 @@ All notable changes to Tarion will be documented in this file.
 
 ## [Unreleased]
 
+### Changed
+- **Removed Hyprland; niri is now the only compositor.** Dropped the `hyprland`
+  packages/COPR, `files/system/hyprland/` configs, the `hyprland.desktop` session,
+  and the `hypr` skeleton. Ported utility scripts (audio switch, window close-all/pop,
+  keybindings viewer, menu, backup/restore, Vicinae actions) to niri (`niri msg`,
+  `dms keybinds show niri`). Replaced the Hyprland config-validation gate with
+  `scripts/validate-niri.sh` (`niri validate`).
+- Added `gvfs-smb` for Samba share access in Files.
+
 ### Added
 - Tarion Wallpaper Switcher - comprehensive wallpaper management using DMS IPC
   - CLI tool: `tarion-wallpaper-switcher` with random, next, prev, get, list, set, from-theme commands
