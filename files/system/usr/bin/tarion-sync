@@ -66,67 +66,64 @@ write_manifest() {
     echo "${content}" > "${MANIFEST}"
 }
 
-# Ensure user config has tarion include header
+# Entry-point configs that get a user-side include stub in ~/.config.
+# Everything else in the skeleton is pulled in transitively from
+# ~/.local/share/tarion/ by these entry points and must NOT be stubbed
+# (e.g. niri/config.kdl includes bindings.kdl, autostart.kdl, dms/*.kdl).
+is_entry_point() {
+    case "${1}" in
+        niri/config.kdl) return 0 ;;
+        *) return 1 ;;
+    esac
+}
+
+# Write the managed user-side stub that includes the system default for rel_path.
+write_tarion_stub() {
+    local rel_path="${1}"
+    local user_conf="${USER_DIR}/${rel_path}"
+    cat > "${user_conf}" <<EOF
+//
+//                                     ▄▄▄ ▄▄ ▄▄
+//     ██              ▀▀               █  █ ▀ █
+//    ▀██▀▀ ▀▀█▄ ████▄ ██  ▄███▄ ████▄
+//     ██  ▄█▀██ ██ ▀▀ ██  ██ ██ ██ ██
+//     ██  ▀█▄██ ██    ██▄ ▀███▀ ██ ██
+//
+//  System defaults: keybinds, layout, animations, window rules.
+//  Updated when you rebuild Tarion.
+//
+//  Inspect: bat ~/.local/share/tarion/${rel_path}
+//
+
+include "~/.local/share/tarion/${rel_path}"
+
+// ═══════════════════════════════════════════════════════════════
+//   NO EDITS ABOVE THIS LINE - keep the include intact
+// ═══════════════════════════════════════════════════════════════
+
+// user config can be placed here
+EOF
+}
+
+# Ensure the user's entry-point config carries the tarion include.
+# Existing files that already include the default are left untouched so
+# user customizations below the include line are preserved.
 ensure_tarion_include() {
-    local app="${1}"
-    local skel_file="${2}"
-    local basename
-    basename=$(basename "${skel_file}")
-    local user_conf="${USER_DIR}/${app}/${basename}"
-    local rel_path="${app}/${basename}"
+    local rel_path="${1}"
+    local user_conf="${USER_DIR}/${rel_path}"
+    local include_line="include \"~/.local/share/tarion/${rel_path}\""
 
     mkdir -p "$(dirname "${user_conf}")"
 
     if [ ! -f "${user_conf}" ]; then
-        # First run: create with tarion include
-        cat > "${user_conf}" <<'EOF'
-//
-//                                     ▄▄▄ ▄▄ ▄▄
-//     ██              ▀▀               █  █ ▀ █
-//    ▀██▀▀ ▀▀█▄ ████▄ ██  ▄███▄ ████▄
-//     ██  ▄█▀██ ██ ▀▀ ██  ██ ██ ██ ██
-//     ██  ▀█▄██ ██    ██▄ ▀███▀ ██ ██
-//
-//  System defaults: keybinds, layout, animations, window rules.
-//  Updated when you rebuild Tarion.
-//
-//  Inspect: bat ~/.local/share/tarion/niri/config.kdl
-//
-
-include "~/.local/share/tarion/niri/config.kdl"
-
-// ═══════════════════════════════════════════════════════════════
-//   NO EDITS ABOVE THIS LINE - keep the include intact
-// ═══════════════════════════════════════════════════════════════
-
-// user config can be placed here
-EOF
+        write_tarion_stub "${rel_path}"
         log_info "Created ${rel_path} with tarion include"
-    elif ! grep -q "TARION MANAGED" "${user_conf}"; then
-        # User config exists but no tarion marker - add it (replace with template)
-        cat > "${user_conf}" <<'EOF'
-//
-//                                     ▄▄▄ ▄▄ ▄▄
-//     ██              ▀▀               █  █ ▀ █
-//    ▀██▀▀ ▀▀█▄ ████▄ ██  ▄███▄ ████▄
-//     ██  ▄█▀██ ██ ▀▀ ██  ██ ██ ██ ██
-//     ██  ▀█▄██ ██    ██▄ ▀███▀ ██ ██
-//
-//  System defaults: keybinds, layout, animations, window rules.
-//  Updated when you rebuild Tarion.
-//
-//  Inspect: bat ~/.local/share/tarion/niri/config.kdl
-//
-
-include "~/.local/share/tarion/niri/config.kdl"
-
-// ═══════════════════════════════════════════════════════════════
-//   NO EDITS ABOVE THIS LINE - keep the include intact
-// ═══════════════════════════════════════════════════════════════
-
-// user config can be placed here
-EOF
-        log_info "Added tarion include to existing ${rel_path}"
+    elif ! grep -qF "${include_line}" "${user_conf}"; then
+        # Existing file without our include: back it up before replacing
+        # so we never silently destroy user content.
+        cp "${user_conf}" "${user_conf}.bak.$(date +%Y%m%d%H%M%S)"
+        write_tarion_stub "${rel_path}"
+        log_warn "Replaced ${rel_path} with tarion include (backup saved)"
     fi
 }
 
@@ -149,9 +146,6 @@ sync_apps() {
     while IFS= read -r -d '' skel_file; do
         local rel_path="${skel_file#"${SKEL_DIR}"/}"
         local local_file="${LOCAL_DIR}/${rel_path}"
-
-        # Get app name (first directory)
-        local app="${rel_path%%/*}"
 
         # Skip backup files
         [[ "${rel_path}" == *".save"* ]] && continue
@@ -178,9 +172,10 @@ sync_apps() {
                 echo -e "${CYAN}${rel_path}${NC}"
             else
                 copy_skel_to_local "${skel_file}"
-                # Ensure user config has tarion include if this is a config file
-                if [[ "${rel_path}" == *".kdl" || "${rel_path}" == *".conf" ]]; then
-                    ensure_tarion_include "${app}" "${rel_path}"
+                # Only entry-point configs get a user-side include stub;
+                # transitively-included files live solely in ${LOCAL_DIR}.
+                if is_entry_point "${rel_path}"; then
+                    ensure_tarion_include "${rel_path}"
                 fi
             fi
             changed_count=$((changed_count + 1))
