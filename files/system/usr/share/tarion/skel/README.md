@@ -55,6 +55,19 @@ skel/
   is reached through its includes, so there is intentionally no
   `~/.config/niri/bindings.kdl` or `autostart.kdl`.
 
+> **Personal settings go in `~/.config/niri/config.kdl`, below the include line.**
+> The files under `~/.local/share/tarion/niri/` (incl. `bindings.kdl`,
+> `autostart.kdl`) are system defaults and are **overwritten on every update** —
+> never edit them.
+>
+> - **New** binds / startup apps: add your own `binds { … }` / `spawn-at-startup`
+>   in `config.kdl` after the include. Use key combos not already in the default
+>   `bindings.kdl`.
+> - **Changing an existing default key**: niri errors on duplicate keybinds, so you
+>   cannot re-bind a default key from `config.kdl`. Either bind your action to a
+>   different key, or change the default in the skeleton (`skel/niri/bindings.kdl`)
+>   so the fix ships for everyone.
+
 ## Manual Operations
 
 ```bash

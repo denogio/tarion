@@ -4,7 +4,5 @@ binds {
     Mod+Space { spawn "vicinae" "toggle"; }
     Ctrl+Alt+Space { spawn "vicinae" "vicinae://launch/wm/switch-windows"; }
     Super+Shift+c { spawn "vicinae" "vicinae://launch/clipboard/history"; }
-    Mod+w { spawn-sh "~/.local/bin/work-tracker prompt"; }
-    Mod+Shift+w { spawn-sh "~/.local/bin/work-tracker log"; }
 
 }

@@ -1,3 +1,2 @@
-spawn-at-startup "/home/dehoej/.local/bin/fix-user-environment"
 spawn-sh-at-startup "bash -lc 'exec vicinae server'"
 
