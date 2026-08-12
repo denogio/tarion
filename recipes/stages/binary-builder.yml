@@ -1,0 +1,12 @@
+name: binary-stage
+from: docker.io/library/debian:stable-slim
+modules:
+  - type: script
+    snippets:
+      - apt-get update && apt-get install -y --no-install-recommends ca-certificates curl
+      - curl --fail --location --retry 3 --output /tmp/matugen.tar.gz https://github.com/InioX/matugen/releases/download/v4.1.0/matugen-4.1.0-x86_64.tar.gz
+      - echo "ba46c324d578c782d42644f526df559be81d53352926f5bb2826c98d1340beb0  /tmp/matugen.tar.gz" | sha256sum --check --strict
+      - tar --extract --gzip --file /tmp/matugen.tar.gz --directory /usr/local/bin matugen
+      - curl --fail --location --retry 3 --output /tmp/satty.tar.gz https://github.com/Satty-org/Satty/releases/download/v0.22.0/satty-x86_64-unknown-linux-gnu.tar.gz
+      - echo "eb7a028c4a5ce331c2f355add8e2b807a7d697fe4495f7e1965786a4f6bcd5b8  /tmp/satty.tar.gz" | sha256sum --check --strict
+      - tar --extract --gzip --file /tmp/satty.tar.gz --directory /usr/local/bin ./satty --strip-components=1

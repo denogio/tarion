@@ -20,7 +20,7 @@ blue-build build recipes/recipe.yml
 ### Build Stages
 
 Tarion uses a multi-stage build:
-1. **cargo-builder** - Builds Rust applications (bluetui, impala)
+1. **binary-builder** - Downloads and verifies pinned Matugen and Satty release binaries
 2. **Main build** - Applies all modules to Universal Blue base
 
 ### Module Structure
@@ -29,13 +29,13 @@ Tarion uses a multi-stage build:
 recipes/
 ├── recipe.yml                    # Main recipe
 ├── stages/
-│   └── cargo-builder.yml         # Rust build stage
+│   └── binary-builder.yml        # Verified release binaries
 └── common/
     ├── greetd-modules.yml        # Login manager (greetd + dms)
     ├── common-modules.yml        # Core packages
     ├── 01-desktop-core.yml       # Compositor & shell (niri + DMS)
     ├── developer-tools.yml       # Dev tools (code, neovim)
-    ├── cargo-binaries.yml        # Rust apps
+    ├── 04-binaries.yml           # Release binaries
     ├── extra-packages.yml        # Additional packages
     ├── proprietary-modules.yml   # Proprietary codecs
     └── final-modules.yml         # Cleanup
@@ -67,9 +67,9 @@ Enable COPR repo and install:
       - package-name
 ```
 
-### Rust/Cargo Packages
-1. Add to `recipes/stages/cargo-builder.yml`
-2. Copy binary in `recipes/common/cargo-binaries.yml`
+### Upstream Release Binaries
+1. Add a pinned release URL and SHA256 checksum to `recipes/stages/binary-builder.yml`
+2. Copy the verified binary in `recipes/stages/04-binaries.yml`
 
 ## Adding Configuration Files
 

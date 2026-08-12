@@ -12,9 +12,9 @@ image-version: 44 # Fedora 44
 platforms:
   - linux/amd64
 
-# Define build stages - for building Rust binaries
+# Define build stages for verified upstream release binaries
 stages:
-  - from-file: stages/cargo-builder.yml  # Rust binaries build stage
+  - from-file: stages/binary-builder.yml
 
 # Define modules - optimized for layer caching
 modules:
@@ -23,6 +23,6 @@ modules:
   - from-file: stages/02-tools.yml        # Developer tools
   - from-file: stages/02b-virt-net.yml   # Virtualization and networking (Docker, Netbird)
   - from-file: stages/03-apps.yml         # User applications
-  - from-file: stages/04-cargo.yml        # Rust binaries copy
+  - from-file: stages/04-binaries.yml     # Release binaries copy
   - from-file: stages/05-config.yml       # Files and configurations
   - from-file: stages/06-services.yml     # Systemd services and final setup

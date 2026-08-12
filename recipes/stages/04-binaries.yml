@@ -1,0 +1,12 @@
+# yaml-language-server: $schema=https://schema.blue-build.org/module-stage-list-v1.json
+modules:
+  # Copy verified upstream release binaries from binary-builder stage
+  - type: copy
+    from: binary-stage
+    src: /usr/local/bin/matugen
+    dest: /usr/bin/matugen
+
+  - type: copy
+    from: binary-stage
+    src: /usr/local/bin/satty
+    dest: /usr/bin/satty
