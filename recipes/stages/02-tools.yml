@@ -24,6 +24,14 @@ modules:
         - code
         - neovim
         - antigravity
+
+        # Build toolchain and packaging
+        - gcc-c++
+        - flatpak-builder
+        - gtksourceview5
+
+        # System monitoring
+        - iotop
         
         # Input methods
         - wiremix

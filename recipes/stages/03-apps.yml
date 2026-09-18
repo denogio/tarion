@@ -29,6 +29,7 @@ modules:
         - libopenjph
         - heif-pixbuf-loader
         - ffmpegthumbnailer
+        - glycin-thumbnailer
         # Note: `rar` (proprietary archiver) was removed — not available in Fedora repos.
         # Users who need RAR support can install `unrar` (free extractor) from RPM Fusion.
     
@@ -100,6 +101,15 @@ modules:
           - old: libswscale-free
             new: libswscale
   
+  # RPM Fusion repo definitions for runtime layering by the user.
+  # Installed after the negativo17 transaction above so the multimedia stack is
+  # already resolved from fedora-multimedia and cannot be pulled from RPM Fusion.
+  - type: dnf
+    install:
+      packages:
+        - https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-%OS_VERSION%.noarch.rpm
+        - https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-%OS_VERSION%.noarch.rpm
+
   # Flatpak setup
   - type: default-flatpaks
     configurations:

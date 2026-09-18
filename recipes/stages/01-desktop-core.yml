@@ -7,6 +7,7 @@ modules:
         enable:
           - scottames/ghostty
           - avengemedia/dms
+          - avengemedia/danklinux  # danksearch
           - washkinazy/wayland-wm-extras
     install:
       install-weak-deps: false
@@ -17,6 +18,7 @@ modules:
         # Window manager and desktop shell
         - niri
         - dms
+        - danksearch
 
         # Wayland components
         - xdg-desktop-portal-gnome
