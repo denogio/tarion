@@ -23,13 +23,9 @@ modules:
         - qemu-user-static
         - waydroid
 
-  # NetBird mesh VPN (daemon + tray UI) from the upstream NetBird repo
-  - type: dnf
-    repos:
-      files:
-        - netbird.repo
-    install:
-      install-weak-deps: false
-      packages:
-        - netbird
-        - netbird-ui
+  # NetBird mesh VPN (daemon + tray UI) from the upstream NetBird repo.
+  # Installed via script rather than the dnf module because the netbird RPM's
+  # %post scriptlet fails inside a container build; see the script for details.
+  - type: script
+    scripts:
+      - installnetbird.sh

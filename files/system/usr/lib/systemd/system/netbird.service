@@ -1,0 +1,24 @@
+# NetBird ships no unit file in its RPM; the %post scriptlet generates one by
+# running `netbird service install`, which cannot work during a container build.
+# The package is therefore installed with scriptlets disabled (see
+# files/scripts/installnetbird.sh) and this unit is shipped with the image.
+# Kept in sync with the output of `netbird service install` (v0.78.2).
+[Unit]
+Description=NetBird mesh network client
+ConditionFileIsExecutable=/usr/bin/netbird
+After=network.target syslog.target
+
+[Service]
+StartLimitInterval=5
+StartLimitBurst=10
+ExecStart=/usr/bin/netbird "service" "run" "--log-level" "info" "--daemon-addr" "unix:///var/run/netbird.sock" "--log-file" "/var/log/netbird/client.log"
+Restart=always
+RestartSec=120
+EnvironmentFile=-/etc/sysconfig/netbird
+Environment=SYSTEMD_UNIT=netbird
+# The generated unit relies on netbird creating its own log directory; declare
+# it so the service also starts cleanly on a fresh deployment.
+LogsDirectory=netbird
+
+[Install]
+WantedBy=multi-user.target
