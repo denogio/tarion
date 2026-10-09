@@ -14,7 +14,7 @@
 ## Tech Stack
 
 ### Core Technologies
-- **Base**: Universal Blue / Fedora Atomic 43 (rpm-ostree)
+- **Base**: Universal Blue / Fedora Atomic 44 (rpm-ostree)
 - **Window Manager**: niri (scrollable-tiling Wayland compositor, PaperWM-style)
 - **Desktop Shell**: DankMaterialShell (DMS)
 - **Launcher**: Vicinae (keyboard-driven, extensible)
@@ -452,7 +452,7 @@ tarion-pkg install           # Re-run interactive install
 - GitHub Actions block broken builds
 
 ### Development Environment
-- Test in distrobox: `distrobox create -i fedora:41`
+- Test in distrobox: `distrobox create -i registry.fedoraproject.org/fedora:44`
 - ShellCheck in container: `distrobox enter -- sudo dnf install ShellCheck`
 - Validate before committing: Run just commands and scripts
 

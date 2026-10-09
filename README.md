@@ -339,7 +339,7 @@ This project uses ShellCheck to ensure bash script quality and follows strict co
 **Running ShellCheck Locally:**
 ```bash
 # Install shellcheck in distrobox container
-distrobox create -n shellcheck-dev -i registry.fedoraproject.org/fedora:41 --yes
+distrobox create -n shellcheck-dev -i registry.fedoraproject.org/fedora:44 --yes
 distrobox enter shellcheck-dev -- sudo dnf install -y ShellCheck
 
 # Run shellcheck on all scripts
@@ -369,7 +369,7 @@ pipx install pre-commit
 pre-commit install
 
 # Create shellcheck container
-distrobox create -n shellcheck-dev -i registry.fedoraproject.org/fedora:41 --yes
+distrobox create -n shellcheck-dev -i registry.fedoraproject.org/fedora:44 --yes
 distrobox enter shellcheck-dev -- sudo dnf install -y ShellCheck
 
 # Test your changes
