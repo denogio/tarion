@@ -2,7 +2,11 @@
 
 auth            required        pam_securetty.so
 auth            requisite       pam_nologin.so
-auth            include         login
+# password-auth (not login/system-auth) keeps login password-only, like GDM's
+# gdm-password: pam_gnome_keyring needs the password to unlock the keyring.
+# Fingerprint still works for sudo, polkit and the DMS lock screen.
+auth            substack        password-auth
+auth            include         postlogin
 auth            optional        pam_gnome_keyring.so
 account         include         login
 session         include         login

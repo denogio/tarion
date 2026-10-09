@@ -46,6 +46,10 @@ modules:
         # Hardware monitoring
         - lm_sensors
 
+        # Fingerprint auth (sudo/polkit via authselect, DMS lock screen and greeter)
+        - fprintd
+        - fprintd-pam
+
   # NOTE: systemd unit enablement lives in 06-services.yml, which runs after
   # 03-apps.yml installs the packages (gcr, etc.). Enabling here failed because
   # those units don't exist yet at this stage.

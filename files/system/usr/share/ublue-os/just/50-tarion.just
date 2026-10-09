@@ -32,6 +32,16 @@ list:
     echo "  tarion-pkg-present         - Check package presence"
     echo ""
 
+# Enroll a fingerprint and enable fingerprint auth for sudo, polkit and login
+setup-fingerprint:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    if ! authselect current | grep -q with-fingerprint; then
+        sudo authselect enable-feature with-fingerprint
+    fi
+    fprintd-enroll
+    echo "Enable 'Fingerprint' in DMS Settings → Lock Screen to use it on the lock screen."
+
 # Update Tarion scripts from system
 update-scripts:
     tarion-update-scripts
