@@ -1,5 +1,6 @@
 name: binary-stage
-from: docker.io/library/debian:stable-slim
+# Google's Docker Hub mirror: avoids Docker Hub's unauthenticated pull rate limit in CI
+from: mirror.gcr.io/library/debian:stable-slim
 modules:
   - type: script
     snippets:
